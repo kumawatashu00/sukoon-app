@@ -29,15 +29,21 @@
   <!-- ================= 1. HOME SCREEN (LIGHT THEME) ================= -->
   <div id="homeScreen" class="flex-1 flex flex-col justify-between p-4 md:p-6 max-w-lg w-full mx-auto overflow-y-auto">
     
-    <!-- Top Action Bar -->
+    <!-- Top Action Bar (Language + Auth/Logout) -->
     <div class="flex justify-between items-center pt-2">
       <button onclick="toggleLanguage()" id="langToggleBtn" class="px-3 py-1.5 rounded-2xl bg-white border border-slate-200 text-xs font-bold text-slate-700 hover:bg-slate-50 shadow-sm flex items-center gap-1.5 transition">
         <span>🌐</span> <span id="langText">English</span>
       </button>
 
-      <button onclick="toggleAuthModal()" id="authNavBtn" class="px-3 py-1.5 rounded-2xl bg-white border border-rose-200 text-xs font-bold text-rose-600 hover:bg-rose-50 shadow-sm transition">
-        👤 <span data-i18n="loginBtn">लॉगिन / साइनअप</span>
-      </button>
+      <!-- User Auth State -->
+      <div id="authContainer" class="flex items-center gap-1.5">
+        <button onclick="toggleAuthModal()" id="authNavBtn" class="px-3 py-1.5 rounded-2xl bg-white border border-rose-200 text-xs font-bold text-rose-600 hover:bg-rose-50 shadow-sm transition">
+          👤 <span data-i18n="loginBtn">लॉगिन / साइनअप</span>
+        </button>
+        <button onclick="logoutUser()" id="logoutNavBtn" class="hidden px-2.5 py-1.5 rounded-2xl bg-rose-50 border border-rose-200 text-xs font-bold text-rose-600 hover:bg-rose-100 shadow-sm transition" title="लॉगआउट करें">
+          🚪 बाहर निकलें
+        </button>
+      </div>
     </div>
 
     <!-- Soft Brand Logo -->
@@ -96,7 +102,7 @@
           <div class="text-left">
             <div class="flex items-center gap-2">
               <h2 class="text-sm font-black text-indigo-900" data-i18n="streamHubTitle">क्रिएटर लाइव हब</h2>
-              <span class="text-[9px] bg-indigo-100 text-indigo-700 px-2 py-0.5 rounded-full font-bold">Creators</span>
+              <span class="text-[9px] bg-indigo-100 text-indigo-700 px-2 py-0.5 rounded-full font-bold">Live Streams</span>
             </div>
             <p class="text-[10px] text-slate-500 mt-0.5" data-i18n="streamHubDesc">क्रिएटर्स की प्रोफाइल, शेड्यूल देखें व गिफ़्ट भेजें</p>
           </div>
@@ -130,7 +136,6 @@
     </header>
 
     <main class="flex-1 flex flex-col md:flex-row overflow-hidden p-2 gap-2">
-      <!-- Video Section -->
       <section id="videoSection" class="hidden flex-1 flex flex-row md:flex-col gap-2 min-h-[190px] md:min-h-0 relative">
         <div class="relative flex-1 rounded-3xl overflow-hidden border border-slate-200 bg-slate-200 flex items-center justify-center shadow-inner">
           <video id="remoteVideo" autoplay playsinline class="w-full h-full video-feed"></video>
@@ -153,7 +158,6 @@
         </div>
       </section>
 
-      <!-- Chat Section -->
       <section class="flex-1 flex flex-col rounded-3xl border border-slate-200 bg-white shadow-sm overflow-hidden">
         <div id="messagesBox" class="flex-1 overflow-y-auto p-4 space-y-2.5">
           <div class="text-center py-4 text-xs text-slate-400 font-medium">🌱 सुकून अनाम चैट रूम</div>
@@ -170,14 +174,16 @@
   </div>
 
 
-  <!-- ================= 3. LIVE STREAM HUB (LIGHT CREATOR CARDS & GIFTS) ================= -->
+  <!-- ================= 3. LIVE STREAM HUB (WITH SCREEN SHARE & VIEWERS RESTRICTION) ================= -->
   <div id="streamHubScreen" class="hidden flex-1 flex flex-col overflow-hidden max-w-3xl w-full mx-auto p-4 bg-[#f8fafc]">
     <header class="flex justify-between items-center pb-3 border-b border-slate-200">
       <div class="flex items-center gap-2">
         <button onclick="closeStreamHub()" class="px-3 py-1.5 rounded-2xl bg-white border border-slate-200 text-xs font-bold text-slate-700 shadow-sm">← बैक</button>
         <h2 class="text-base font-black text-slate-800">📡 सुकून लाइव हब</h2>
       </div>
-      <button onclick="promptStartBroadcast()" id="startBroadcastBtn" class="px-3.5 py-1.5 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-bold rounded-2xl text-xs shadow-md">
+      
+      <!-- Only Approved Creators can see this button -->
+      <button onclick="promptStartBroadcast()" id="startBroadcastBtn" class="hidden px-3.5 py-1.5 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-bold rounded-2xl text-xs shadow-md">
         🔴 लाइव स्ट्रीम शुरू करें
       </button>
     </header>
@@ -191,17 +197,31 @@
       <button onclick="filterStreams('DeepTalks')" class="stream-cat-btn px-3.5 py-1.5 rounded-2xl text-xs font-semibold bg-white border border-slate-200 text-slate-600 shrink-0" data-cat="DeepTalks">☕ Deep Talks</button>
     </div>
 
-    <!-- Active Video Player with Gift Toolbar -->
+    <!-- Active Video Player with Screen Share & Gift Toolbar -->
     <div id="activeStreamPlayer" class="hidden mt-2 rounded-3xl overflow-hidden bg-black border border-slate-200 relative aspect-video flex items-center justify-center shadow-lg">
       <video id="streamVideoPlayer" autoplay playsinline class="w-full h-full object-cover"></video>
       <div class="absolute top-3 left-3 bg-rose-600 text-white px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase shadow">LIVE</div>
-      <button onclick="leaveCurrentStream()" class="absolute top-3 right-3 bg-white/80 hover:bg-white px-3 py-1 rounded-2xl text-xs font-bold text-slate-800 shadow">✕ बंद करें</button>
+      
+      <!-- Streamer Controls (Screen Share & Camera Switch) -->
+      <div id="streamerLiveControls" class="hidden absolute top-3 right-3 flex gap-2">
+        <button onclick="toggleScreenShare()" id="screenShareBtn" class="bg-white/90 hover:bg-white text-indigo-700 px-3 py-1 rounded-2xl text-xs font-bold shadow">
+          📲 स्क्रीन शेयर
+        </button>
+        <button onclick="stopBroadcast()" class="bg-rose-600 text-white hover:bg-rose-700 px-3 py-1 rounded-2xl text-xs font-bold shadow">
+          ⏹️ स्ट्रीम बंद करें
+        </button>
+      </div>
+
+      <!-- Viewer Close Button -->
+      <button onclick="leaveCurrentStream()" id="viewerCloseStreamBtn" class="hidden absolute top-3 right-3 bg-white/80 hover:bg-white px-3 py-1 rounded-2xl text-xs font-bold text-slate-800 shadow">
+        ✕ बंद करें
+      </button>
       
       <!-- Live Gift Popup Notification Area -->
       <div id="giftNotificationArea" class="absolute inset-0 flex items-center justify-center pointer-events-none z-30"></div>
 
       <!-- Bottom Gift Bar for Viewers -->
-      <div class="absolute bottom-3 inset-x-3 bg-white/90 backdrop-blur-md p-2 rounded-2xl flex justify-between items-center border border-white/40 shadow-lg">
+      <div id="viewerGiftBar" class="hidden absolute bottom-3 inset-x-3 bg-white/90 backdrop-blur-md p-2 rounded-2xl flex justify-between items-center border border-white/40 shadow-lg">
         <div class="text-xs font-bold text-slate-800 flex items-center gap-1.5">
           <span>🎁 क्रिएटर को गिफ़्ट भेजें:</span>
         </div>
@@ -223,7 +243,7 @@
   </div>
 
 
-  <!-- ================= 4. AUTH MODAL (DETAILED CREATOR FORM) ================= -->
+  <!-- ================= 4. AUTH MODAL ================= -->
   <div id="authModal" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
     <div class="bg-white border border-slate-200 p-6 rounded-3xl max-w-sm w-full space-y-4 shadow-2xl relative max-h-[90vh] overflow-y-auto">
       <button onclick="toggleAuthModal()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-700">✕</button>
@@ -273,16 +293,6 @@
           <div>
             <label class="text-[11px] text-rose-600 font-bold block mb-1">लाइव शेड्यूल / समय*</label>
             <input type="text" id="creatorSchedule" placeholder="उदा. रोज़ शाम 8:00 बजे" class="w-full bg-slate-50 border border-slate-200 rounded-2xl p-3 text-xs text-slate-800">
-          </div>
-
-          <div>
-            <label class="text-[11px] text-rose-600 font-bold block mb-1">प्रोफ़ाइल फोटो / लोगो लिंक (Avatar URL)</label>
-            <input type="text" id="creatorAvatar" placeholder="https://..." class="w-full bg-slate-50 border border-slate-200 rounded-2xl p-3 text-xs text-slate-800">
-          </div>
-
-          <div>
-            <label class="text-[11px] text-rose-600 font-bold block mb-1">YouTube / Instagram लिंक</label>
-            <input type="text" id="creatorSocial" placeholder="https://instagram.com/..." class="w-full bg-slate-50 border border-slate-200 rounded-2xl p-3 text-xs text-slate-800">
           </div>
 
           <div>
@@ -341,7 +351,10 @@
     let currentMode = 'text';
     let selectedTag = 'All';
     let localStream = null;
+    let isScreenSharing = false;
+    let cameraStreamBackup = null;
     let peerConnection = null;
+    let streamViewerPeers = {}; // { viewerSocketId: RTCPeerConnection }
     let isInitiator = false;
     let isMuted = false;
     let isCamOff = false;
@@ -363,8 +376,52 @@
 
     window.addEventListener("load", () => {
       fixMobileViewport();
+      restoreSavedUser();
       initSocket();
     });
+
+    function restoreSavedUser() {
+      const saved = localStorage.getItem("sukoon_active_user");
+      if (saved) {
+        try {
+          loggedInUser = JSON.parse(saved);
+          updateUserUI();
+        } catch (e) { localStorage.removeItem("sukoon_active_user"); }
+      }
+    }
+
+    function updateUserUI() {
+      const authBtn = document.getElementById('authNavBtn');
+      const logoutBtn = document.getElementById('logoutNavBtn');
+      const startBroadcastBtn = document.getElementById('startBroadcastBtn');
+
+      if (loggedInUser) {
+        authBtn.innerText = "✔️ " + (loggedInUser.channelName || loggedInUser.email.split('@')[0]);
+        authBtn.onclick = null;
+        logoutBtn.classList.remove('hidden');
+
+        // केवल स्वीकृत क्रिएटर को ही लाइव ब्रॉडकास्ट बटन दिखेगा
+        if (loggedInUser.role === 'creator' && loggedInUser.isApprovedCreator) {
+          startBroadcastBtn.classList.remove('hidden');
+        } else {
+          startBroadcastBtn.classList.add('hidden');
+        }
+      } else {
+        authBtn.innerText = "👤 " + translations[currentLang].loginBtn;
+        authBtn.onclick = toggleAuthModal;
+        logoutBtn.classList.add('hidden');
+        startBroadcastBtn.classList.add('hidden');
+      }
+    }
+
+    function logoutUser() {
+      if (confirm("क्या आप सचमुच लॉगआउट करना चाहते हैं?")) {
+        localStorage.removeItem("sukoon_active_user");
+        loggedInUser = null;
+        updateUserUI();
+        alert("आप सफलतापूर्वक लॉगआउट हो गए हैं!");
+      }
+    }
 
     function fixMobileViewport() {
       if (window.visualViewport) {
@@ -384,6 +441,7 @@
         const key = el.getAttribute('data-i18n');
         if (translations[currentLang][key]) el.innerText = translations[currentLang][key];
       });
+      updateUserUI();
     }
 
     function toggleAuthModal() {
@@ -418,13 +476,10 @@
         const channelName = document.getElementById('creatorChannelName').value.trim();
         const category = document.getElementById('creatorCategory').value;
         const schedule = document.getElementById('creatorSchedule').value.trim();
-        const avatar = document.getElementById('creatorAvatar').value.trim();
-        const socialLink = document.getElementById('creatorSocial').value.trim();
         const bio = document.getElementById('creatorBio').value.trim();
 
         if (!channelName || !bio) return alert("चैनल का नाम और बायो आवश्यक है!");
-
-        payload = { ...payload, channelName, category, schedule, avatar, socialLink, bio };
+        payload = { ...payload, channelName, category, schedule, bio };
       }
 
       try {
@@ -436,13 +491,16 @@
         const data = await res.json();
         if (data.success) {
           loggedInUser = data.user;
-          document.getElementById('authNavBtn').innerText = "✔️ " + (loggedInUser.channelName || email.split('@')[0]);
+          localStorage.setItem("sukoon_active_user", JSON.stringify(loggedInUser));
+          updateUserUI();
           toggleAuthModal();
           alert(loggedInUser.role === 'creator' && !loggedInUser.isApprovedCreator
             ? "क्रिएटर रजिस्ट्रेशन सबमिट हो गया! एडमिन की मंज़ूरी के बाद आप लाइव स्ट्रीम शुरू कर सकेंगे।"
             : "सफलतापूर्वक लॉगिन हो गया!");
+        } else {
+          alert(data.error || "लॉगिन असफल");
         }
-      } catch (e) { alert("लॉगिन असफल रहा"); }
+      } catch (e) { alert("लॉगिन नेटवर्क एरर"); }
     }
 
     function selectTag(tag) {
@@ -465,6 +523,7 @@
       }
       document.getElementById('homeScreen').classList.add('hidden');
       document.getElementById('streamHubScreen').classList.remove('hidden');
+      updateUserUI();
       socket.emit("get_streams");
     }
 
@@ -487,8 +546,8 @@
     }
 
     function promptStartBroadcast() {
-      if (!loggedInUser || !loggedInUser.isApprovedCreator) {
-        alert("⚠️ आप अभी केवल दर्शक हैं। लाइव स्ट्रीम करने के लिए क्रिएटर अप्रूवल आवश्यक है।");
+      if (!loggedInUser || loggedInUser.role !== 'creator' || !loggedInUser.isApprovedCreator) {
+        alert("⚠️ केवल स्वीकृत क्रिएटर ही लाइव स्ट्रीम कर सकते हैं।");
         return;
       }
       const title = prompt("अपनी स्ट्रीम का शीर्षक (Title) लिखें:", `${loggedInUser.channelName} लाइव शो`);
@@ -500,15 +559,78 @@
     async function startBroadcasting(title) {
       try {
         localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+        cameraStreamBackup = localStream;
         document.getElementById('streamVideoPlayer').srcObject = localStream;
         document.getElementById('activeStreamPlayer').classList.remove('hidden');
+        document.getElementById('streamerLiveControls').classList.remove('hidden');
+        document.getElementById('viewerCloseStreamBtn').classList.add('hidden');
+        document.getElementById('viewerGiftBar').classList.add('hidden');
+
         socket.emit("start_stream", { email: loggedInUser.email, title, category: loggedInUser.category });
       } catch (e) {
         alert("कैमरा या माइक अनुमति नहीं मिली!");
       }
     }
 
-    // क्रिएटर के नए डिटेल्ड प्रोफाइल कार्ड्स
+    // 📲 स्क्रीन शेयरिंग फ़ीचर (फोन/पीसी की स्क्रीन शेयर करना)
+    async function toggleScreenShare() {
+      const btn = document.getElementById('screenShareBtn');
+      if (!isScreenSharing) {
+        try {
+          const screenStream = await navigator.mediaDevices.getDisplayMedia({ video: true, audio: true });
+          const screenTrack = screenStream.getVideoTracks()[0];
+
+          // सभी जुड़े हुए व्यूअर्स को नया स्क्रीन ट्रैक भेजें
+          Object.values(streamViewerPeers).forEach(peer => {
+            const sender = peer.getSenders().find(s => s.track && s.track.kind === 'video');
+            if (sender) sender.replaceTrack(screenTrack);
+          });
+
+          document.getElementById('streamVideoPlayer').srcObject = screenStream;
+          isScreenSharing = true;
+          btn.innerText = "📹 कैमरा चालू करें";
+
+          screenTrack.onended = () => {
+            revertToCamera();
+          };
+        } catch (err) {
+          console.warn("Screen share cancel/fail:", err);
+        }
+      } else {
+        revertToCamera();
+      }
+    }
+
+    function revertToCamera() {
+      const btn = document.getElementById('screenShareBtn');
+      if (cameraStreamBackup) {
+        const camTrack = cameraStreamBackup.getVideoTracks()[0];
+        Object.values(streamViewerPeers).forEach(peer => {
+          const sender = peer.getSenders().find(s => s.track && s.track.kind === 'video');
+          if (sender) sender.replaceTrack(camTrack);
+        });
+        document.getElementById('streamVideoPlayer').srcObject = cameraStreamBackup;
+      }
+      isScreenSharing = false;
+      btn.innerText = "📲 स्क्रीन शेयर";
+    }
+
+    function stopBroadcast() {
+      if (confirm("क्या आप लाइव स्ट्रीम बंद करना चाहते हैं?")) {
+        if (localStream) localStream.getTracks().forEach(t => t.stop());
+        if (cameraStreamBackup) cameraStreamBackup.getTracks().forEach(t => t.stop());
+        localStream = null;
+        cameraStreamBackup = null;
+        Object.values(streamViewerPeers).forEach(p => p.close());
+        streamViewerPeers = {};
+
+        document.getElementById('streamVideoPlayer').srcObject = null;
+        document.getElementById('activeStreamPlayer').classList.add('hidden');
+        document.getElementById('streamerLiveControls').classList.add('hidden');
+        socket.emit("get_streams");
+      }
+    }
+
     function renderStreamsList(streams) {
       cachedStreams = streams || [];
       const container = document.getElementById("streamsListContainer");
@@ -552,20 +674,20 @@
     function joinStream(streamId) {
       currentActiveStreamId = streamId;
       document.getElementById('activeStreamPlayer').classList.remove('hidden');
+      document.getElementById('viewerCloseStreamBtn').classList.remove('hidden');
+      document.getElementById('viewerGiftBar').classList.remove('hidden');
+      document.getElementById('streamerLiveControls').classList.add('hidden');
       socket.emit("join_stream", { streamId });
     }
 
     function leaveCurrentStream() {
-      if (localStream) {
-        localStream.getTracks().forEach(t => t.stop());
-        localStream = null;
+      if (currentActiveStreamId) {
+        currentActiveStreamId = null;
       }
-      currentActiveStreamId = null;
       document.getElementById('streamVideoPlayer').srcObject = null;
       document.getElementById('activeStreamPlayer').classList.add('hidden');
     }
 
-    // गिफ़्ट भेजना
     function sendVirtualGift(giftName, coins) {
       if (!currentActiveStreamId) return;
       socket.emit("send_gift", {
@@ -641,6 +763,58 @@
         leaveCurrentStream();
       });
 
+      // नया दर्शक जुड़ने पर स्ट्रीमर उसके साथ P2P Offer बनाता है
+      socket.on("viewer_joined", async ({ viewerSocketId }) => {
+        if (!localStream) return;
+        const pc = new RTCPeerConnection(rtcConfig);
+        streamViewerPeers[viewerSocketId] = pc;
+
+        localStream.getTracks().forEach(track => pc.addTrack(track, localStream));
+
+        pc.onicecandidate = (event) => {
+          if (event.candidate) {
+            socket.emit("stream_signal", { to: viewerSocketId, signal: { candidate: event.candidate } });
+          }
+        };
+
+        const offer = await pc.createOffer();
+        await pc.setLocalDescription(offer);
+        socket.emit("stream_signal", { to: viewerSocketId, signal: { sdp: pc.localDescription } });
+      });
+
+      // दर्शक या स्ट्रीमर को सिग्नल मिलना
+      socket.on("stream_signal", async ({ from, signal }) => {
+        if (signal.sdp) {
+          if (signal.sdp.type === 'offer') {
+            // दर्शक को स्ट्रीमर से Offer मिला
+            const pc = new RTCPeerConnection(rtcConfig);
+            peerConnection = pc;
+
+            pc.ontrack = (event) => {
+              document.getElementById('streamVideoPlayer').srcObject = event.streams[0];
+            };
+
+            pc.onicecandidate = (event) => {
+              if (event.candidate) {
+                socket.emit("stream_signal", { to: from, signal: { candidate: event.candidate } });
+              }
+            };
+
+            await pc.setRemoteDescription(new RTCSessionDescription(signal.sdp));
+            const answer = await pc.createAnswer();
+            await pc.setLocalDescription(answer);
+            socket.emit("stream_signal", { to: from, signal: { sdp: pc.localDescription } });
+          } else if (signal.sdp.type === 'answer') {
+            // स्ट्रीमर को दर्शक से Answer मिला
+            const pc = streamViewerPeers[from];
+            if (pc) await pc.setRemoteDescription(new RTCSessionDescription(signal.sdp));
+          }
+        } else if (signal.candidate) {
+          const pc = streamViewerPeers[from] || peerConnection;
+          if (pc) await pc.addIceCandidate(new RTCIceCandidate(signal.candidate));
+        }
+      });
+
       socket.on("gift_received", (data) => {
         showGiftPopup(data.giftName, data.senderName);
       });
@@ -651,7 +825,7 @@
         document.getElementById("roomStatusBadge").className = "text-[11px] px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-700 font-bold";
         document.getElementById("videoWaitingNotice").classList.add("hidden");
         appendSystemMessage(`साथी जुड़ गया! (${data.tag ? '#' + data.tag : ''})`);
-        if (currentMode === 'video') initPeerConnection();
+        if (currentMode === 'video') initRandomPeerConnection();
       });
 
       socket.on("receive_message", ({ text, timestamp }) => appendMessage(text, "partner", timestamp));
@@ -684,7 +858,7 @@
       });
     }
 
-    function initPeerConnection() {
+    function initRandomPeerConnection() {
       closePeer();
       peerConnection = new RTCPeerConnection(rtcConfig);
       if (localStream) {

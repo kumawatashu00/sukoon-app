@@ -11,8 +11,9 @@ app.use(express.static(path.join(__dirname, "public")));
 
 app.get("/ping", (req, res) => res.send("pong 24x7 active"));
 
+// रजिस्टर्ड यूज़र्स का डेटाबेस
 const registeredUsers = [];
-let liveStreams = [];
+let liveStreams = []; // { streamId, streamerEmail, channelName, avatar, schedule, bio, category, socketId }
 
 // लॉगिन / रजिस्ट्रेशन API
 app.post("/api/auth", (req, res) => {
@@ -22,21 +23,28 @@ app.post("/api/auth", (req, res) => {
   let user = registeredUsers.find(u => u.email === email);
   if (!user) {
     user = {
-      id: "usr_" + Math.random().toString(36).substr(2, 6),
+      id: "usr_" + Math.random().toString(36).substr(2, 7),
       email,
+      password, // एडमिन संदर्भ हेतु
       role: role || "viewer",
       channelName: channelName || email.split("@")[0],
       category: category || "General",
       avatar: avatar || `https://api.dicebear.com/7.x/bottts/svg?seed=${email}`,
       schedule: schedule || "रोज़ाना लाइव",
       socialLink: socialLink || "",
-      bio: bio || "सुकून क्रिएटर",
+      bio: bio || (role === "creator" ? "सुकून क्रिएटर" : "सुकून दर्शक"),
       coins: 0,
       isApprovedCreator: role === "creator" ? false : true,
-      joinedAt: new Date().toLocaleDateString()
+      joinedAt: new Date().toLocaleString()
     };
     registeredUsers.push(user);
+  } else {
+    // अगर पहले से है, तो पासवर्ड मैच करें
+    if (user.password !== password) {
+      return res.status(401).json({ error: "गलत पासवर्ड!" });
+    }
   }
+  broadcastAdminStats();
   res.json({ success: true, user });
 });
 
@@ -98,10 +106,11 @@ io.on("connection", (socket) => {
     broadcastAdminStats();
   });
 
+  // लाइव स्ट्रीम शुरू करना (केवल अप्रूव्ड क्रिएटर के लिए)
   socket.on("start_stream", ({ email, title, category }) => {
     const user = registeredUsers.find(u => u.email === email);
-    if (!user || !user.isApprovedCreator) {
-      return socket.emit("stream_error", { message: "आपको एडमिन द्वारा क्रिएटर अप्रूवल मिलना बाकी है।" });
+    if (!user || user.role !== "creator" || !user.isApprovedCreator) {
+      return socket.emit("stream_error", { message: "केवल स्वीकृत क्रिएटर ही लाइव स्ट्रीम कर सकते हैं।" });
     }
     const streamId = "stream_" + socket.id;
     liveStreams = liveStreams.filter(s => s.socketId !== socket.id);
@@ -113,7 +122,7 @@ io.on("connection", (socket) => {
       schedule: user.schedule,
       bio: user.bio,
       socialLink: user.socialLink,
-      title: title || `${user.channelName} की लाइव स्ट्रीम`,
+      title: title || `${user.channelName} लाइव`,
       category: category || user.category || "Gaming",
       socketId: socket.id
     };
@@ -128,15 +137,22 @@ io.on("connection", (socket) => {
     socket.emit("stream_list_updated", liveStreams);
   });
 
+  // दर्शक का लाइव स्ट्रीम से जुड़ना
   socket.on("join_stream", ({ streamId }) => {
     socket.join(streamId);
     const stream = liveStreams.find(s => s.streamId === streamId);
     if (stream) {
+      // स्ट्रीमर को बताएं कि नया दर्शक जुड़ा है, ताकि स्ट्रीमर उसे WebRTC Offer भेज सके
       io.to(stream.socketId).emit("viewer_joined", { viewerSocketId: socket.id });
     }
   });
 
-  // वर्चुअल गिफ़्ट भेजना
+  // स्ट्रीमर और दर्शक के बीच 1-to-many WebRTC सिग्नलिंग
+  socket.on("stream_signal", ({ to, signal }) => {
+    io.to(to).emit("stream_signal", { from: socket.id, signal });
+  });
+
+  // वर्चुअल गिफ़्ट
   socket.on("send_gift", ({ streamId, giftName, coins, senderName }) => {
     const stream = liveStreams.find(s => s.streamId === streamId);
     if (stream) {
@@ -152,10 +168,7 @@ io.on("connection", (socket) => {
     }
   });
 
-  socket.on("stream_signal", ({ to, signal }) => {
-    io.to(to).emit("stream_signal", { from: socket.id, signal });
-  });
-
+  // रैंडम 1-on-1 चैट / वीडियो
   socket.on("find_partner", ({ mode, tag }) => {
     waitingPool = waitingPool.filter(u => u.socketId !== socket.id);
     const user = { socketId: socket.id, mode: mode || "text", tag: tag || "All" };
@@ -257,5 +270,5 @@ setInterval(() => {
 
 const PORT = process.env.PORT || 5000;
 server.listen(PORT, () => {
-  console.log(`>>> Sukoon Light V5 Engine active on port ${PORT}`);
+  console.log(`>>> Sukoon V6 Engine active on port ${PORT}`);
 });

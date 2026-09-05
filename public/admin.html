@@ -12,7 +12,7 @@
     <div class="flex justify-between items-center border-b border-slate-200 pb-4">
       <div>
         <h1 class="text-xl font-black text-rose-600">🛡️ सुकून एडमिन कमांड सेंटर</h1>
-        <p class="text-xs text-slate-500">क्रिएटर वेरिफिकेशन, कॉइन रिकॉर्ड्स व लाइव ट्रैफिक</p>
+        <p class="text-xs text-slate-500">सभी रजिस्टर्ड यूज़र्स, क्रिएटर वेरिफिकेशन व लाइव ट्रैफिक</p>
       </div>
       <a href="/" class="px-3.5 py-1.5 bg-white border border-slate-200 rounded-2xl text-xs font-bold text-slate-700 shadow-sm">← होम पर जाएँ</a>
     </div>
@@ -23,7 +23,7 @@
         <div class="text-xs text-slate-500">ऑनलाइन यूज़र्स</div>
         <div id="m-users" class="text-2xl font-black text-teal-600 mt-1">0</div>
       </div>
-      <div class="p-4 bg-white rounded-3xl border border-slate-200 shadow-sm">
+      <div class="p-4 bg-slate-900/80 bg-white rounded-3xl border border-slate-200 shadow-sm">
         <div class="text-xs text-slate-500">सक्रिय रूम्स</div>
         <div id="m-rooms" class="text-2xl font-black text-pink-600 mt-1">0</div>
       </div>
@@ -41,11 +41,35 @@
       </div>
     </div>
 
-    <!-- क्रिएटर वेरिफिकेशन टेबल -->
+    <!-- 1. सभी रजिस्टर्ड यूज़र्स की लिस्ट (All Accounts Table) -->
     <div class="bg-white p-5 rounded-3xl border border-slate-200 shadow-sm space-y-3">
       <div class="flex justify-between items-center">
-        <h2 class="text-sm font-bold text-slate-800">🎬 क्रिएटर प्रोफ़ाइल व शेड्यूल वेरिफिकेशन</h2>
-        <span class="text-xs text-slate-500">गिफ़्ट कॉइन्स व शेड्यूल की जाँच करें</span>
+        <h2 class="text-sm font-bold text-slate-800">👥 सभी रजिस्टर्ड यूज़र्स (User Database)</h2>
+        <span class="text-xs text-slate-500">किसने लॉगिन / साइनअप किया है</span>
+      </div>
+      <div class="overflow-x-auto">
+        <table class="w-full text-xs text-left">
+          <thead class="border-b border-slate-100 text-slate-400">
+            <tr>
+              <th class="py-2">यूज़र ID / ईमेल</th>
+              <th>रोल</th>
+              <th>नाम / चैनल</th>
+              <th>जॉइनिंग समय</th>
+              <th>स्टेटस</th>
+            </tr>
+          </thead>
+          <tbody id="allUsersBody" class="divide-y divide-slate-100">
+            <tr><td colspan="5" class="py-4 text-center text-slate-400">कोई यूज़र नहीं मिला</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- 2. क्रिएटर वेरिफिकेशन और अप्रूवल टेबल -->
+    <div class="bg-white p-5 rounded-3xl border border-slate-200 shadow-sm space-y-3">
+      <div class="flex justify-between items-center">
+        <h2 class="text-sm font-bold text-slate-800">🎬 क्रिएटर प्रोफ़ाइल व अप्रूवल कंट्रोल</h2>
+        <span class="text-xs text-slate-500">केवल आपके अप्रूवल के बाद ही कोई लाइव आ सकता है</span>
       </div>
       <div class="overflow-x-auto">
         <table class="w-full text-xs text-left">
@@ -65,7 +89,7 @@
       </div>
     </div>
 
-    <!-- लाइव सेफ्टी लॉग्स -->
+    <!-- 3. लाइव सेफ्टी लॉग्स -->
     <div class="bg-white p-5 rounded-3xl border border-slate-200 shadow-sm space-y-3">
       <h2 class="text-sm font-bold text-slate-800">लाइव सेफ्टी व मॉडरेशन लॉग</h2>
       <div class="overflow-x-auto">
@@ -97,6 +121,34 @@
       document.getElementById("m-reg").innerText = m.registeredUsers?.length || 0;
       document.getElementById("m-incidents").innerText = m.incidents.length;
 
+      // 1. सभी रजिस्टर्ड यूज़र्स टेबल
+      const allUsersTbody = document.getElementById("allUsersBody");
+      if (m.registeredUsers && m.registeredUsers.length > 0) {
+        allUsersTbody.innerHTML = m.registeredUsers.map(u => `
+          <tr>
+            <td class="py-2.5">
+              <div class="font-bold text-slate-800">${u.email}</div>
+              <div class="text-[10px] text-slate-400 font-mono">${u.id}</div>
+            </td>
+            <td>
+              <span class="px-2 py-0.5 rounded-md text-[10px] font-bold ${u.role === 'creator' ? 'bg-purple-100 text-purple-700' : 'bg-teal-100 text-teal-700'}">
+                ${u.role === 'creator' ? '🎙️ Creator' : '👀 Viewer'}
+              </span>
+            </td>
+            <td class="font-medium text-slate-700 text-[11px]">${u.channelName || '-'}</td>
+            <td class="text-slate-500 text-[10px]">${u.joinedAt || 'आज'}</td>
+            <td>
+              <span class="px-2 py-0.5 rounded text-[10px] font-bold ${u.isApprovedCreator ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'}">
+                ${u.isApprovedCreator ? 'Active' : 'Pending'}
+              </span>
+            </td>
+          </tr>
+        `).join("");
+      } else {
+        allUsersTbody.innerHTML = '<tr><td colspan="5" class="py-4 text-center text-slate-400">कोई रजिस्टर्ड यूज़र नहीं मिला</td></tr>';
+      }
+
+      // 2. क्रिएटर अप्रूवल टेबल
       const creatorTbody = document.getElementById("creatorListBody");
       const creators = m.registeredUsers?.filter(u => u.role === "creator") || [];
       if (creators.length > 0) {
@@ -127,7 +179,7 @@
             </td>
             <td>
               ${!u.isApprovedCreator ? `
-                <button onclick="approveCreator('${u.email}')" class="px-3 py-1 bg-emerald-600 text-white font-bold rounded-xl text-xs shadow-sm">
+                <button onclick="approveCreator('${u.email}')" class="px-3 py-1 bg-emerald-600 text-white font-bold rounded-xl text-xs shadow-sm hover:bg-emerald-700">
                   Approve करें
                 </button>
               ` : '<span class="text-slate-400 text-xs font-semibold">स्वीकृत</span>'}
@@ -135,9 +187,10 @@
           </tr>
         `).join("");
       } else {
-        creatorTbody.innerHTML = '<tr><td colspan="5" class="py-4 text-center text-slate-400">कोई क्रिएटर रजिस्टर्ड नहीं है</td></tr>';
+        creatorTbody.innerHTML = '<tr><td colspan="5" class="py-4 text-center text-slate-400">कोई क्रिएटर नहीं है</td></tr>';
       }
 
+      // 3. सेफ्टी लॉग्स
       const tbody = document.getElementById("incidentsBody");
       if (m.incidents && m.incidents.length > 0) {
         tbody.innerHTML = m.incidents.map(i => `
