@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sukoon - Admin Command Center</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="/socket.io/socket.io.js"></script>
+</head>
+<body class="bg-[#090d1a] text-slate-100 font-sans p-5 md:p-10 min-h-screen">
+  <div class="max-w-5xl mx-auto space-y-6">
+    <div class="flex justify-between items-center border-b border-white/10 pb-4">
+      <div>
+        <h1 class="text-xl font-black text-rose-300">🛡️ सुकून एडमिन कमांड सेंटर</h1>
+        <p class="text-xs text-slate-400">लाइव ट्रैफिक, जेंडर कतार और सेफ्टी लॉग्स</p>
+      </div>
+      <a href="/" class="px-3 py-1.5 bg-slate-800 rounded-xl text-xs text-slate-300">← होम पर जाएँ</a>
+    </div>
+
+    <!-- 4 Cards -->
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <div class="p-4 bg-slate-900/80 rounded-2xl border border-white/5">
+        <div class="text-xs text-slate-400">ऑनलाइन यूज़र्स</div>
+        <div id="m-users" class="text-2xl font-black text-teal-300 mt-1">0</div>
+      </div>
+      <div class="p-4 bg-slate-900/80 rounded-2xl border border-white/5">
+        <div class="text-xs text-slate-400">सक्रिय रूम्स</div>
+        <div id="m-rooms" class="text-2xl font-black text-pink-300 mt-1">0</div>
+      </div>
+      <div class="p-4 bg-slate-900/80 rounded-2xl border border-white/5">
+        <div class="text-xs text-slate-400">कतार में साथी</div>
+        <div id="m-queue" class="text-2xl font-black text-indigo-300 mt-1">0</div>
+      </div>
+      <div class="p-4 bg-slate-900/80 rounded-2xl border border-white/5">
+        <div class="text-xs text-slate-400">सुरक्षा अलर्ट्स</div>
+        <div id="m-incidents" class="text-2xl font-black text-rose-400 mt-1">0</div>
+      </div>
+    </div>
+
+    <!-- Reports Table -->
+    <div class="bg-slate-900/80 p-5 rounded-3xl border border-white/5 space-y-3">
+      <h2 class="text-sm font-bold text-slate-200">लाइव सेफ्टी व क्राइसिस डिटेक्शन लॉग</h2>
+      <div class="overflow-x-auto">
+        <table class="w-full text-xs text-left">
+          <thead class="border-b border-white/5 text-slate-400">
+            <tr>
+              <th class="py-2">समय</th>
+              <th>रूम ID</th>
+              <th>यूज़र ID</th>
+              <th>कारण</th>
+            </tr>
+          </thead>
+          <tbody id="incidentsBody" class="divide-y divide-white/5">
+            <tr><td colspan="4" class="py-4 text-center text-slate-500">कोई सुरक्षा उल्लंघन नहीं मिला</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const socket = io();
+    socket.emit("join_admin");
+    socket.on("admin_metrics", (m) => {
+      document.getElementById("m-users").innerText = m.onlineUsers;
+      document.getElementById("m-rooms").innerText = m.activeSessions;
+      document.getElementById("m-queue").innerText = m.waitingPoolCount;
+      document.getElementById("m-incidents").innerText = m.incidents.length;
+
+      const tbody = document.getElementById("incidentsBody");
+      if (m.incidents.length > 0) {
+        tbody.innerHTML = m.incidents.map(i => `
+          <tr>
+            <td class="py-2 text-slate-400">${i.time}</td>
+            <td class="font-mono text-teal-300">${i.room}</td>
+            <td class="font-mono text-slate-300">${i.user}</td>
+            <td class="text-rose-400 font-semibold">${i.reason}</td>
+          </tr>
+        `).join("");
+      }
+    });
+  </script>
+</body>
+</html>

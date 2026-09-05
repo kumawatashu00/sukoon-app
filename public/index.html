@@ -3,170 +3,303 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Sukoon - Anonymous Safe Space</title>
+  <title>Sukoon - India's Anonymous Healing Space</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="/socket.io/socket.io.js"></script>
 </head>
-<body class="bg-slate-950 text-slate-100 font-sans min-h-screen flex flex-col">
-  <!-- Topbar -->
-  <header class="p-4 border-b border-slate-800 flex justify-between items-center bg-slate-900/50">
-    <h1 class="text-xl font-bold text-teal-400">🌿 Sukoon</h1>
-    <div id="status" class="text-xs px-2.5 py-1 rounded-full bg-slate-800 text-slate-400">डिस्कनेक्टेड</div>
+<body class="bg-[#090d1a] text-slate-100 font-sans min-h-screen flex flex-col selection:bg-rose-500/30">
+
+  <!-- 24x7 Helpline Strip -->
+  <div class="bg-rose-950/40 border-b border-rose-900/30 px-4 py-2 text-center text-xs flex items-center justify-center gap-2">
+    <span class="w-2 h-2 rounded-full bg-rose-400 animate-ping"></span>
+    <span class="text-rose-200">अत्यधिक तनाव में हैं? भारत सरकार की निःशुल्क हेल्पलाइन:</span>
+    <a href="tel:14416" class="underline font-bold text-rose-300">Tele-MANAS (14416)</a>
+  </div>
+
+  <!-- Header -->
+  <header class="p-4 border-b border-white/5 bg-[#10162a]/90 backdrop-blur-md flex justify-between items-center">
+    <div class="flex items-center gap-2">
+      <div class="w-8 h-8 rounded-xl bg-gradient-to-tr from-rose-400 to-pink-400 flex items-center justify-center text-slate-950 font-bold">🌿</div>
+      <div>
+        <h1 class="text-lg font-black bg-gradient-to-r from-rose-200 via-pink-100 to-teal-200 bg-clip-text text-transparent">Sukoon</h1>
+        <span class="text-[9px] text-slate-400 block tracking-widest uppercase">India Safe Space</span>
+      </div>
+    </div>
+    <div class="flex items-center gap-3">
+      <a href="/admin.html" class="text-[11px] text-slate-400 hover:text-white underline">एडमिन</a>
+      <div id="statusBadge" class="text-xs px-3 py-1 rounded-full bg-slate-800/80 border border-white/5 text-slate-400">डिस्कनेक्टेड</div>
+    </div>
   </header>
 
   <!-- Setup Screen -->
-  <div id="setup-screen" class="p-6 max-w-md mx-auto my-auto text-center space-y-5">
-    <h2 class="text-3xl font-extrabold text-teal-200">दिल हल्का कर लो</h2>
-    <p class="text-xs text-slate-400">100% गुप्त पहचान। कोई डेटा सेव नहीं होता।</p>
-    <select id="topic" class="w-full p-3 rounded-xl bg-slate-900 border border-slate-800 text-sm text-slate-200">
-      <option value="Relationship">💔 दिल का दर्द / ब्रेकअप</option>
-      <option value="Career">💼 पढ़ाई और करियर तनाव</option>
-      <option value="Loneliness">🌧️ अकेलापन</option>
-      <option value="General">💬 सामान्य बातचीत</option>
-    </select>
-    <button onclick="startChat()" class="w-full py-3.5 rounded-xl bg-teal-500 font-bold text-slate-950 text-sm shadow-lg shadow-teal-500/20">
-      बातचीत शुरू करें
-    </button>
+  <div id="setupScreen" class="flex-1 max-w-md w-full mx-auto p-5 my-auto space-y-5">
+    <div class="text-center space-y-2">
+      <h2 class="text-3xl font-black bg-gradient-to-r from-pink-300 via-rose-200 to-teal-200 bg-clip-text text-transparent">दिल की बात साझा करें</h2>
+      <p class="text-xs text-slate-400">100% अनाम • कोई डेटा सेव नहीं • सुरक्षित बातचीत</p>
+    </div>
+
+    <div class="bg-[#11172a]/80 p-5 rounded-3xl border border-white/10 shadow-2xl space-y-4">
+      <div class="flex justify-between items-center text-xs">
+        <span class="text-slate-400 font-bold uppercase tracking-wider">लॉगिन मोड</span>
+        <span class="px-2.5 py-0.5 rounded-full bg-teal-500/20 text-teal-300 font-medium">100% Anonymous Guest</span>
+      </div>
+
+      <!-- Gender -->
+      <div class="space-y-1.5">
+        <label class="text-xs font-bold text-slate-300">1. मैं हूँ:</label>
+        <div class="grid grid-cols-3 gap-2">
+          <button type="button" onclick="setGender('male')" id="btn-male" class="py-2 rounded-xl text-xs font-medium border bg-rose-500/20 border-rose-400 text-rose-200">लड़का 👦</button>
+          <button type="button" onclick="setGender('female')" id="btn-female" class="py-2 rounded-xl text-xs font-medium border bg-slate-950/40 border-white/5 text-slate-400">लड़की 👧</button>
+          <button type="button" onclick="setGender('other')" id="btn-other" class="py-2 rounded-xl text-xs font-medium border bg-slate-950/40 border-white/5 text-slate-400">अन्य 🌈</button>
+        </div>
+      </div>
+
+      <!-- Looking For -->
+      <div class="space-y-1.5">
+        <label class="text-xs font-bold text-slate-300">2. बात करनी है:</label>
+        <div class="grid grid-cols-3 gap-2">
+          <button type="button" onclick="setLooking('any')" id="btn-any" class="py-2 rounded-xl text-xs font-medium border bg-teal-500/20 border-teal-400 text-teal-200">कोई भी 🤝</button>
+          <button type="button" onclick="setLooking('female')" id="btn-look-female" class="py-2 rounded-xl text-xs font-medium border bg-slate-950/40 border-white/5 text-slate-400">लड़की 👧</button>
+          <button type="button" onclick="setLooking('male')" id="btn-look-male" class="py-2 rounded-xl text-xs font-medium border bg-slate-950/40 border-white/5 text-slate-400">लड़का 👦</button>
+        </div>
+      </div>
+
+      <!-- Mood -->
+      <div class="space-y-1.5">
+        <label class="text-xs font-bold text-slate-300">3. आज का मूड:</label>
+        <select id="moodSelect" class="w-full p-2.5 rounded-xl bg-slate-950 border border-white/10 text-xs text-slate-200">
+          <option value="भारी मन 🌧️">🌧️ भारी मन / उदास</option>
+          <option value="तनावग्रस्त ⚡">⚡ बहुत तनाव / बेचैनी</option>
+          <option value="टूटा हुआ 💔">💔 दिल का दर्द / ब्रेकअप</option>
+          <option value="हल्की बात ☕">☕ सामान्य गपशप</option>
+        </select>
+      </div>
+
+      <!-- Topic -->
+      <div class="space-y-1.5">
+        <label class="text-xs font-bold text-slate-300">4. विषय:</label>
+        <select id="topicSelect" class="w-full p-2.5 rounded-xl bg-slate-950 border border-white/10 text-xs text-slate-200">
+          <option value="General">🌸 दिल हल्का करना है (General)</option>
+          <option value="Relationship">💔 रिश्ते और ब्रेकअप</option>
+          <option value="Career">💼 पढ़ाई व करियर तनाव</option>
+          <option value="Loneliness">🌙 अकेलापन</option>
+        </select>
+      </div>
+
+      <!-- 18+ Check -->
+      <div class="flex items-center gap-2 pt-1">
+        <input type="checkbox" id="ageCheck" class="rounded accent-rose-500 w-4 h-4 cursor-pointer" checked>
+        <label for="ageCheck" class="text-[11px] text-slate-300 cursor-pointer">मेरी आयु <strong>18 वर्ष या अधिक</strong> है</label>
+      </div>
+
+      <button onclick="startSukoonChat()" class="w-full py-3.5 rounded-2xl bg-gradient-to-r from-rose-400 via-pink-400 to-teal-300 text-slate-950 font-bold text-sm shadow-xl shadow-pink-500/20 hover:opacity-95 transition">
+        सुकून रूम में जुड़ें ➔
+      </button>
+    </div>
   </div>
 
   <!-- Chat Screen -->
-  <div id="chat-screen" class="hidden flex-1 flex flex-col max-w-2xl w-full mx-auto p-4 space-y-3">
-    <!-- Video Preview -->
-    <div class="flex gap-2 justify-center">
-      <video id="localVideo" autoplay playsinline muted class="w-28 h-20 bg-black rounded-lg object-cover filter blur-sm"></video>
-      <video id="remoteVideo" autoplay playsinline class="w-28 h-20 bg-black rounded-lg object-cover filter blur-sm"></video>
+  <div id="chatScreen" class="hidden flex-1 flex flex-col max-w-2xl w-full mx-auto p-3 space-y-2">
+    <div class="flex items-center justify-between bg-slate-900/60 p-2 rounded-2xl border border-white/5">
+      <div class="flex items-center gap-2">
+        <span id="partnerInfoBadge" class="text-xs px-2.5 py-1 rounded-full bg-rose-500/20 text-rose-300 font-medium">साथी की खोज...</span>
+      </div>
+      <div class="flex items-center gap-2">
+        <button onclick="requestIcebreaker()" class="p-2 rounded-xl bg-slate-800 text-pink-300 text-xs font-bold" title="आइसब्रेकर प्रश्न">🎲 सवाल</button>
+        <button onclick="panicExit()" class="p-2 rounded-xl bg-rose-500/20 text-rose-300 text-xs font-bold" title="तुरंत स्क्रीन छुपाएं">🔥 पैनिक</button>
+        <button onclick="skipPartner()" class="px-3 py-1.5 rounded-xl bg-slate-800 text-slate-200 text-xs font-semibold">Next ➔</button>
+      </div>
+    </div>
+
+    <!-- Icebreaker Box -->
+    <div id="icebreakerBox" class="hidden p-2.5 rounded-xl bg-gradient-to-r from-pink-950/40 to-teal-950/40 border border-white/10 text-center text-xs text-pink-200">
+      <span id="icebreakerText"></span>
+    </div>
+
+    <!-- Waiting Breathing Circle -->
+    <div id="breathingBox" class="flex flex-col items-center justify-center py-16 space-y-4 text-center">
+      <div class="w-32 h-32 rounded-full bg-gradient-to-tr from-rose-500/20 via-pink-500/20 to-teal-500/20 animate-pulse border border-white/10 flex items-center justify-center p-4">
+        <span id="breathingText" class="text-xs font-semibold text-rose-200">गहरी साँस लें...</span>
+      </div>
+      <p class="text-xs text-slate-400">एक सच्चे साथी की तलाश जारी है। तब तक खुद को शांत महसूस करें।</p>
     </div>
 
     <!-- Messages -->
-    <div id="messages" class="flex-1 overflow-y-auto space-y-2 p-3 bg-slate-900/40 rounded-2xl border border-slate-800"></div>
+    <div id="messagesList" class="hidden flex-1 overflow-y-auto space-y-2 p-3 bg-slate-900/40 rounded-2xl border border-white/5"></div>
 
-    <!-- Controls -->
-    <div class="flex gap-2">
-      <input type="file" id="mediaInput" accept="image/*" class="hidden" onchange="sendImage(event)">
-      <button onclick="document.getElementById('mediaInput').click()" class="p-3 bg-slate-800 rounded-xl text-teal-300">📷</button>
-      <input type="text" id="msgInput" placeholder="यहाँ लिखें..." class="flex-1 bg-slate-900 border border-slate-800 rounded-xl px-3 text-sm focus:outline-none focus:border-teal-500">
-      <button onclick="sendMsg()" class="px-4 py-2 bg-teal-500 text-slate-950 font-bold rounded-xl text-sm">भेजें</button>
-      <button onclick="skipPartner()" class="px-3 py-2 bg-slate-800 text-slate-300 rounded-xl text-xs">Next</button>
+    <!-- Message Input Bar -->
+    <div id="inputBar" class="hidden flex gap-2">
+      <input type="file" id="mediaInput" accept="image/*" class="hidden" onchange="sendVanishImage(event)">
+      <button onclick="document.getElementById('mediaInput').click()" class="p-3 bg-slate-800 rounded-2xl text-pink-300" title="10s वैनिश फोटो">📸</button>
+      <input type="text" id="msgInput" placeholder="यहाँ दिल की बात लिखें..." class="flex-1 bg-slate-900 border border-white/10 rounded-2xl px-4 text-xs text-slate-200 focus:outline-none focus:border-rose-400">
+      <button onclick="sendTextMessage()" class="px-5 py-3 bg-gradient-to-r from-rose-400 to-pink-400 text-slate-950 font-bold rounded-2xl text-xs">भेजें</button>
     </div>
   </div>
 
   <script>
-    let socket, pc, localStream;
-    const config = { iceServers: [{ urls: 'stun:stun.l.google.com:19302' }] };
+    let socket;
+    let myGender = 'male';
+    let myLookingFor = 'any';
 
-    function startChat() {
-      document.getElementById('setup-screen').classList.add('hidden');
-      document.getElementById('chat-screen').classList.remove('hidden');
-      document.getElementById('status').innerText = 'साथी की तलाश जारी...';
+    function setGender(g) {
+      myGender = g;
+      ['male', 'female', 'other'].forEach(x => {
+        const el = document.getElementById('btn-' + x);
+        el.className = (x === g) 
+          ? "py-2 rounded-xl text-xs font-medium border bg-rose-500/20 border-rose-400 text-rose-200"
+          : "py-2 rounded-xl text-xs font-medium border bg-slate-950/40 border-white/5 text-slate-400";
+      });
+    }
+
+    function setLooking(l) {
+      myLookingFor = l;
+      ['any', 'female', 'male'].forEach(x => {
+        const id = x === 'any' ? 'btn-any' : (x === 'female' ? 'btn-look-female' : 'btn-look-male');
+        const el = document.getElementById(id);
+        el.className = (x === l)
+          ? "py-2 rounded-xl text-xs font-medium border bg-teal-500/20 border-teal-400 text-teal-200"
+          : "py-2 rounded-xl text-xs font-medium border bg-slate-950/40 border-white/5 text-slate-400";
+      });
+    }
+
+    function startSukoonChat() {
+      if (!document.getElementById('ageCheck').checked) {
+        alert('सुकून केवल 18 वर्ष या उससे अधिक आयु के लोगों के लिए है।');
+        return;
+      }
+
+      document.getElementById('setupScreen').classList.add('hidden');
+      document.getElementById('chatScreen').classList.remove('hidden');
+      document.getElementById('statusBadge').innerText = 'तलाश जारी...';
 
       socket = io();
 
-      socket.emit('find_partner', { topic: document.getElementById('topic').value });
-
-      socket.on('waiting', () => {
-        document.getElementById('status').innerText = 'इंतज़ार कर रहे हैं...';
+      socket.emit('find_partner', {
+        gender: myGender,
+        lookingFor: myLookingFor,
+        topic: document.getElementById('topicSelect').value,
+        mood: document.getElementById('moodSelect').value,
+        isGuest: true
       });
 
-      socket.on('partner_found', async ({ isInitiator }) => {
-        document.getElementById('status').innerText = 'कनेक्टेड (Online)';
-        setupWebRTC(isInitiator);
+      socket.on('waiting_in_queue', () => {
+        document.getElementById('statusBadge').innerText = 'इंतज़ार कर रहे हैं...';
       });
 
-      socket.on('receive_message', ({ text }) => {
-        addMessage(text, 'partner');
+      socket.on('partner_found', ({ partnerGender, partnerMood }) => {
+        document.getElementById('statusBadge').innerText = 'ऑनलाइन 🟢';
+        document.getElementById('partnerInfoBadge').innerText = `${partnerGender === 'female' ? '👧 लड़की' : '👦 लड़का'} • ${partnerMood}`;
+        document.getElementById('breathingBox').classList.add('hidden');
+        document.getElementById('messagesList').classList.remove('hidden');
+        document.getElementById('inputBar').classList.remove('hidden');
       });
 
-      socket.on('receive_media', ({ image }) => {
-        addImage(image, 'partner');
+      socket.on('receive_message', ({ text, timestamp }) => {
+        appendMessage(text, 'partner', timestamp);
       });
 
-      socket.on('webrtc_signal', async (signal) => {
-        if (!pc) return;
-        if (signal.sdp) {
-          await pc.setRemoteDescription(new RTCSessionDescription(signal.sdp));
-          if (signal.sdp.type === 'offer') {
-            const answer = await pc.createAnswer();
-            await pc.setLocalDescription(answer);
-            socket.emit('webrtc_signal', { sdp: pc.localDescription });
-          }
-        } else if (signal.candidate) {
-          await pc.addIceCandidate(new RTCIceCandidate(signal.candidate));
-        }
+      socket.on('receive_media', ({ image, timestamp }) => {
+        appendImage(image, 'partner', timestamp);
+      });
+
+      socket.on('new_icebreaker', ({ question }) => {
+        const box = document.getElementById('icebreakerBox');
+        document.getElementById('icebreakerText').innerText = '🎲 ' + question;
+        box.classList.remove('hidden');
+      });
+
+      socket.on('message_rejected', ({ reason }) => {
+        alert(reason);
+      });
+
+      socket.on('crisis_alert', ({ message }) => {
+        alert(message);
       });
 
       socket.on('partner_disconnected', () => {
-        document.getElementById('status').innerText = 'साथी चला गया';
-        addMessage('साथी ने चैट छोड़ दी है।', 'system');
+        document.getElementById('statusBadge').innerText = 'साथी चला गया';
+        appendMessage('साथी ने चैट छोड़ दी है। नया साथी खोजने के लिए Next दबाएँ।', 'system', '');
       });
     }
 
-    async function setupWebRTC(isInitiator) {
-      try {
-        localStream = await navigator.mediaDevices.getUserMedia({ audio: true, video: true });
-        document.getElementById('localVideo').srcObject = localStream;
-        pc = new RTCPeerConnection(config);
-        localStream.getTracks().forEach(t => pc.addTrack(t, localStream));
-
-        pc.ontrack = (e) => {
-          document.getElementById('remoteVideo').srcObject = e.streams[0];
-        };
-
-        pc.onicecandidate = (e) => {
-          if (e.candidate) socket.emit('webrtc_signal', { candidate: e.candidate });
-        };
-
-        if (isInitiator) {
-          const offer = await pc.createOffer();
-          await pc.setLocalDescription(offer);
-          socket.emit('webrtc_signal', { sdp: pc.localDescription });
-        }
-      } catch (err) {}
-    }
-
-    function sendMsg() {
+    function sendTextMessage() {
       const inp = document.getElementById('msgInput');
-      if (!inp.value.trim()) return;
-      socket.emit('send_message', inp.value);
-      addMessage(inp.value, 'me');
+      const val = inp.value.trim();
+      if (!val || !socket) return;
+      socket.emit('send_message', { text: val });
+      appendMessage(val, 'me', new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }));
       inp.value = '';
     }
 
-    function sendImage(e) {
+    function sendVanishImage(e) {
       const file = e.target.files[0];
-      if (!file) return;
+      if (!file || !socket) return;
       const reader = new FileReader();
       reader.onload = () => {
-        socket.emit('send_media', reader.result);
-        addImage(reader.result, 'me');
+        socket.emit('send_media', { imageBase64: reader.result });
+        appendImage(reader.result, 'me', new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }));
       };
       reader.readAsDataURL(file);
+      e.target.value = '';
     }
 
-    function addMessage(txt, who) {
-      const box = document.getElementById('messages');
+    function appendMessage(text, who, time) {
+      const box = document.getElementById('messagesList');
       const div = document.createElement('div');
-      div.className = who === 'me' ? 'text-right' : 'text-left';
-      div.innerHTML = `<span class="inline-block p-2.5 rounded-xl text-xs ${who === 'me' ? 'bg-teal-500 text-slate-950' : 'bg-slate-800 text-slate-200'}">${txt}</span>`;
+      div.className = who === 'me' ? 'flex justify-end' : 'flex justify-start';
+      div.innerHTML = `
+        <div class="max-w-[78%] px-4 py-2.5 rounded-2xl text-xs ${
+          who === 'me' ? 'bg-gradient-to-r from-rose-400 to-pink-400 text-slate-950 font-medium' : 'bg-slate-800 text-slate-100'
+        }">
+          <p>${text}</p>
+          <span class="text-[9px] block mt-1 opacity-70 text-right">${time}</span>
+        </div>`;
       box.appendChild(div);
       box.scrollTop = box.scrollHeight;
     }
 
-    function addImage(src, who) {
-      const box = document.getElementById('messages');
-      const id = 'img_' + Math.random();
+    function appendImage(src, who, time) {
+      const box = document.getElementById('messagesList');
+      const id = 'media_' + Math.random().toString(36).substr(2, 9);
       const div = document.createElement('div');
       div.id = id;
-      div.className = who === 'me' ? 'text-right' : 'text-left';
-      div.innerHTML = `<div class="inline-block p-1 bg-slate-800 rounded-xl"><img src="${src}" class="max-h-40 rounded-lg"><div class="text-[9px] text-amber-400">10s में डिलीट होगा</div></div>`;
+      div.className = who === 'me' ? 'flex justify-end' : 'flex justify-start';
+      div.innerHTML = `
+        <div class="max-w-[78%] p-2 rounded-2xl bg-slate-800 border border-white/10">
+          <img src="${src}" class="max-h-48 rounded-xl object-cover">
+          <div class="text-[9px] text-amber-300 font-bold mt-1">⏳ 10 सेकंड में गायब होगा</div>
+        </div>`;
       box.appendChild(div);
       box.scrollTop = box.scrollHeight;
       setTimeout(() => { document.getElementById(id)?.remove(); }, 10000);
     }
 
+    function requestIcebreaker() {
+      if (socket) socket.emit('request_icebreaker');
+    }
+
+    function panicExit() {
+      if (socket) socket.disconnect();
+      window.location.href = 'https://www.google.com';
+    }
+
     function skipPartner() {
-      socket.emit('skip');
-      document.getElementById('messages').innerHTML = '';
-      socket.emit('find_partner', { topic: document.getElementById('topic').value });
+      if (!socket) return;
+      document.getElementById('messagesList').innerHTML = '';
+      document.getElementById('messagesList').classList.add('hidden');
+      document.getElementById('inputBar').classList.add('hidden');
+      document.getElementById('breathingBox').classList.remove('hidden');
+      document.getElementById('icebreakerBox').classList.add('hidden');
+      document.getElementById('statusBadge').innerText = 'तलाश जारी...';
+      document.getElementById('partnerInfoBadge').innerText = 'साथी की खोज...';
+      socket.emit('skip_partner');
+      socket.emit('find_partner', {
+        gender: myGender,
+        lookingFor: myLookingFor,
+        topic: document.getElementById('topicSelect').value,
+        mood: document.getElementById('moodSelect').value,
+        isGuest: true
+      });
     }
   </script>
 </body>
