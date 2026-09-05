@@ -7,70 +7,70 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="/socket.io/socket.io.js"></script>
 </head>
-<body class="bg-[#090e1a] text-slate-100 font-sans p-4 md:p-8 min-h-screen">
+<body class="bg-[#f8fafc] text-slate-800 font-sans p-4 md:p-8 min-h-screen">
   <div class="max-w-5xl mx-auto space-y-6">
-    <div class="flex justify-between items-center border-b border-white/10 pb-4">
+    <div class="flex justify-between items-center border-b border-slate-200 pb-4">
       <div>
-        <h1 class="text-xl font-black text-rose-300">🛡️ सुकून एडमिन कमांड सेंटर</h1>
-        <p class="text-xs text-slate-400">क्रिएटर वेरिफिकेशन, लाइव स्ट्रीम्स व रियल-टाइम ट्रैफिक</p>
+        <h1 class="text-xl font-black text-rose-600">🛡️ सुकून एडमिन कमांड सेंटर</h1>
+        <p class="text-xs text-slate-500">क्रिएटर वेरिफिकेशन, कॉइन रिकॉर्ड्स व लाइव ट्रैफिक</p>
       </div>
-      <a href="/" class="px-3 py-1.5 bg-slate-800 rounded-xl text-xs text-slate-300">← होम पर जाएँ</a>
+      <a href="/" class="px-3.5 py-1.5 bg-white border border-slate-200 rounded-2xl text-xs font-bold text-slate-700 shadow-sm">← होम पर जाएँ</a>
     </div>
 
     <!-- 5 Stats Cards -->
     <div class="grid grid-cols-2 md:grid-cols-5 gap-3">
-      <div class="p-4 bg-slate-900/80 rounded-2xl border border-white/5">
-        <div class="text-xs text-slate-400">ऑनलाइन यूज़र्स</div>
-        <div id="m-users" class="text-2xl font-black text-teal-300 mt-1">0</div>
+      <div class="p-4 bg-white rounded-3xl border border-slate-200 shadow-sm">
+        <div class="text-xs text-slate-500">ऑनलाइन यूज़र्स</div>
+        <div id="m-users" class="text-2xl font-black text-teal-600 mt-1">0</div>
       </div>
-      <div class="p-4 bg-slate-900/80 rounded-2xl border border-white/5">
-        <div class="text-xs text-slate-400">सक्रिय रूम्स</div>
-        <div id="m-rooms" class="text-2xl font-black text-pink-300 mt-1">0</div>
+      <div class="p-4 bg-white rounded-3xl border border-slate-200 shadow-sm">
+        <div class="text-xs text-slate-500">सक्रिय रूम्स</div>
+        <div id="m-rooms" class="text-2xl font-black text-pink-600 mt-1">0</div>
       </div>
-      <div class="p-4 bg-slate-900/80 rounded-2xl border border-white/5">
-        <div class="text-xs text-slate-400">लाइव स्ट्रीम्स</div>
-        <div id="m-streams" class="text-2xl font-black text-purple-300 mt-1">0</div>
+      <div class="p-4 bg-white rounded-3xl border border-slate-200 shadow-sm">
+        <div class="text-xs text-slate-500">लाइव स्ट्रीम्स</div>
+        <div id="m-streams" class="text-2xl font-black text-purple-600 mt-1">0</div>
       </div>
-      <div class="p-4 bg-slate-900/80 rounded-2xl border border-white/5">
-        <div class="text-xs text-slate-400">कुल एकाउंट्स</div>
-        <div id="m-reg" class="text-2xl font-black text-amber-300 mt-1">0</div>
+      <div class="p-4 bg-white rounded-3xl border border-slate-200 shadow-sm">
+        <div class="text-xs text-slate-500">कुल एकाउंट्स</div>
+        <div id="m-reg" class="text-2xl font-black text-amber-600 mt-1">0</div>
       </div>
-      <div class="p-4 bg-slate-900/80 rounded-2xl border border-white/5">
-        <div class="text-xs text-slate-400">सुरक्षा अलर्ट्स</div>
-        <div id="m-incidents" class="text-2xl font-black text-rose-400 mt-1">0</div>
+      <div class="p-4 bg-white rounded-3xl border border-slate-200 shadow-sm">
+        <div class="text-xs text-slate-500">सुरक्षा अलर्ट्स</div>
+        <div id="m-incidents" class="text-2xl font-black text-rose-600 mt-1">0</div>
       </div>
     </div>
 
-    <!-- क्रिएटर वेरिफिकेशन और प्रोफाइल डिटेल्स टेबल -->
-    <div class="bg-slate-900/80 p-5 rounded-3xl border border-white/5 space-y-3">
+    <!-- क्रिएटर वेरिफिकेशन टेबल -->
+    <div class="bg-white p-5 rounded-3xl border border-slate-200 shadow-sm space-y-3">
       <div class="flex justify-between items-center">
-        <h2 class="text-sm font-bold text-slate-200">🎬 क्रिएटर ऐप्लिकेशन व अप्रूवल कंट्रोल</h2>
-        <span class="text-xs text-slate-400">पूरी प्रोफाइल जांचने के बाद ही अप्रूव करें</span>
+        <h2 class="text-sm font-bold text-slate-800">🎬 क्रिएटर प्रोफ़ाइल व शेड्यूल वेरिफिकेशन</h2>
+        <span class="text-xs text-slate-500">गिफ़्ट कॉइन्स व शेड्यूल की जाँच करें</span>
       </div>
       <div class="overflow-x-auto">
         <table class="w-full text-xs text-left">
-          <thead class="border-b border-white/5 text-slate-400">
+          <thead class="border-b border-slate-100 text-slate-400">
             <tr>
-              <th class="py-2">चैनल / ईमेल</th>
-              <th>कैटेगरी</th>
-              <th>सोशल लिंक व बायो</th>
+              <th class="py-2">क्रिएटर / ईमेल</th>
+              <th>कैटेगरी & शेड्यूल</th>
+              <th>कॉइन बैलेंस</th>
               <th>स्थिति</th>
               <th>एक्शन</th>
             </tr>
           </thead>
-          <tbody id="creatorListBody" class="divide-y divide-white/5">
-            <tr><td colspan="5" class="py-4 text-center text-slate-500">कोई क्रिएटर पेंडिंग नहीं है</td></tr>
+          <tbody id="creatorListBody" class="divide-y divide-slate-100">
+            <tr><td colspan="5" class="py-4 text-center text-slate-400">कोई क्रिएटर पेंडिंग नहीं है</td></tr>
           </tbody>
         </table>
       </div>
     </div>
 
     <!-- लाइव सेफ्टी लॉग्स -->
-    <div class="bg-slate-900/80 p-5 rounded-3xl border border-white/5 space-y-3">
-      <h2 class="text-sm font-bold text-slate-200">लाइव सेफ्टी व क्राइसिस डिटेक्शन लॉग</h2>
+    <div class="bg-white p-5 rounded-3xl border border-slate-200 shadow-sm space-y-3">
+      <h2 class="text-sm font-bold text-slate-800">लाइव सेफ्टी व मॉडरेशन लॉग</h2>
       <div class="overflow-x-auto">
         <table class="w-full text-xs text-left">
-          <thead class="border-b border-white/5 text-slate-400">
+          <thead class="border-b border-slate-100 text-slate-400">
             <tr>
               <th class="py-2">समय</th>
               <th>रूम ID</th>
@@ -78,8 +78,8 @@
               <th>कारण</th>
             </tr>
           </thead>
-          <tbody id="incidentsBody" class="divide-y divide-white/5">
-            <tr><td colspan="4" class="py-4 text-center text-slate-500">कोई उल्लंघन नहीं</td></tr>
+          <tbody id="incidentsBody" class="divide-y divide-slate-100">
+            <tr><td colspan="4" class="py-4 text-center text-slate-400">कोई उल्लंघन नहीं</td></tr>
           </tbody>
         </table>
       </div>
@@ -103,44 +103,49 @@
         creatorTbody.innerHTML = creators.map(u => `
           <tr>
             <td class="py-3">
-              <div class="font-bold text-slate-200">${u.channelName || 'N/A'}</div>
-              <div class="text-[10px] text-slate-400 font-mono">${u.email}</div>
+              <div class="flex items-center gap-2">
+                <img src="${u.avatar || 'https://api.dicebear.com/7.x/bottts/svg?seed=' + u.email}" class="w-7 h-7 rounded-lg">
+                <div>
+                  <div class="font-bold text-slate-800">${u.channelName || 'N/A'}</div>
+                  <div class="text-[10px] text-slate-400 font-mono">${u.email}</div>
+                </div>
+              </div>
             </td>
             <td>
-              <span class="px-2 py-0.5 rounded bg-indigo-500/20 text-indigo-300 font-semibold text-[10px]">
-                #${u.category || 'General'}
+              <div class="font-bold text-indigo-600">#${u.category || 'General'}</div>
+              <div class="text-[10px] text-slate-500">⏰ ${u.schedule || 'रोज़ाना लाइव'}</div>
+            </td>
+            <td>
+              <span class="px-2 py-0.5 rounded-lg bg-amber-100 text-amber-800 font-bold text-[11px]">
+                💰 ${u.coins || 0} कॉइन्स
               </span>
             </td>
-            <td class="max-w-xs">
-              <p class="text-slate-300 truncate">${u.bio || 'कोई बायो नहीं'}</p>
-              ${u.socialLink ? `<a href="${u.socialLink}" target="_blank" class="text-teal-400 text-[10px] underline block mt-0.5 truncate">${u.socialLink}</a>` : ''}
-            </td>
             <td>
-              <span class="px-2 py-0.5 rounded text-[10px] ${u.isApprovedCreator ? 'bg-emerald-500/20 text-emerald-300' : 'bg-amber-500/20 text-amber-300'}">
-                ${u.isApprovedCreator ? 'Approved (सक्रिय)' : 'Pending (मंज़ूरी बाकी)'}
+              <span class="px-2 py-0.5 rounded text-[10px] font-bold ${u.isApprovedCreator ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'}">
+                ${u.isApprovedCreator ? 'Approved ✅' : 'Pending ⏳'}
               </span>
             </td>
             <td>
               ${!u.isApprovedCreator ? `
-                <button onclick="approveCreator('${u.email}')" class="px-2.5 py-1 bg-gradient-to-r from-emerald-500 to-teal-500 text-slate-950 font-bold rounded-lg text-xs">
-                  Approve करें ✅
+                <button onclick="approveCreator('${u.email}')" class="px-3 py-1 bg-emerald-600 text-white font-bold rounded-xl text-xs shadow-sm">
+                  Approve करें
                 </button>
-              ` : '<span class="text-slate-500 text-xs">स्वीकृत</span>'}
+              ` : '<span class="text-slate-400 text-xs font-semibold">स्वीकृत</span>'}
             </td>
           </tr>
         `).join("");
       } else {
-        creatorTbody.innerHTML = '<tr><td colspan="5" class="py-4 text-center text-slate-500">कोई क्रिएटर रजिस्टर्ड नहीं है</td></tr>';
+        creatorTbody.innerHTML = '<tr><td colspan="5" class="py-4 text-center text-slate-400">कोई क्रिएटर रजिस्टर्ड नहीं है</td></tr>';
       }
 
       const tbody = document.getElementById("incidentsBody");
       if (m.incidents && m.incidents.length > 0) {
         tbody.innerHTML = m.incidents.map(i => `
           <tr>
-            <td class="py-2 text-slate-400">${i.time}</td>
-            <td class="font-mono text-teal-300">${i.room}</td>
-            <td class="font-mono text-slate-300">${i.user}</td>
-            <td class="text-rose-400 font-semibold">${i.reason}</td>
+            <td class="py-2 text-slate-500">${i.time}</td>
+            <td class="font-mono text-teal-600">${i.room}</td>
+            <td class="font-mono text-slate-600">${i.user}</td>
+            <td class="text-rose-600 font-semibold">${i.reason}</td>
           </tr>
         `).join("");
       }
@@ -154,7 +159,7 @@
           body: JSON.stringify({ email })
         });
         const d = await res.json();
-        if (d.success) alert(email + " को क्रिएटर अप्रूवल दे दिया गया है!");
+        if (d.success) alert(email + " को क्रिएटर अप्रूवल मिल गया!");
       } catch (e) {
         alert("अप्रूवल असफल");
       }

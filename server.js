@@ -16,8 +16,8 @@ let liveStreams = [];
 
 // लॉगिन / रजिस्ट्रेशन API
 app.post("/api/auth", (req, res) => {
-  const { email, password, role, channelName, category, socialLink, bio } = req.body;
-  if (!email || !password) return res.status(400).json({ error: "Email & password required" });
+  const { email, password, role, channelName, category, avatar, schedule, socialLink, bio } = req.body;
+  if (!email || !password) return res.status(400).json({ error: "ईमेल और पासवर्ड आवश्यक हैं" });
 
   let user = registeredUsers.find(u => u.email === email);
   if (!user) {
@@ -27,8 +27,11 @@ app.post("/api/auth", (req, res) => {
       role: role || "viewer",
       channelName: channelName || email.split("@")[0],
       category: category || "General",
+      avatar: avatar || `https://api.dicebear.com/7.x/bottts/svg?seed=${email}`,
+      schedule: schedule || "रोज़ाना लाइव",
       socialLink: socialLink || "",
-      bio: bio || "",
+      bio: bio || "सुकून क्रिएटर",
+      coins: 0,
       isApprovedCreator: role === "creator" ? false : true,
       joinedAt: new Date().toLocaleDateString()
     };
@@ -46,7 +49,7 @@ app.post("/api/admin/approve-creator", (req, res) => {
     broadcastAdminStats();
     return res.json({ success: true, user });
   }
-  res.status(404).json({ error: "User not found" });
+  res.status(404).json({ error: "यूज़र नहीं मिला" });
 });
 
 const server = http.createServer(app);
@@ -106,6 +109,10 @@ io.on("connection", (socket) => {
       streamId,
       streamerEmail: email,
       channelName: user.channelName,
+      avatar: user.avatar,
+      schedule: user.schedule,
+      bio: user.bio,
+      socialLink: user.socialLink,
       title: title || `${user.channelName} की लाइव स्ट्रीम`,
       category: category || user.category || "Gaming",
       socketId: socket.id
@@ -126,6 +133,22 @@ io.on("connection", (socket) => {
     const stream = liveStreams.find(s => s.streamId === streamId);
     if (stream) {
       io.to(stream.socketId).emit("viewer_joined", { viewerSocketId: socket.id });
+    }
+  });
+
+  // वर्चुअल गिफ़्ट भेजना
+  socket.on("send_gift", ({ streamId, giftName, coins, senderName }) => {
+    const stream = liveStreams.find(s => s.streamId === streamId);
+    if (stream) {
+      const creator = registeredUsers.find(u => u.email === stream.streamerEmail);
+      if (creator) creator.coins = (creator.coins || 0) + coins;
+      io.to(streamId).emit("gift_received", {
+        giftName,
+        coins,
+        senderName: senderName || "अनाम दर्शक",
+        channelName: stream.channelName
+      });
+      broadcastAdminStats();
     }
   });
 
@@ -234,5 +257,5 @@ setInterval(() => {
 
 const PORT = process.env.PORT || 5000;
 server.listen(PORT, () => {
-  console.log(`>>> Sukoon V4 Engine active on port ${PORT}`);
+  console.log(`>>> Sukoon Light V5 Engine active on port ${PORT}`);
 });
