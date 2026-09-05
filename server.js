@@ -20,10 +20,17 @@ let dbData = {
   registeredUsers: [],
   totalConnectionsCount: 0,
   incidents: [],
-  banner: {
-    imageUrl: "https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=800&auto=format&fit=crop&q=60",
-    title: "सुकून कम्युनिटी में आपका स्वागत है 🌿",
-    linkUrl: ""
+  banners: {
+    banner1: {
+      imageUrl: "https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=800&auto=format&fit=crop&q=60",
+      title: "सुकून कम्युनिटी में आपका स्वागत है 🌿",
+      linkUrl: ""
+    },
+    banner2: {
+      imageUrl: "https://images.unsplash.com/photo-1517649763962-0c623266ddc0?w=800&auto=format&fit=crop&q=60",
+      title: "लाइव स्ट्रीम हब में अपनी प्रतिभा दिखाएँ 🎙️",
+      linkUrl: ""
+    }
   }
 };
 
@@ -31,6 +38,12 @@ if (fs.existsSync(DB_FILE)) {
   try {
     const raw = fs.readFileSync(DB_FILE, "utf-8");
     dbData = { ...dbData, ...JSON.parse(raw) };
+    if (!dbData.banners) {
+      dbData.banners = {
+        banner1: dbData.banner || { imageUrl: "", title: "", linkUrl: "" },
+        banner2: { imageUrl: "", title: "", linkUrl: "" }
+      };
+    }
   } catch (e) {
     console.error("DB Load Error:", e);
   }
@@ -46,25 +59,32 @@ const saveDB = () => {
 
 let liveStreams = [];
 
-// बैनर प्राप्त करने की पब्लिक API
-app.get("/api/banner", (req, res) => {
-  res.json({ banner: dbData.banner || null });
+// दोनों बैनर प्राप्त करने की API
+app.get("/api/banners", (req, res) => {
+  res.json({ banners: dbData.banners });
 });
 
-// एडमिन द्वारा बैनर अपडेट करने की API
-app.post("/api/admin/update-banner", (req, res) => {
-  const { token, imageUrl, title, linkUrl } = req.body;
+// एडमिन द्वारा ड्यूल बैनर अपडेट करने की API
+app.post("/api/admin/update-banners", (req, res) => {
+  const { token, banner1, banner2 } = req.body;
   if (token !== "sukoon_admin_auth_verified_2026") {
     return res.status(403).json({ error: "अनधिकृत एक्सेस" });
   }
-  dbData.banner = {
-    imageUrl: imageUrl || "",
-    title: title || "",
-    linkUrl: linkUrl || ""
+  dbData.banners = {
+    banner1: {
+      imageUrl: banner1?.imageUrl || "",
+      title: banner1?.title || "",
+      linkUrl: banner1?.linkUrl || ""
+    },
+    banner2: {
+      imageUrl: banner2?.imageUrl || "",
+      title: banner2?.title || "",
+      linkUrl: banner2?.linkUrl || ""
+    }
   };
   saveDB();
-  io.emit("banner_updated", dbData.banner);
-  res.json({ success: true, banner: dbData.banner });
+  io.emit("banners_updated", dbData.banners);
+  res.json({ success: true, banners: dbData.banners });
 });
 
 // एडमिन लॉगिन API
@@ -144,7 +164,7 @@ const broadcastAdminStats = () => {
     registeredUsers: dbData.registeredUsers,
     liveStreamsCount: liveStreams.length,
     incidents: dbData.incidents,
-    banner: dbData.banner
+    banners: dbData.banners
   });
 };
 
@@ -342,5 +362,5 @@ setInterval(() => {
 
 const PORT = process.env.PORT || 5000;
 server.listen(PORT, () => {
-  console.log(`>>> Sukoon Secure V8.1 active on port ${PORT}`);
+  console.log(`>>> Sukoon Dual Banners V8.2 active on port ${PORT}`);
 });

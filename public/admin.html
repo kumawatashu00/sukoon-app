@@ -37,7 +37,7 @@
     <div class="flex justify-between items-center border-b border-slate-200 pb-4">
       <div>
         <h1 class="text-xl font-black text-rose-600">🛡️ सुकून एडमिन कमांड सेंटर</h1>
-        <p class="text-xs text-slate-500">होमपेज बैनर, डेटाबेस व मॉनिटरिंग</p>
+        <p class="text-xs text-slate-500">ड्यूल बैनर, डेटाबेस व मॉनिटरिंग</p>
       </div>
       <div class="flex items-center gap-2">
         <a href="/" class="px-3.5 py-1.5 bg-white border border-slate-200 rounded-2xl text-xs font-bold text-slate-700 shadow-sm">← होम पर जाएँ</a>
@@ -69,37 +69,44 @@
       </div>
     </div>
 
-    <!-- 🔥 नया बैनर / इमेज मैनेजर कंट्रोल पैनल 🔥 -->
-    <div class="bg-white p-5 rounded-3xl border border-slate-200 shadow-sm space-y-4">
-      <div class="flex justify-between items-center">
+    <!-- 🔥 ड्यूल बैनर कंट्रोल पैनल (Banner 1 & Banner 2) 🔥 -->
+    <div class="bg-white p-5 rounded-3xl border border-slate-200 shadow-sm space-y-5">
+      <div class="flex justify-between items-center border-b border-slate-100 pb-2">
         <div>
-          <h2 class="text-sm font-bold text-slate-800">🖼️ होमपेज बैनर व इमेज कंट्रोल (Dynamic Banner)</h2>
-          <p class="text-xs text-slate-400">यहाँ से फोटो डालते ही वेबसाइट के होमपेज पर तुरंत लग जाएगी</p>
+          <h2 class="text-sm font-bold text-slate-800">🖼️ होमपेज ड्यूल बैनर कंट्रोल (Dual Banner Slots)</h2>
+          <p class="text-xs text-slate-400">यहाँ से दोनों फोटो/नोटिस अलग-अलग नियंत्रित करें</p>
         </div>
       </div>
 
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
-        <div>
-          <label class="text-[11px] font-bold text-slate-600 block mb-1">फोटो का लिंक (Image URL)*</label>
-          <input type="text" id="bannerImgInput" placeholder="https://example.com/photo.jpg" class="w-full bg-slate-50 border border-slate-200 rounded-2xl p-2.5 text-xs">
+      <!-- BANNER 1 FORM -->
+      <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200/80 space-y-3">
+        <div class="flex items-center justify-between">
+          <span class="text-xs font-bold text-indigo-700 uppercase tracking-wider">📌 बैनर 1 (Banner 1)</span>
+          <img id="previewB1" src="" class="h-6 w-12 object-cover rounded border border-slate-200 bg-white">
         </div>
-        <div>
-          <label class="text-[11px] font-bold text-slate-600 block mb-1">बैनर का टाइटल / कैप्शन (वैकल्पिक)</label>
-          <input type="text" id="bannerTitleInput" placeholder="उदा. आज रात 9 बजे मेगा स्ट्रीम!" class="w-full bg-slate-50 border border-slate-200 rounded-2xl p-2.5 text-xs">
-        </div>
-        <div>
-          <label class="text-[11px] font-bold text-slate-600 block mb-1">क्लिक करने पर खुलने वाला लिंक (URL)</label>
-          <input type="text" id="bannerLinkInput" placeholder="https://..." class="w-full bg-slate-50 border border-slate-200 rounded-2xl p-2.5 text-xs">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-2.5">
+          <input type="text" id="b1Img" placeholder="फोटो का लिंक (Image URL 1)*" class="bg-white border border-slate-200 rounded-xl p-2 text-xs">
+          <input type="text" id="b1Title" placeholder="शीर्षक / नोटिस 1" class="bg-white border border-slate-200 rounded-xl p-2 text-xs">
+          <input type="text" id="b1Link" placeholder="क्लिक लिंक 1 (वैकल्पिक)" class="bg-white border border-slate-200 rounded-xl p-2 text-xs">
         </div>
       </div>
 
-      <div class="flex items-center justify-between pt-1">
-        <div class="text-xs text-slate-500 flex items-center gap-2">
-          <span>वर्तमान बैनर प्रीव्यू:</span>
-          <img id="currentBannerPreview" src="" class="h-8 w-14 object-cover rounded-lg border border-slate-200 bg-slate-100">
+      <!-- BANNER 2 FORM -->
+      <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200/80 space-y-3">
+        <div class="flex items-center justify-between">
+          <span class="text-xs font-bold text-rose-700 uppercase tracking-wider">📌 बैनर 2 (Banner 2)</span>
+          <img id="previewB2" src="" class="h-6 w-12 object-cover rounded border border-slate-200 bg-white">
         </div>
-        <button onclick="saveHomepageBanner()" class="px-5 py-2.5 bg-gradient-to-r from-emerald-600 to-teal-600 text-white font-bold rounded-2xl text-xs shadow hover:opacity-90">
-          बैनर वेबसाइट पर अपडेट करें ➔
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-2.5">
+          <input type="text" id="b2Img" placeholder="फोटो का लिंक (Image URL 2)*" class="bg-white border border-slate-200 rounded-xl p-2 text-xs">
+          <input type="text" id="b2Title" placeholder="शीर्षक / नोटिस 2" class="bg-white border border-slate-200 rounded-xl p-2 text-xs">
+          <input type="text" id="b2Link" placeholder="क्लिक लिंक 2 (वैकल्पिक)" class="bg-white border border-slate-200 rounded-xl p-2 text-xs">
+        </div>
+      </div>
+
+      <div class="text-right">
+        <button onclick="saveHomepageBanners()" class="px-6 py-2.5 bg-gradient-to-r from-emerald-600 to-teal-600 text-white font-bold rounded-2xl text-xs shadow hover:opacity-90">
+          दोनों बैनर वेबसाइट पर अपडेट करें ➔
         </button>
       </div>
     </div>
@@ -219,27 +226,31 @@
       location.reload();
     }
 
-    async function saveHomepageBanner() {
-      const imageUrl = document.getElementById('bannerImgInput').value.trim();
-      const title = document.getElementById('bannerTitleInput').value.trim();
-      const linkUrl = document.getElementById('bannerLinkInput').value.trim();
-
-      if (!imageUrl) {
-        return alert("कृपया फोटो / इमेज का लिंक (Image URL) डालें!");
-      }
+    async function saveHomepageBanners() {
+      const banner1 = {
+        imageUrl: document.getElementById('b1Img').value.trim(),
+        title: document.getElementById('b1Title').value.trim(),
+        linkUrl: document.getElementById('b1Link').value.trim()
+      };
+      const banner2 = {
+        imageUrl: document.getElementById('b2Img').value.trim(),
+        title: document.getElementById('b2Title').value.trim(),
+        linkUrl: document.getElementById('b2Link').value.trim()
+      };
 
       try {
-        const res = await fetch("/api/admin/update-banner", {
+        const res = await fetch("/api/admin/update-banners", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ token: adminToken, imageUrl, title, linkUrl })
+          body: JSON.stringify({ token: adminToken, banner1, banner2 })
         });
         const data = await res.json();
         if (data.success) {
-          alert("✅ होमपेज बैनर सफलतापूर्वक अपडेट हो गया!");
-          document.getElementById('currentBannerPreview').src = imageUrl;
+          alert("✅ दोनों बैनर सफलतापूर्वक अपडेट हो गए!");
+          document.getElementById('previewB1').src = banner1.imageUrl || "";
+          document.getElementById('previewB2').src = banner2.imageUrl || "";
         } else {
-          alert("बैनर अपडेट असफल रहा");
+          alert("अपडेट असफल रहा");
         }
       } catch (e) {
         alert("सर्वर एरर");
@@ -257,12 +268,20 @@
         document.getElementById("m-reg").innerText = m.registeredUsers?.length || 0;
         document.getElementById("m-incidents").innerText = m.incidents?.length || 0;
 
-        // बैनर इनपुट्स भरना
-        if (m.banner) {
-          document.getElementById('bannerImgInput').value = m.banner.imageUrl || "";
-          document.getElementById('bannerTitleInput').value = m.banner.title || "";
-          document.getElementById('bannerLinkInput').value = m.banner.linkUrl || "";
-          document.getElementById('currentBannerPreview').src = m.banner.imageUrl || "";
+        // दोनों बैनर के इनपुट्स भरना
+        if (m.banners) {
+          if (m.banners.banner1) {
+            document.getElementById('b1Img').value = m.banners.banner1.imageUrl || "";
+            document.getElementById('b1Title').value = m.banners.banner1.title || "";
+            document.getElementById('b1Link').value = m.banners.banner1.linkUrl || "";
+            document.getElementById('previewB1').src = m.banners.banner1.imageUrl || "";
+          }
+          if (m.banners.banner2) {
+            document.getElementById('b2Img').value = m.banners.banner2.imageUrl || "";
+            document.getElementById('b2Title').value = m.banners.banner2.title || "";
+            document.getElementById('b2Link').value = m.banners.banner2.linkUrl || "";
+            document.getElementById('previewB2').src = m.banners.banner2.imageUrl || "";
+          }
         }
 
         const allUsersTbody = document.getElementById("allUsersBody");

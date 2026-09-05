@@ -30,7 +30,7 @@
 <body class="bg-[#f8fafc] text-slate-800 font-sans app-screen flex flex-col overflow-hidden selection:bg-rose-200 relative">
 
   <!-- ================= 1. HOME SCREEN ================= -->
-  <div id="homeScreen" class="flex-1 flex flex-col justify-between p-4 md:p-6 max-w-lg w-full mx-auto overflow-y-auto">
+  <div id="homeScreen" class="flex-1 flex flex-col justify-between p-4 md:p-6 max-w-lg w-full mx-auto overflow-y-auto space-y-3">
     
     <div class="flex justify-between items-center pt-1">
       <button onclick="toggleLanguage()" id="langToggleBtn" class="px-3 py-1.5 rounded-2xl bg-white border border-slate-200 text-xs font-bold text-slate-700 hover:bg-slate-50 shadow-sm flex items-center gap-1.5 transition">
@@ -47,8 +47,8 @@
       </div>
     </div>
 
-    <div class="text-center pt-2 space-y-1">
-      <div class="w-14 h-14 rounded-3xl bg-gradient-to-tr from-rose-500 to-pink-500 mx-auto flex items-center justify-center text-2xl shadow-lg shadow-rose-500/20 text-white">
+    <div class="text-center pt-1 space-y-1">
+      <div class="w-13 h-13 w-12 h-12 rounded-3xl bg-gradient-to-tr from-rose-500 to-pink-500 mx-auto flex items-center justify-center text-2xl shadow-lg shadow-rose-500/20 text-white">
         🌿
       </div>
       <div>
@@ -57,7 +57,7 @@
       </div>
     </div>
 
-    <div class="bg-white p-3 rounded-3xl border border-slate-200/80 shadow-sm my-2">
+    <div class="bg-white p-3 rounded-3xl border border-slate-200/80 shadow-sm">
       <span class="text-[10px] font-bold text-slate-500 uppercase tracking-wider block mb-1.5" data-i18n="tagTitle">🎯 पसंदीदा विषय (Tags):</span>
       <div class="flex flex-wrap gap-1.5" id="tagList">
         <button type="button" onclick="selectTag('All')" class="tag-btn px-2.5 py-1 rounded-xl text-xs font-bold bg-rose-50 border border-rose-300 text-rose-600" data-tag="All">🌟 All</button>
@@ -69,9 +69,9 @@
     </div>
 
     <!-- Main 3 Cards -->
-    <div class="space-y-2.5 my-1">
+    <div class="space-y-2.5">
       <div class="grid grid-cols-2 gap-2.5">
-        <button onclick="startApp('text')" class="flex flex-col justify-between p-3.5 rounded-3xl bg-white border border-teal-200/70 hover:border-teal-400 hover:shadow-md transition text-left min-h-[135px] shadow-sm">
+        <button onclick="startApp('text')" class="flex flex-col justify-between p-3.5 rounded-3xl bg-white border border-teal-200/70 hover:border-teal-400 hover:shadow-md transition text-left min-h-[130px] shadow-sm">
           <div class="w-9 h-9 rounded-2xl bg-teal-50 text-teal-600 flex items-center justify-center text-lg">💬</div>
           <div>
             <h2 class="text-xs font-black text-slate-800" data-i18n="textChatTitle">टेक्स्ट चैट</h2>
@@ -80,7 +80,7 @@
           <span class="text-teal-600 text-[11px] font-bold" data-i18n="startBtn">शुरू करें ➔</span>
         </button>
 
-        <button onclick="startApp('video')" class="flex flex-col justify-between p-3.5 rounded-3xl bg-white border border-rose-200/70 hover:border-rose-400 hover:shadow-md transition text-left min-h-[135px] shadow-sm">
+        <button onclick="startApp('video')" class="flex flex-col justify-between p-3.5 rounded-3xl bg-white border border-rose-200/70 hover:border-rose-400 hover:shadow-md transition text-left min-h-[130px] shadow-sm">
           <div class="w-9 h-9 rounded-2xl bg-rose-50 text-rose-600 flex items-center justify-center text-lg">📹</div>
           <div>
             <h2 class="text-xs font-black text-slate-800" data-i18n="videoCallTitle">वीडियो कॉल</h2>
@@ -92,7 +92,7 @@
 
       <button onclick="openStreamHub()" class="w-full p-3.5 rounded-3xl bg-gradient-to-r from-indigo-50 to-purple-50 border border-indigo-200/80 hover:border-indigo-300 hover:shadow-md transition flex items-center justify-between shadow-sm">
         <div class="flex items-center gap-3">
-          <div class="w-10 h-10 rounded-2xl bg-white border border-indigo-100 flex items-center justify-center text-xl shadow-sm">📡</div>
+          <div class="w-9 h-9 rounded-2xl bg-white border border-indigo-100 flex items-center justify-center text-lg shadow-sm">📡</div>
           <div class="text-left">
             <div class="flex items-center gap-1.5">
               <h2 class="text-xs font-black text-indigo-900" data-i18n="streamHubTitle">क्रिएटर लाइव हब</h2>
@@ -105,17 +105,27 @@
       </button>
     </div>
 
-    <!-- 🔥 नया डायनामिक इमेज / बैनर स्लॉट (एडमिन द्वारा सेट किया हुआ) 🔥 -->
-    <div id="homeBannerCard" class="hidden my-2 rounded-3xl overflow-hidden border border-slate-200 bg-white shadow-sm transition hover:shadow-md relative">
-      <a id="bannerLinkWrapper" href="#" target="_blank" class="block relative group">
-        <img id="bannerImage" src="" alt="Sukoon Update" class="w-full h-32 md:h-36 object-cover bg-slate-100">
-        <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent flex items-end p-3">
-          <p id="bannerTitle" class="text-white text-xs font-bold drop-shadow truncate"></p>
+    <!-- 🔥 बैनर 1 स्लॉट (Top Custom Banner) 🔥 -->
+    <div id="homeBannerCard1" class="hidden rounded-3xl overflow-hidden border border-slate-200 bg-white shadow-sm transition hover:shadow-md relative">
+      <a id="bannerLinkWrapper1" href="#" target="_blank" class="block relative group">
+        <img id="bannerImage1" src="" alt="Notice 1" class="w-full h-32 md:h-36 object-cover bg-slate-100">
+        <div class="absolute inset-0 bg-gradient-to-t from-black/75 via-black/20 to-transparent flex items-end p-3">
+          <p id="bannerTitle1" class="text-white text-xs font-bold drop-shadow truncate"></p>
         </div>
       </a>
     </div>
 
-    <div class="text-center pb-1 text-[10px] text-slate-400" data-i18n="disclaimer">
+    <!-- 🔥 बैनर 2 स्लॉट (Bottom Custom Banner) 🔥 -->
+    <div id="homeBannerCard2" class="hidden rounded-3xl overflow-hidden border border-slate-200 bg-white shadow-sm transition hover:shadow-md relative">
+      <a id="bannerLinkWrapper2" href="#" target="_blank" class="block relative group">
+        <img id="bannerImage2" src="" alt="Notice 2" class="w-full h-32 md:h-36 object-cover bg-slate-100">
+        <div class="absolute inset-0 bg-gradient-to-t from-black/75 via-black/20 to-transparent flex items-end p-3">
+          <p id="bannerTitle2" class="text-white text-xs font-bold drop-shadow truncate"></p>
+        </div>
+      </a>
+    </div>
+
+    <div class="text-center pb-2 text-[10px] text-slate-400" data-i18n="disclaimer">
       🔒 18+ यूज़र्स के लिए • पूर्णतः सुरक्षित एवं अनाम
     </div>
   </div>
@@ -400,42 +410,60 @@
     window.addEventListener("load", () => {
       fixMobileViewport();
       restoreSavedUser();
-      fetchBanner();
+      fetchBanners();
       initSocket();
     });
 
-    // बैनर फेच और डिस्प्ले करना
-    async function fetchBanner() {
+    // दोनों बैनरों को फेच और डिस्प्ले करना
+    async function fetchBanners() {
       try {
-        const res = await fetch("/api/banner");
+        const res = await fetch("/api/banners");
         const data = await res.json();
-        if (data.banner && data.banner.imageUrl) {
-          renderBanner(data.banner);
+        if (data.banners) {
+          renderBanners(data.banners);
         }
       } catch (e) {}
     }
 
-    function renderBanner(b) {
-      const card = document.getElementById("homeBannerCard");
-      const img = document.getElementById("bannerImage");
-      const title = document.getElementById("bannerTitle");
-      const link = document.getElementById("bannerLinkWrapper");
-
-      if (!b || !b.imageUrl) {
-        card.classList.add("hidden");
-        return;
-      }
-
-      img.src = b.imageUrl;
-      title.innerText = b.title || "";
-      if (b.linkUrl) {
-        link.href = b.linkUrl;
-        link.style.pointerEvents = "auto";
+    function renderBanners(banners) {
+      if (!banners) return;
+      // बैनर 1
+      const b1 = banners.banner1;
+      const card1 = document.getElementById("homeBannerCard1");
+      if (b1 && b1.imageUrl) {
+        document.getElementById("bannerImage1").src = b1.imageUrl;
+        document.getElementById("bannerTitle1").innerText = b1.title || "";
+        const link1 = document.getElementById("bannerLinkWrapper1");
+        if (b1.linkUrl) {
+          link1.href = b1.linkUrl;
+          link1.style.pointerEvents = "auto";
+        } else {
+          link1.removeAttribute("href");
+          link1.style.pointerEvents = "none";
+        }
+        card1.classList.remove("hidden");
       } else {
-        link.removeAttribute("href");
-        link.style.pointerEvents = "none";
+        card1.classList.add("hidden");
       }
-      card.classList.remove("hidden");
+
+      // बैनर 2
+      const b2 = banners.banner2;
+      const card2 = document.getElementById("homeBannerCard2");
+      if (b2 && b2.imageUrl) {
+        document.getElementById("bannerImage2").src = b2.imageUrl;
+        document.getElementById("bannerTitle2").innerText = b2.title || "";
+        const link2 = document.getElementById("bannerLinkWrapper2");
+        if (b2.linkUrl) {
+          link2.href = b2.linkUrl;
+          link2.style.pointerEvents = "auto";
+        } else {
+          link2.removeAttribute("href");
+          link2.style.pointerEvents = "none";
+        }
+        card2.classList.remove("hidden");
+      } else {
+        card2.classList.add("hidden");
+      }
     }
 
     function restoreSavedUser() {
@@ -571,7 +599,7 @@
       });
     }
 
-    // ================= लाइव स्ट्रीम हब ऑपरेशन्स =================
+    // ================= लाइव स्ट्रीम हब =================
     function openStreamHub() {
       if (!loggedInUser) {
         alert("लाइव स्ट्रीम हब खोलने के लिए पहले लॉगिन करें!");
@@ -829,7 +857,7 @@
       setTimeout(() => el.remove(), 2200);
     }
 
-    // ================= रैंडम चैट & वीडियो ऑपरेशन्स =================
+    // ================= रैंडम चैट & वीडियो =================
     async function startApp(mode) {
       currentMode = mode;
       document.getElementById('homeScreen').classList.add('hidden');
@@ -879,8 +907,8 @@
         currentActiveStreamId = s.streamId;
       });
 
-      socket.on("banner_updated", (b) => {
-        renderBanner(b);
+      socket.on("banners_updated", (banners) => {
+        renderBanners(banners);
       });
 
       socket.on("stream_list_updated", (streams) => renderStreamsList(streams));
