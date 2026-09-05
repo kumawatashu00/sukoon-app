@@ -1,0 +1,20 @@
+{
+  "name": "Sukoon - Anonymous Live Space",
+  "short_name": "Sukoon",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f8fafc",
+  "theme_color": "#e11d48",
+  "icons": [
+    {
+      "src": "https://api.dicebear.com/7.x/bottts/svg?seed=sukoon_app_logo",
+      "sizes": "192x192",
+      "type": "image/svg+xml"
+    },
+    {
+      "src": "https://api.dicebear.com/7.x/bottts/svg?seed=sukoon_app_logo",
+      "sizes": "512x512",
+      "type": "image/svg+xml"
+    }
+  ]
+}

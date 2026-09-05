@@ -4,6 +4,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, interactive-widget=resizes-content">
   <title>Sukoon - Anonymous & Live Stream Space</title>
+  <link rel="manifest" href="/manifest.json">
+  <meta name="theme-color" content="#e11d48">
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="/socket.io/socket.io.js"></script>
   <style>
@@ -48,7 +50,7 @@
     </div>
 
     <div class="text-center pt-1 space-y-1">
-      <div class="w-13 h-13 w-12 h-12 rounded-3xl bg-gradient-to-tr from-rose-500 to-pink-500 mx-auto flex items-center justify-center text-2xl shadow-lg shadow-rose-500/20 text-white">
+      <div class="w-12 h-12 rounded-3xl bg-gradient-to-tr from-rose-500 to-pink-500 mx-auto flex items-center justify-center text-2xl shadow-lg shadow-rose-500/20 text-white">
         🌿
       </div>
       <div>
@@ -103,9 +105,14 @@
         </div>
         <span class="text-indigo-600 text-xs font-bold">➔</span>
       </button>
+
+      <!-- 📲 1-टैप व्हाट्सएप वायरल शेयर बटन -->
+      <button onclick="shareOnWhatsApp()" class="w-full py-2.5 px-4 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-800 font-bold text-xs flex items-center justify-center gap-2 shadow-sm hover:bg-emerald-100 transition">
+        <span class="text-sm">💬</span> <span>दोस्तों को सुकून पर इनवाइट करें (WhatsApp Share)</span>
+      </button>
     </div>
 
-    <!-- 🔥 बैनर 1 स्लॉट (Top Custom Banner) 🔥 -->
+    <!-- बैनर 1 स्लॉट -->
     <div id="homeBannerCard1" class="hidden rounded-3xl overflow-hidden border border-slate-200 bg-white shadow-sm transition hover:shadow-md relative">
       <a id="bannerLinkWrapper1" href="#" target="_blank" class="block relative group">
         <img id="bannerImage1" src="" alt="Notice 1" class="w-full h-32 md:h-36 object-cover bg-slate-100">
@@ -115,7 +122,7 @@
       </a>
     </div>
 
-    <!-- 🔥 बैनर 2 स्लॉट (Bottom Custom Banner) 🔥 -->
+    <!-- बैनर 2 स्लॉट -->
     <div id="homeBannerCard2" class="hidden rounded-3xl overflow-hidden border border-slate-200 bg-white shadow-sm transition hover:shadow-md relative">
       <a id="bannerLinkWrapper2" href="#" target="_blank" class="block relative group">
         <img id="bannerImage2" src="" alt="Notice 2" class="w-full h-32 md:h-36 object-cover bg-slate-100">
@@ -131,7 +138,7 @@
   </div>
 
 
-  <!-- ================= 2. RANDOM ROOM SCREEN ================= -->
+  <!-- ================= 2. RANDOM ROOM SCREEN (REPORT BUTTON INCLUDED) ================= -->
   <div id="roomScreen" class="hidden flex-1 flex flex-col overflow-hidden bg-slate-100">
     <header class="px-4 py-2 bg-white border-b border-slate-200 flex justify-between items-center shrink-0 shadow-sm">
       <div class="flex items-center gap-2">
@@ -142,6 +149,10 @@
       </div>
 
       <div class="flex items-center gap-2">
+        <!-- 🚩 1-क्लिक रिपोर्ट / ब्लॉक बटन -->
+        <button onclick="reportPartner()" class="px-3 py-1.5 rounded-xl bg-rose-50 border border-rose-200 text-rose-600 text-xs font-bold hover:bg-rose-100 shadow-sm">
+          🚩 रिपोर्ट
+        </button>
         <button onclick="nextPartner()" id="nextBtn" class="px-4 py-1.5 rounded-xl bg-gradient-to-r from-rose-500 to-pink-500 text-white text-xs font-bold shadow-md hover:opacity-90">
           Next ➔
         </button>
@@ -187,7 +198,7 @@
   </div>
 
 
-  <!-- ================= 3. LIVE STREAM HUB ================= -->
+  <!-- ================= 3. LIVE STREAM HUB (VIEWER COUNT & CONTROLS INCLUDED) ================= -->
   <div id="streamHubScreen" class="hidden flex-1 flex flex-col overflow-hidden max-w-4xl w-full mx-auto p-3 md:p-4 bg-[#f8fafc]">
     <header class="flex justify-between items-center pb-2 border-b border-slate-200">
       <div class="flex items-center gap-2">
@@ -211,13 +222,27 @@
     <div id="activeStreamPlayer" class="hidden flex-1 flex flex-col md:flex-row gap-2 mt-1 overflow-hidden min-h-0">
       <div class="relative flex-1 rounded-3xl overflow-hidden bg-black border border-slate-200 flex items-center justify-center shadow-lg min-h-[220px]">
         <video id="streamVideoPlayer" autoplay playsinline class="w-full h-full object-cover"></video>
-        <div class="absolute top-3 left-3 bg-rose-600 text-white px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase shadow">LIVE</div>
         
+        <div class="absolute top-3 left-3 flex items-center gap-2">
+          <div class="bg-rose-600 text-white px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase shadow">LIVE</div>
+          <!-- 👁️ लाइव व्यूअर काउंटर -->
+          <div class="bg-black/60 backdrop-blur text-white px-2.5 py-0.5 rounded-full text-[10px] font-bold shadow flex items-center gap-1">
+            <span>👁️</span> <span id="streamViewersCount">0</span>
+          </div>
+        </div>
+        
+        <!-- Streamer Controls (Flip Cam, Mic Mute, Video Off, Screen Share, Stop) -->
         <div id="streamerLiveControls" class="hidden absolute top-3 right-3 flex flex-wrap gap-1.5">
-          <button onclick="flipStreamerCamera()" class="bg-white/90 hover:bg-white text-slate-800 px-2.5 py-1 rounded-2xl text-xs font-bold shadow flex items-center gap-1" title="कैमरा आगे-पीछे पलटें">
+          <button onclick="toggleStreamerAudio()" id="streamerMicBtn" class="bg-white/90 hover:bg-white text-slate-800 px-2.5 py-1 rounded-2xl text-xs font-bold shadow" title="माइक म्यूट करें">
+            🎙️
+          </button>
+          <button onclick="toggleStreamerVideo()" id="streamerCamBtn" class="bg-white/90 hover:bg-white text-slate-800 px-2.5 py-1 rounded-2xl text-xs font-bold shadow" title="कैमरा ऑन/ऑफ">
+            📹
+          </button>
+          <button onclick="flipStreamerCamera()" class="bg-white/90 hover:bg-white text-slate-800 px-2.5 py-1 rounded-2xl text-xs font-bold shadow" title="कैमरा पलटें">
             🔄 फ्लिप
           </button>
-          <button onclick="toggleScreenShare()" id="screenShareBtn" class="bg-white/90 hover:bg-white text-indigo-700 px-2.5 py-1 rounded-2xl text-xs font-bold shadow flex items-center gap-1">
+          <button onclick="toggleScreenShare()" id="screenShareBtn" class="bg-white/90 hover:bg-white text-indigo-700 px-2.5 py-1 rounded-2xl text-xs font-bold shadow">
             📲 स्क्रीन शेयर
           </button>
           <button onclick="stopBroadcast()" class="bg-rose-600 text-white hover:bg-rose-700 px-2.5 py-1 rounded-2xl text-xs font-bold shadow">
@@ -392,6 +417,8 @@
     let isInitiator = false;
     let isMuted = false;
     let isCamOff = false;
+    let isStreamerMuted = false;
+    let isStreamerCamOff = false;
     const filters = ['filter-none', 'filter-blur', 'filter-bw', 'filter-sepia'];
     let filterIndex = 0;
     let loggedInUser = null;
@@ -414,7 +441,21 @@
       initSocket();
     });
 
-    // दोनों बैनरों को फेच और डिस्प्ले करना
+    // 📲 व्हाट्सएप वायरल शेयर फ़ंक्शन
+    function shareOnWhatsApp() {
+      const text = encodeURIComponent("यार, सुकून (Sukoon) पर आओ! यहाँ बिना किसी पहचान के दिल खोलकर बात कर सकते हैं और लाइव स्ट्रीम देख सकते हैं 👉 " + window.location.origin);
+      window.open(`https://api.whatsapp.com/send?text=${text}`, '_blank');
+    }
+
+    // 🚩 1-क्लिक रिपोर्ट साथी
+    function reportPartner() {
+      if (confirm("क्या आप इस साथी को रिपोर्ट करके कॉल समाप्त करना चाहते हैं?")) {
+        if (socket) socket.emit("report_partner", { reason: "यूज़र द्वारा अमर्यादित व्यवहार के लिए रिपोर्ट किया गया" });
+        alert("रिपोर्ट दर्ज कर ली गई है। नया साथी खोजा जा रहा है...");
+        nextPartner();
+      }
+    }
+
     async function fetchBanners() {
       try {
         const res = await fetch("/api/banners");
@@ -427,7 +468,6 @@
 
     function renderBanners(banners) {
       if (!banners) return;
-      // बैनर 1
       const b1 = banners.banner1;
       const card1 = document.getElementById("homeBannerCard1");
       if (b1 && b1.imageUrl) {
@@ -446,7 +486,6 @@
         card1.classList.add("hidden");
       }
 
-      // बैनर 2
       const b2 = banners.banner2;
       const card2 = document.getElementById("homeBannerCard2");
       if (b2 && b2.imageUrl) {
@@ -599,7 +638,7 @@
       });
     }
 
-    // ================= लाइव स्ट्रीम हब =================
+    // ================= लाइव स्ट्रीम हब ऑपरेशन्स =================
     function openStreamHub() {
       if (!loggedInUser) {
         alert("लाइव स्ट्रीम हब खोलने के लिए पहले लॉगिन करें!");
@@ -660,6 +699,22 @@
       } catch (e) {
         alert("कैमरा या माइक अनुमति नहीं मिली!");
       }
+    }
+
+    // 🎙️ स्ट्रीमर ऑडियो म्यूट/अनम्यूट
+    function toggleStreamerAudio() {
+      if (!localStream) return;
+      isStreamerMuted = !isStreamerMuted;
+      localStream.getAudioTracks().forEach(t => t.enabled = !isStreamerMuted);
+      document.getElementById('streamerMicBtn').innerText = isStreamerMuted ? "🔇" : "🎙️";
+    }
+
+    // 📹 स्ट्रीमर वीडियो ऑन/ऑफ
+    function toggleStreamerVideo() {
+      if (!localStream) return;
+      isStreamerCamOff = !isStreamerCamOff;
+      localStream.getVideoTracks().forEach(t => t.enabled = !isStreamerCamOff);
+      document.getElementById('streamerCamBtn').innerText = isStreamerCamOff ? "🚫" : "📹";
     }
 
     async function flipStreamerCamera() {
@@ -799,6 +854,7 @@
 
     function leaveCurrentStream() {
       if (currentActiveStreamId) {
+        socket.emit("leave_stream", { streamId: currentActiveStreamId });
         currentActiveStreamId = null;
       }
       document.getElementById('streamVideoPlayer').srcObject = null;
@@ -830,6 +886,25 @@
           <span class="text-slate-400 text-[9px]">${time}</span>
         </div>
         <p class="text-slate-800 text-xs mt-0.5 whitespace-pre-wrap">${text}</p>
+      `;
+      box.appendChild(div);
+      box.scrollTop = box.scrollHeight;
+    }
+
+    // ⭐ हाइलाइटेड सुपरचैट कार्ड (Superchat in Live Chat)
+    function appendSuperchatMessage(senderName, giftName, coins, time) {
+      const box = document.getElementById('streamChatMessagesBox');
+      const div = document.createElement('div');
+      div.className = "p-2.5 rounded-2xl bg-gradient-to-r from-amber-500/10 via-rose-500/10 to-pink-500/10 border-2 border-amber-300 flex flex-col shadow-sm";
+      div.innerHTML = `
+        <div class="flex items-center justify-between text-[11px] font-bold text-amber-700">
+          <span class="flex items-center gap-1">🌟 सुपरचैट • ${senderName}</span>
+          <span>💰 ${coins} Coins</span>
+        </div>
+        <div class="text-rose-600 font-extrabold text-xs mt-1">
+          क्रिएटर को ${giftName} भेजा!
+        </div>
+        <span class="text-slate-400 text-[9px] text-right mt-0.5">${time}</span>
       `;
       box.appendChild(div);
       box.scrollTop = box.scrollHeight;
@@ -907,6 +982,11 @@
         currentActiveStreamId = s.streamId;
       });
 
+      socket.on("stream_viewers_updated", ({ count }) => {
+        const el = document.getElementById("streamViewersCount");
+        if (el) el.innerText = count || 0;
+      });
+
       socket.on("banners_updated", (banners) => {
         renderBanners(banners);
       });
@@ -920,6 +1000,11 @@
 
       socket.on("receive_stream_chat", ({ senderName, text, time }) => {
         appendStreamChatMessage(senderName, text, time);
+      });
+
+      socket.on("gift_received", (data) => {
+        showGiftPopup(data.giftName, data.senderName);
+        appendSuperchatMessage(data.senderName, data.giftName, data.coins, data.time);
       });
 
       socket.on("viewer_joined", async ({ viewerSocketId }) => {
@@ -968,10 +1053,6 @@
           const pc = streamViewerPeers[from] || peerConnection;
           if (pc) await pc.addIceCandidate(new RTCIceCandidate(signal.candidate));
         }
-      });
-
-      socket.on("gift_received", (data) => {
-        showGiftPopup(data.giftName, data.senderName);
       });
 
       socket.on("partner_found", (data) => {

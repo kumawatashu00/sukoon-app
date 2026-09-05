@@ -38,12 +38,6 @@ if (fs.existsSync(DB_FILE)) {
   try {
     const raw = fs.readFileSync(DB_FILE, "utf-8");
     dbData = { ...dbData, ...JSON.parse(raw) };
-    if (!dbData.banners) {
-      dbData.banners = {
-        banner1: dbData.banner || { imageUrl: "", title: "", linkUrl: "" },
-        banner2: { imageUrl: "", title: "", linkUrl: "" }
-      };
-    }
   } catch (e) {
     console.error("DB Load Error:", e);
   }
@@ -57,14 +51,12 @@ const saveDB = () => {
   }
 };
 
-let liveStreams = [];
+let liveStreams = []; // { streamId, streamerEmail, channelName, avatar, schedule, bio, category, socketId, viewersCount }
 
-// दोनों बैनर प्राप्त करने की API
 app.get("/api/banners", (req, res) => {
   res.json({ banners: dbData.banners });
 });
 
-// एडमिन द्वारा ड्यूल बैनर अपडेट करने की API
 app.post("/api/admin/update-banners", (req, res) => {
   const { token, banner1, banner2 } = req.body;
   if (token !== "sukoon_admin_auth_verified_2026") {
@@ -87,7 +79,6 @@ app.post("/api/admin/update-banners", (req, res) => {
   res.json({ success: true, banners: dbData.banners });
 });
 
-// एडमिन लॉगिन API
 app.post("/api/admin/login", (req, res) => {
   const { username, password } = req.body;
   if (username === ADMIN_USER && password === ADMIN_PASS) {
@@ -96,7 +87,6 @@ app.post("/api/admin/login", (req, res) => {
   return res.status(401).json({ success: false, error: "अमान्य यूज़रनेम या पासवर्ड!" });
 });
 
-// यूज़र ऑथ API
 app.post("/api/auth", (req, res) => {
   const { email, password, role, channelName, category, avatar, schedule, bio } = req.body;
   if (!email || !password) return res.status(400).json({ error: "ईमेल और पासवर्ड आवश्यक हैं" });
@@ -207,7 +197,8 @@ io.on("connection", (socket) => {
       bio: user.bio,
       title: title || `${user.channelName} लाइव`,
       category: category || user.category || "Gaming",
-      socketId: socket.id
+      socketId: socket.id,
+      viewersCount: 0
     };
     liveStreams.push(streamData);
     socket.join(streamId);
@@ -220,11 +211,23 @@ io.on("connection", (socket) => {
     socket.emit("stream_list_updated", liveStreams);
   });
 
+  // दर्शक का जुड़ना व लाइव व्यूअर काउंट अपडेट
   socket.on("join_stream", ({ streamId }) => {
     socket.join(streamId);
     const stream = liveStreams.find(s => s.streamId === streamId);
     if (stream) {
+      stream.viewersCount = (stream.viewersCount || 0) + 1;
+      io.to(streamId).emit("stream_viewers_updated", { count: stream.viewersCount });
       io.to(stream.socketId).emit("viewer_joined", { viewerSocketId: socket.id });
+    }
+  });
+
+  socket.on("leave_stream", ({ streamId }) => {
+    socket.leave(streamId);
+    const stream = liveStreams.find(s => s.streamId === streamId);
+    if (stream && stream.viewersCount > 0) {
+      stream.viewersCount -= 1;
+      io.to(streamId).emit("stream_viewers_updated", { count: stream.viewersCount });
     }
   });
 
@@ -242,6 +245,7 @@ io.on("connection", (socket) => {
     io.to(to).emit("stream_signal", { from: socket.id, signal });
   });
 
+  // वर्चुअल गिफ़्ट + हाइलाइटेड सुपरचैट कार्ड
   socket.on("send_gift", ({ streamId, giftName, coins, senderName }) => {
     const stream = liveStreams.find(s => s.streamId === streamId);
     if (stream) {
@@ -254,9 +258,29 @@ io.on("connection", (socket) => {
         giftName,
         coins,
         senderName: senderName || "अनाम दर्शक",
-        channelName: stream.channelName
+        channelName: stream.channelName,
+        time: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
       });
       broadcastAdminStats();
+    }
+  });
+
+  // 1-क्लिक रिपोर्ट / ब्लॉक सिस्टम
+  socket.on("report_partner", ({ reason }) => {
+    const roomId = userRooms[socket.id];
+    if (roomId) {
+      dbData.incidents.unshift({
+        id: Math.random().toString(),
+        room: roomId,
+        user: socket.id.slice(0, 5) + "***",
+        reason: reason || "यूज़र द्वारा रिपोर्ट किया गया",
+        time: new Date().toLocaleTimeString()
+      });
+      if (dbData.incidents.length > 50) dbData.incidents.pop();
+      saveDB();
+      broadcastAdminStats();
+      socket.to(roomId).emit("partner_disconnected");
+      cleanup();
     }
   });
 
@@ -362,5 +386,5 @@ setInterval(() => {
 
 const PORT = process.env.PORT || 5000;
 server.listen(PORT, () => {
-  console.log(`>>> Sukoon Dual Banners V8.2 active on port ${PORT}`);
+  console.log(`>>> Sukoon Master V9 Active on port ${PORT}`);
 });
