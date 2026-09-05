@@ -3,18 +3,12 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, interactive-widget=resizes-content">
-  <title>Sukoon - Anonymous Live Space</title>
+  <title>Sukoon - Anonymous & Live Stream Space</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="/socket.io/socket.io.js"></script>
   <style>
-    .app-screen {
-      height: 100dvh;
-      height: -webkit-fill-available;
-    }
-    .video-feed {
-      background: #0b0f19;
-      object-fit: cover;
-    }
+    .app-screen { height: 100dvh; height: -webkit-fill-available; }
+    .video-feed { background: #111625; object-fit: cover; }
     .filter-none { filter: none; }
     .filter-blur { filter: blur(10px); }
     .filter-bw { filter: grayscale(100%); }
@@ -32,122 +26,116 @@
     }
   </style>
 </head>
-<body class="bg-[#070b14] text-slate-100 font-sans app-screen flex flex-col overflow-hidden selection:bg-rose-500/30 relative">
+<body class="bg-[#0b101d] text-slate-100 font-sans app-screen flex flex-col overflow-hidden selection:bg-rose-500/30 relative">
 
   <div id="reactionOverlay" class="absolute inset-0 pointer-events-none overflow-hidden z-50"></div>
 
   <!-- ================= 1. HOME SCREEN ================= -->
   <div id="homeScreen" class="flex-1 flex flex-col justify-between p-4 md:p-6 max-w-lg w-full mx-auto overflow-y-auto">
     
-    <!-- Top Auth Bar -->
     <div class="flex justify-between items-center pt-2">
-      <div class="flex items-center gap-2">
-        <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-        <span class="text-[10px] text-slate-400 font-medium tracking-wide">100% सुरक्षित और अनाम</span>
-      </div>
-      <button onclick="toggleAuthModal()" id="authNavBtn" class="px-3 py-1 rounded-xl bg-slate-900 border border-white/10 text-xs font-semibold text-rose-300 hover:bg-slate-800 transition">
-        👤 लॉगिन / साइनअप
+      <button onclick="toggleLanguage()" id="langToggleBtn" class="px-3 py-1 rounded-xl bg-slate-800/80 border border-white/10 text-xs font-bold text-teal-300 hover:bg-slate-700 flex items-center gap-1.5 transition">
+        <span>🌐</span> <span id="langText">English</span>
+      </button>
+
+      <button onclick="toggleAuthModal()" id="authNavBtn" class="px-3 py-1 rounded-xl bg-slate-800/80 border border-white/10 text-xs font-semibold text-rose-300 hover:bg-slate-700 transition">
+        👤 <span data-i18n="loginBtn">लॉगिन / साइनअप</span>
       </button>
     </div>
 
-    <!-- Advanced Logo & Branding -->
-    <div class="text-center pt-4 space-y-2">
-      <div class="relative w-16 h-16 mx-auto flex items-center justify-center">
-        <div class="absolute inset-0 rounded-3xl bg-gradient-to-tr from-rose-500 via-pink-500 to-teal-400 blur-md opacity-60 animate-pulse"></div>
-        <div class="relative w-16 h-16 rounded-3xl bg-[#0d1322] border border-white/20 flex items-center justify-center text-3xl shadow-2xl">
-          🌿
-        </div>
+    <div class="text-center pt-3 space-y-1.5">
+      <div class="w-14 h-14 rounded-2xl bg-gradient-to-tr from-rose-500 via-pink-500 to-teal-400 mx-auto flex items-center justify-center text-3xl shadow-lg shadow-pink-500/20">
+        🌿
       </div>
       <div>
-        <h1 class="text-3xl md:text-4xl font-black tracking-tight bg-gradient-to-r from-rose-200 via-pink-200 to-teal-200 bg-clip-text text-transparent">
+        <h1 class="text-3xl font-black tracking-tight bg-gradient-to-r from-rose-200 via-pink-200 to-teal-200 bg-clip-text text-transparent">
           SUKOON
         </h1>
-        <p class="text-[11px] text-slate-400 font-medium mt-1">मन की बात, बिना किसी पहचान के</p>
+        <p class="text-[11px] text-slate-400 font-medium mt-0.5" data-i18n="subTitle">मन की बात, बिना किसी पहचान के</p>
       </div>
     </div>
 
     <!-- Tags Selector -->
-    <div class="bg-slate-900/50 p-3 rounded-2xl border border-white/10 my-3">
-      <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-2">🎯 पसंदीदा विषय (Tags):</span>
+    <div class="bg-slate-900/60 p-3 rounded-2xl border border-white/5 my-2">
+      <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-2" data-i18n="tagTitle">🎯 पसंदीदा विषय (Tags):</span>
       <div class="flex flex-wrap gap-1.5" id="tagList">
-        <button type="button" onclick="selectTag('All')" class="tag-btn px-2.5 py-1 rounded-lg text-xs font-medium bg-rose-500/20 border border-rose-400 text-rose-200" data-tag="All">🌟 सभी</button>
-        <button type="button" onclick="selectTag('Gaming')" class="tag-btn px-2.5 py-1 rounded-lg text-xs font-medium bg-slate-950/60 border border-white/5 text-slate-400" data-tag="Gaming">🎮 #Gaming</button>
-        <button type="button" onclick="selectTag('Music')" class="tag-btn px-2.5 py-1 rounded-lg text-xs font-medium bg-slate-950/60 border border-white/5 text-slate-400" data-tag="Music">🎵 #Music</button>
-        <button type="button" onclick="selectTag('LateNight')" class="tag-btn px-2.5 py-1 rounded-lg text-xs font-medium bg-slate-950/60 border border-white/5 text-slate-400" data-tag="LateNight">🌙 #LateNight</button>
-        <button type="button" onclick="selectTag('DeepTalks')" class="tag-btn px-2.5 py-1 rounded-lg text-xs font-medium bg-slate-950/60 border border-white/5 text-slate-400" data-tag="DeepTalks">☕ #DeepTalks</button>
+        <button type="button" onclick="selectTag('All')" class="tag-btn px-2.5 py-1 rounded-lg text-xs font-medium bg-rose-500/20 border border-rose-400 text-rose-200" data-tag="All">🌟 All</button>
+        <button type="button" onclick="selectTag('Gaming')" class="tag-btn px-2.5 py-1 rounded-lg text-xs font-medium bg-slate-800/60 border border-white/5 text-slate-400" data-tag="Gaming">🎮 #Gaming</button>
+        <button type="button" onclick="selectTag('Music')" class="tag-btn px-2.5 py-1 rounded-lg text-xs font-medium bg-slate-800/60 border border-white/5 text-slate-400" data-tag="Music">🎵 #Music</button>
+        <button type="button" onclick="selectTag('LateNight')" class="tag-btn px-2.5 py-1 rounded-lg text-xs font-medium bg-slate-800/60 border border-white/5 text-slate-400" data-tag="LateNight">🌙 #LateNight</button>
+        <button type="button" onclick="selectTag('Cooking')" class="tag-btn px-2.5 py-1 rounded-lg text-xs font-medium bg-slate-800/60 border border-white/5 text-slate-400" data-tag="Cooking">🍳 #Cooking</button>
       </div>
     </div>
 
-    <!-- SIDE-BY-SIDE 2 CARDS (चैट और वीडियो कॉल साथ-साथ) -->
-    <div class="grid grid-cols-2 gap-3 my-auto py-2">
-      <!-- Left Card: Text Chat -->
-      <button onclick="startApp('text')" class="flex flex-col justify-between p-4 rounded-3xl bg-gradient-to-b from-slate-900/90 to-slate-950/80 border border-teal-500/20 hover:border-teal-400/60 hover:scale-[1.02] transition shadow-xl text-left group min-h-[150px]">
-        <div class="w-10 h-10 rounded-2xl bg-teal-500/20 border border-teal-500/30 flex items-center justify-center text-xl group-hover:scale-110 transition">
-          💬
-        </div>
-        <div>
-          <h2 class="text-sm font-black text-teal-200 leading-tight">टेक्स्ट चैट</h2>
-          <p class="text-[10px] text-slate-400 mt-1">अनाम चैट व 10s फोटो</p>
-        </div>
-        <div class="text-teal-400 text-xs font-bold flex items-center gap-1">
-          <span>शुरू करें</span> <span>➔</span>
-        </div>
-      </button>
+    <!-- 3 CARDS (Text, Video, Live Hub) -->
+    <div class="space-y-2.5 my-auto py-1">
+      <div class="grid grid-cols-2 gap-2.5">
+        <button onclick="startApp('text')" class="flex flex-col justify-between p-3.5 rounded-2xl bg-slate-900/70 border border-teal-500/20 hover:border-teal-400/50 transition text-left min-h-[135px]">
+          <div class="w-9 h-9 rounded-xl bg-teal-500/20 flex items-center justify-center text-lg">💬</div>
+          <div>
+            <h2 class="text-xs font-black text-teal-200" data-i18n="textChatTitle">टेक्स्ट चैट</h2>
+            <p class="text-[9px] text-slate-400 mt-0.5" data-i18n="textChatDesc">अनाम चैट व 10s फोटो</p>
+          </div>
+          <span class="text-teal-400 text-[10px] font-bold" data-i18n="startBtn">शुरू करें ➔</span>
+        </button>
 
-      <!-- Right Card: Video Call -->
-      <button onclick="startApp('video')" class="flex flex-col justify-between p-4 rounded-3xl bg-gradient-to-b from-slate-900/90 to-slate-950/80 border border-rose-500/20 hover:border-rose-400/60 hover:scale-[1.02] transition shadow-xl text-left group min-h-[150px]">
-        <div class="w-10 h-10 rounded-2xl bg-rose-500/20 border border-rose-500/30 flex items-center justify-center text-xl group-hover:scale-110 transition">
-          📹
+        <button onclick="startApp('video')" class="flex flex-col justify-between p-3.5 rounded-2xl bg-slate-900/70 border border-rose-500/20 hover:border-rose-400/50 transition text-left min-h-[135px]">
+          <div class="w-9 h-9 rounded-xl bg-rose-500/20 flex items-center justify-center text-lg">📹</div>
+          <div>
+            <h2 class="text-xs font-black text-rose-200" data-i18n="videoCallTitle">वीडियो कॉल</h2>
+            <p class="text-[9px] text-slate-400 mt-0.5" data-i18n="videoCallDesc">ओमेगल स्टाइल रैंडम</p>
+          </div>
+          <span class="text-rose-400 text-[10px] font-bold" data-i18n="callBtn">कॉल करें ➔</span>
+        </button>
+      </div>
+
+      <button onclick="openStreamHub()" class="w-full p-3.5 rounded-2xl bg-gradient-to-r from-indigo-950/60 to-purple-950/60 border border-indigo-500/30 hover:border-indigo-400 transition flex items-center justify-between">
+        <div class="flex items-center gap-3">
+          <div class="w-9 h-9 rounded-xl bg-indigo-500/20 flex items-center justify-center text-lg">📡</div>
+          <div class="text-left">
+            <div class="flex items-center gap-2">
+              <h2 class="text-xs font-black text-indigo-200" data-i18n="streamHubTitle">लाइव स्ट्रीम हब (Live Hub)</h2>
+              <span class="text-[8px] bg-amber-500/20 text-amber-300 px-1.5 py-0.5 rounded font-bold" data-i18n="loginOnlyTag">लॉगिन आवश्यक</span>
+            </div>
+            <p class="text-[9px] text-slate-400" data-i18n="streamHubDesc">गेमिंग, कुकिंग और लाइव ब्रॉडकास्ट देखें या स्ट्रीम करें</p>
+          </div>
         </div>
-        <div>
-          <h2 class="text-sm font-black text-rose-200 leading-tight">वीडियो कॉल</h2>
-          <p class="text-[10px] text-slate-400 mt-1">ओमेगल स्टाइल रैंडम</p>
-        </div>
-        <div class="text-rose-400 text-xs font-bold flex items-center gap-1">
-          <span>कॉल करें</span> <span>➔</span>
-        </div>
+        <span class="text-indigo-400 text-xs font-bold">➔</span>
       </button>
     </div>
 
-    <!-- Bottom Footer -->
-    <div class="text-center pb-2 text-[10px] text-slate-500">
-      🔒 18+ यूज़र्स के लिए • पूर्णतः अनाम एवं सुरक्षित
+    <div class="text-center pb-2 text-[10px] text-slate-500" data-i18n="disclaimer">
+      🔒 18+ यूज़र्स के लिए • पूर्णतः सुरक्षित एवं अनाम
     </div>
   </div>
 
 
-  <!-- ================= 2. ACTIVE ROOM SCREEN ================= -->
+  <!-- ================= 2. ACTIVE RANDOM ROOM SCREEN ================= -->
   <div id="roomScreen" class="hidden flex-1 flex flex-col overflow-hidden">
-    <!-- Header -->
-    <header class="px-3.5 py-2 bg-[#0b101c] border-b border-white/5 flex justify-between items-center shrink-0">
+    <header class="px-3.5 py-2 bg-[#0d1424] border-b border-white/5 flex justify-between items-center shrink-0">
       <div class="flex items-center gap-2">
         <button onclick="goHome()" class="px-2.5 py-1.5 rounded-xl bg-slate-800 text-xs font-bold text-slate-200 border border-white/10 flex items-center gap-1">
-          <span>🏠</span> <span>होम</span>
+          <span>🏠</span> <span data-i18n="homeBtn">होम</span>
         </button>
         <span id="roomStatusBadge" class="text-[10px] px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 font-medium">तलाश जारी...</span>
       </div>
 
-      <!-- Live Reaction Bar -->
       <div class="flex items-center gap-1.5 bg-slate-900/80 px-2 py-1 rounded-xl border border-white/10">
         <button onclick="sendReaction('❤️')" class="text-sm active:scale-125 transition">❤️</button>
         <button onclick="sendReaction('🔥')" class="text-sm active:scale-125 transition">🔥</button>
         <button onclick="sendReaction('😂')" class="text-sm active:scale-125 transition">😂</button>
       </div>
 
-      <button onclick="nextPartner()" id="nextBtn" class="px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-rose-500 to-pink-500 text-slate-950 text-xs font-bold shadow-md">
+      <button onclick="nextPartner()" id="nextBtn" class="px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-rose-500 to-pink-500 text-slate-950 text-xs font-bold">
         Next ➔
       </button>
     </header>
 
-    <!-- Main Container -->
     <main class="flex-1 flex flex-col md:flex-row overflow-hidden p-2 gap-2">
-      <!-- Video Section -->
-      <section id="videoSection" class="hidden flex-1 flex flex-row md:flex-col gap-2 min-h-[190px] md:min-h-0 relative">
+      <section id="videoSection" class="hidden flex-1 flex flex-row md:flex-col gap-2 min-h-[180px] md:min-h-0 relative">
         <div class="relative flex-1 rounded-2xl overflow-hidden border border-white/10 bg-slate-950 flex items-center justify-center">
           <video id="remoteVideo" autoplay playsinline class="w-full h-full video-feed"></video>
-          <span class="absolute bottom-2 left-2 text-[9px] bg-black/60 px-2 py-0.5 rounded-lg text-slate-300 font-semibold border border-white/5">
-            साथी (Stranger)
-          </span>
+          <span class="absolute bottom-2 left-2 text-[9px] bg-black/60 px-2 py-0.5 rounded-lg text-slate-300 font-semibold">Stranger</span>
           <div id="videoWaitingNotice" class="absolute inset-0 flex flex-col items-center justify-center text-center p-4">
             <div class="w-8 h-8 rounded-full border-2 border-rose-400 border-t-transparent animate-spin mb-2"></div>
             <span class="text-xs text-slate-400">साथी ढूँढ रहे हैं...</span>
@@ -156,9 +144,7 @@
 
         <div class="relative flex-1 rounded-2xl overflow-hidden border border-white/10 bg-slate-950 flex items-center justify-center">
           <video id="localVideo" autoplay playsinline muted class="w-full h-full video-feed filter-none"></video>
-          <span class="absolute bottom-2 left-2 text-[9px] bg-black/60 px-2 py-0.5 rounded-lg text-slate-300 font-semibold border border-white/5">
-            आप (You)
-          </span>
+          <span class="absolute bottom-2 left-2 text-[9px] bg-black/60 px-2 py-0.5 rounded-lg text-slate-300 font-semibold">You</span>
           <div class="absolute top-2 right-2 flex gap-1">
             <button onclick="flipCamera()" class="p-1.5 rounded-xl bg-slate-900/80 border border-white/10 text-xs text-indigo-300">🔄</button>
             <button onclick="cycleFilter()" class="p-1.5 rounded-xl bg-slate-900/80 border border-white/10 text-xs text-amber-300">🎭</button>
@@ -168,56 +154,172 @@
         </div>
       </section>
 
-      <!-- Chat Section -->
-      <section class="flex-1 flex flex-col rounded-2xl border border-white/10 bg-[#0c1222]/80 backdrop-blur-xl overflow-hidden">
+      <section class="flex-1 flex flex-col rounded-2xl border border-white/10 bg-slate-900/70 backdrop-blur-xl overflow-hidden">
         <div id="messagesBox" class="flex-1 overflow-y-auto p-3 space-y-2">
-          <div class="text-center py-4 text-xs text-slate-500">
-            🌱 आप एक अनाम साथी से जुड़े हैं।
-          </div>
+          <div class="text-center py-4 text-xs text-slate-500">🌱 अनाम चैट रूम</div>
         </div>
 
-        <!-- Input Bar with 10s Vanish Photo Button -->
-        <form id="chatForm" onsubmit="handleSendSubmit(event)" class="p-2 border-t border-white/5 bg-[#090d18] flex items-center gap-2 shrink-0">
+        <form id="chatForm" onsubmit="handleSendSubmit(event)" class="p-2 border-t border-white/5 bg-slate-950 flex items-center gap-2 shrink-0">
           <input type="file" id="mediaInput" accept="image/*" class="hidden" onchange="sendVanishImage(event)">
-          <button type="button" onclick="document.getElementById('mediaInput').click()" class="p-2.5 bg-slate-800/90 rounded-xl text-pink-300 hover:bg-slate-700 transition" title="10 सेकंड में गायब होने वाली फोटो">
-            📸
-          </button>
-          <input
-            type="text"
-            id="msgInput"
-            enterkeyhint="send"
-            autocomplete="off"
-            placeholder="मैसेज लिखें और 'Enter' दबाएँ..."
-            class="flex-1 bg-slate-900/90 border border-white/10 rounded-xl px-3 py-2 text-xs text-slate-100 placeholder:text-slate-500 focus:outline-none focus:border-rose-400"
-          >
-          <button type="submit" class="px-3.5 py-2 bg-gradient-to-r from-rose-400 to-pink-400 text-slate-950 font-bold rounded-xl text-xs">
-            भेजें
-          </button>
+          <button type="button" onclick="document.getElementById('mediaInput').click()" class="p-2.5 bg-slate-800 rounded-xl text-pink-300" title="10s Vanish Photo">📸</button>
+          <input type="text" id="msgInput" enterkeyhint="send" placeholder="मैसेज लिखें..." class="flex-1 bg-slate-900 border border-white/10 rounded-xl px-3 py-2 text-xs text-slate-100 focus:outline-none focus:border-rose-400">
+          <button type="submit" class="px-3.5 py-2 bg-gradient-to-r from-rose-400 to-pink-400 text-slate-950 font-bold rounded-xl text-xs">भेजें</button>
         </form>
       </section>
     </main>
   </div>
 
-  <!-- ================= 3. OPTIONAL AUTH MODAL ================= -->
+
+  <!-- ================= 3. LIVE STREAM HUB (WITH CATEGORY TABS) ================= -->
+  <div id="streamHubScreen" class="hidden flex-1 flex flex-col overflow-hidden max-w-3xl w-full mx-auto p-4">
+    <header class="flex justify-between items-center pb-3 border-b border-white/10">
+      <div class="flex items-center gap-2">
+        <button onclick="closeStreamHub()" class="px-2.5 py-1.5 rounded-xl bg-slate-800 text-xs font-bold">← बैक</button>
+        <h2 class="text-sm font-bold text-indigo-300">📡 सुकन लाइव हब</h2>
+      </div>
+      <button onclick="promptStartBroadcast()" id="startBroadcastBtn" class="px-3 py-1.5 bg-gradient-to-r from-purple-500 to-indigo-500 text-white font-bold rounded-xl text-xs">
+        🔴 लाइव स्ट्रीम शुरू करें
+      </button>
+    </header>
+
+    <!-- Category Tabs for Viewers -->
+    <div class="flex gap-2 overflow-x-auto py-3 no-scrollbar border-b border-white/5">
+      <button onclick="filterStreams('All')" class="stream-cat-btn px-3 py-1.5 rounded-xl text-xs font-bold bg-indigo-500/20 border border-indigo-400 text-indigo-200 shrink-0" data-cat="All">🌟 All</button>
+      <button onclick="filterStreams('Gaming')" class="stream-cat-btn px-3 py-1.5 rounded-xl text-xs font-bold bg-slate-900 border border-white/5 text-slate-400 shrink-0" data-cat="Gaming">🎮 Gaming</button>
+      <button onclick="filterStreams('Cooking')" class="stream-cat-btn px-3 py-1.5 rounded-xl text-xs font-bold bg-slate-900 border border-white/5 text-slate-400 shrink-0" data-cat="Cooking">🍳 Cooking</button>
+      <button onclick="filterStreams('Entertainment')" class="stream-cat-btn px-3 py-1.5 rounded-xl text-xs font-bold bg-slate-900 border border-white/5 text-slate-400 shrink-0" data-cat="Entertainment">😂 Entertainment</button>
+      <button onclick="filterStreams('DeepTalks')" class="stream-cat-btn px-3 py-1.5 rounded-xl text-xs font-bold bg-slate-900 border border-white/5 text-slate-400 shrink-0" data-cat="DeepTalks">☕ Deep Talks</button>
+    </div>
+
+    <!-- Active Video Player -->
+    <div id="activeStreamPlayer" class="hidden mt-3 rounded-2xl overflow-hidden bg-black border border-white/10 relative aspect-video flex items-center justify-center">
+      <video id="streamVideoPlayer" autoplay playsinline class="w-full h-full object-cover"></video>
+      <div class="absolute top-2 left-2 bg-rose-600 px-2 py-0.5 rounded text-[10px] font-bold uppercase">LIVE</div>
+      <button onclick="leaveCurrentStream()" class="absolute top-2 right-2 bg-black/60 px-2.5 py-1 rounded-xl text-xs text-white">✕ बंद करें</button>
+    </div>
+
+    <!-- Streams List -->
+    <div class="flex-1 overflow-y-auto mt-3 space-y-3">
+      <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider">लाइव स्ट्रीमर सूची:</h3>
+      <div id="streamsListContainer" class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <div class="col-span-full text-center py-10 text-slate-500 text-xs">कोई लाइव स्ट्रीम उपलब्ध नहीं है।</div>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ================= 4. AUTH MODAL (VIEWER SIMPLE VS CREATOR DETAILED) ================= -->
   <div id="authModal" class="hidden fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-    <div class="bg-[#0f172a] border border-white/10 p-6 rounded-3xl max-w-sm w-full space-y-4 shadow-2xl relative">
+    <div class="bg-[#0e1526] border border-white/10 p-5 rounded-3xl max-w-sm w-full space-y-3.5 shadow-2xl relative max-h-[90vh] overflow-y-auto">
       <button onclick="toggleAuthModal()" class="absolute top-4 right-4 text-slate-400 hover:text-white">✕</button>
+      
       <div class="text-center space-y-1">
-        <h3 class="text-lg font-bold text-slate-100">वैकल्पिक लॉगिन / खाता</h3>
-        <p class="text-xs text-slate-400">लॉगिन करना अनिवार्य नहीं है (गेस्ट भी चल सकते हैं)</p>
+        <h3 class="text-base font-bold text-slate-100" data-i18n="authTitle">लॉगिन / रजिस्ट्रेशन</h3>
+        <p class="text-[11px] text-slate-400">सुकून प्लेटफ़ॉर्म एक्सेस करें</p>
       </div>
 
-      <div class="space-y-3">
-        <input type="email" id="authEmail" placeholder="ईमेल पता डालें" class="w-full bg-slate-950 border border-white/10 rounded-xl p-3 text-xs text-slate-200">
-        <input type="password" id="authPassword" placeholder="पासवर्ड" class="w-full bg-slate-950 border border-white/10 rounded-xl p-3 text-xs text-slate-200">
-        <button onclick="submitAuth()" class="w-full py-3 bg-gradient-to-r from-rose-400 to-pink-400 text-slate-950 font-bold rounded-xl text-xs">
-          लॉगिन / साइनअप करें
+      <!-- Role Selector -->
+      <div class="grid grid-cols-2 gap-2 bg-slate-950/60 p-1 rounded-2xl border border-white/5">
+        <button type="button" onclick="setRole('viewer')" id="role-viewer" class="py-2 rounded-xl text-xs font-bold bg-teal-500/20 border border-teal-400 text-teal-200">
+          👀 दर्शक (Viewer)
+        </button>
+        <button type="button" onclick="setRole('creator')" id="role-creator" class="py-2 rounded-xl text-xs font-bold bg-transparent border border-transparent text-slate-400">
+          🎙️ क्रिएटर (Streamer)
+        </button>
+      </div>
+
+      <!-- Form Inputs -->
+      <div class="space-y-2.5">
+        <div>
+          <label class="text-[10px] text-slate-400 font-semibold block mb-1">ईमेल पता (Email)*</label>
+          <input type="email" id="authEmail" placeholder="example@mail.com" class="w-full bg-slate-950 border border-white/10 rounded-xl p-2.5 text-xs text-slate-200">
+        </div>
+
+        <div>
+          <label class="text-[10px] text-slate-400 font-semibold block mb-1">पासवर्ड (Password)*</label>
+          <input type="password" id="authPassword" placeholder="••••••••" class="w-full bg-slate-950 border border-white/10 rounded-xl p-2.5 text-xs text-slate-200">
+        </div>
+
+        <!-- ================= CREATOR DETAILED FIELDS (Only visible if Creator) ================= -->
+        <div id="creatorFields" class="space-y-2.5 hidden border-t border-white/10 pt-2.5">
+          <div>
+            <label class="text-[10px] text-rose-300 font-semibold block mb-1">चैनल / डिस्प्ले नाम*</label>
+            <input type="text" id="creatorChannelName" placeholder="उदा. Ashok Gamer, Desi Chef" class="w-full bg-slate-950 border border-white/10 rounded-xl p-2.5 text-xs text-slate-200">
+          </div>
+
+          <div>
+            <label class="text-[10px] text-rose-300 font-semibold block mb-1">स्ट्रीम कैटेगरी चुनें*</label>
+            <select id="creatorCategory" class="w-full bg-slate-950 border border-white/10 rounded-xl p-2.5 text-xs text-slate-200">
+              <option value="Gaming">🎮 Gaming</option>
+              <option value="Cooking">🍳 Cooking</option>
+              <option value="Entertainment">😂 Entertainment / Comedy</option>
+              <option value="DeepTalks">☕ Deep Talks / Motivation</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="text-[10px] text-rose-300 font-semibold block mb-1">YouTube / Insta लिंक (वैकल्पिक)</label>
+            <input type="text" id="creatorSocial" placeholder="https://..." class="w-full bg-slate-950 border border-white/10 rounded-xl p-2.5 text-xs text-slate-200">
+          </div>
+
+          <div>
+            <label class="text-[10px] text-rose-300 font-semibold block mb-1">चैनल का विवरण (Bio)*</label>
+            <textarea id="creatorBio" rows="2" placeholder="आप किस तरह का कंटेंट स्ट्रीम करेंगे?" class="w-full bg-slate-950 border border-white/10 rounded-xl p-2.5 text-xs text-slate-200"></textarea>
+          </div>
+
+          <div class="p-2 rounded-xl bg-rose-500/10 border border-rose-500/20 text-[10px] text-rose-300 leading-tight">
+            ℹ️ क्रिएटर आईडी एडमिन द्वारा जांच के बाद अप्रूव की जाएगी।
+          </div>
+        </div>
+
+        <button onclick="submitAuth()" class="w-full py-3 bg-gradient-to-r from-rose-400 to-pink-400 text-slate-950 font-bold rounded-xl text-xs mt-2">
+          लॉगिन / सबमिट करें ➔
         </button>
       </div>
     </div>
   </div>
 
   <script>
+    const translations = {
+      hi: {
+        langBtn: "English",
+        loginBtn: "लॉगिन / साइनअप",
+        subTitle: "मन की बात, बिना किसी पहचान के",
+        tagTitle: "🎯 पसंदीदा विषय (Tags):",
+        textChatTitle: "टेक्स्ट चैट",
+        textChatDesc: "अनाम चैट व 10s फोटो",
+        startBtn: "शुरू करें ➔",
+        videoCallTitle: "वीडियो कॉल",
+        videoCallDesc: "ओमेगल स्टाइल रैंडम",
+        callBtn: "कॉल करें ➔",
+        streamHubTitle: "लाइव स्ट्रीम हब (Live Hub)",
+        loginOnlyTag: "लॉगिन आवश्यक",
+        streamHubDesc: "गेमिंग, कुकिंग और लाइव ब्रॉडकास्ट देखें या स्ट्रीम करें",
+        disclaimer: "🔒 18+ यूज़र्स के लिए • पूर्णतः सुरक्षित एवं अनाम",
+        homeBtn: "होम",
+        authTitle: "लॉगिन / रजिस्ट्रेशन"
+      },
+      en: {
+        langBtn: "हिंदी",
+        loginBtn: "Login / Signup",
+        subTitle: "Speak your heart, completely anonymous",
+        tagTitle: "🎯 Select Interest (Tags):",
+        textChatTitle: "Text Chat",
+        textChatDesc: "Anonymous chat & 10s vanish media",
+        startBtn: "Start ➔",
+        videoCallTitle: "Video Call",
+        videoCallDesc: "Omegle-style random matches",
+        callBtn: "Call ➔",
+        streamHubTitle: "Live Stream Hub",
+        loginOnlyTag: "Login Required",
+        streamHubDesc: "Watch or broadcast gaming, cooking & talks",
+        disclaimer: "🔒 For 18+ Users • Completely Safe & Anonymous",
+        homeBtn: "Home",
+        authTitle: "Login / Registration"
+      }
+    };
+
+    let currentLang = 'hi';
     let socket;
     let currentMode = 'text';
     let selectedTag = 'All';
@@ -230,6 +332,9 @@
     const filters = ['filter-none', 'filter-blur', 'filter-bw', 'filter-sepia'];
     let filterIndex = 0;
     let loggedInUser = null;
+    let selectedRole = 'viewer';
+    let activeStreamCategory = 'All';
+    let cachedStreams = [];
 
     const rtcConfig = {
       iceServers: [
@@ -240,6 +345,7 @@
 
     window.addEventListener("load", () => {
       fixMobileViewport();
+      initSocket();
     });
 
     function fixMobileViewport() {
@@ -253,31 +359,70 @@
       inp.addEventListener('focus', () => setTimeout(scrollToBottom, 300));
     }
 
+    function toggleLanguage() {
+      currentLang = currentLang === 'hi' ? 'en' : 'hi';
+      document.getElementById('langText').innerText = translations[currentLang].langBtn;
+      document.querySelectorAll('[data-i18n]').forEach(el => {
+        const key = el.getAttribute('data-i18n');
+        if (translations[currentLang][key]) el.innerText = translations[currentLang][key];
+      });
+    }
+
     function toggleAuthModal() {
       document.getElementById('authModal').classList.toggle('hidden');
+    }
+
+    function setRole(role) {
+      selectedRole = role;
+      const vBtn = document.getElementById('role-viewer');
+      const cBtn = document.getElementById('role-creator');
+      const cFields = document.getElementById('creatorFields');
+
+      if (role === 'viewer') {
+        vBtn.className = "py-2 rounded-xl text-xs font-bold bg-teal-500/20 border border-teal-400 text-teal-200";
+        cBtn.className = "py-2 rounded-xl text-xs font-bold bg-transparent border border-transparent text-slate-400";
+        cFields.classList.add('hidden');
+      } else {
+        cBtn.className = "py-2 rounded-xl text-xs font-bold bg-rose-500/20 border border-rose-400 text-rose-200";
+        vBtn.className = "py-2 rounded-xl text-xs font-bold bg-transparent border border-transparent text-slate-400";
+        cFields.classList.remove('hidden');
+      }
     }
 
     async function submitAuth() {
       const email = document.getElementById('authEmail').value.trim();
       const password = document.getElementById('authPassword').value.trim();
-      if (!email || !password) return alert("ईमेल और पासवर्ड भरें");
+      if (!email || !password) return alert("ईमेल और पासवर्ड आवश्यक हैं");
+
+      let payload = { email, password, role: selectedRole };
+
+      if (selectedRole === 'creator') {
+        const channelName = document.getElementById('creatorChannelName').value.trim();
+        const category = document.getElementById('creatorCategory').value;
+        const socialLink = document.getElementById('creatorSocial').value.trim();
+        const bio = document.getElementById('creatorBio').value.trim();
+
+        if (!channelName || !bio) return alert("कृपया क्रिएटर चैनल नाम और बायो भरें!");
+
+        payload = { ...payload, channelName, category, socialLink, bio };
+      }
 
       try {
         const res = await fetch("/api/auth", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ email, password })
+          body: JSON.stringify(payload)
         });
         const data = await res.json();
         if (data.success) {
           loggedInUser = data.user;
-          document.getElementById('authNavBtn').innerText = "✔️ " + email.split('@')[0];
+          document.getElementById('authNavBtn').innerText = "✔️ " + (loggedInUser.channelName || email.split('@')[0]);
           toggleAuthModal();
-          alert("सफलतापूर्वक लॉगिन हो गया!");
+          alert(loggedInUser.role === 'creator' && !loggedInUser.isApprovedCreator
+            ? "क्रिएटर रजिस्ट्रेशन सबमिट हो गया! एडमिन की मंज़ूरी के बाद आप लाइव स्ट्रीम शुरू कर सकेंगे।"
+            : "सफलतापूर्वक लॉगिन हो गया!");
         }
-      } catch (e) {
-        alert("लॉगिन विफल रहा");
-      }
+      } catch (e) { alert("लॉगिन असफल रहा"); }
     }
 
     function selectTag(tag) {
@@ -286,11 +431,107 @@
         if (btn.dataset.tag === tag) {
           btn.className = "tag-btn px-2.5 py-1 rounded-lg text-xs font-medium bg-rose-500/20 border border-rose-400 text-rose-200";
         } else {
-          btn.className = "tag-btn px-2.5 py-1 rounded-lg text-xs font-medium bg-slate-950/60 border border-white/5 text-slate-400";
+          btn.className = "tag-btn px-2.5 py-1 rounded-lg text-xs font-medium bg-slate-800/60 border border-white/5 text-slate-400";
         }
       });
     }
 
+    // ================= लाइव स्ट्रीम हब ऑपरेशन्स =================
+    function openStreamHub() {
+      if (!loggedInUser) {
+        alert("लाइव स्ट्रीम हब खोलने के लिए पहले लॉगिन करें!");
+        toggleAuthModal();
+        return;
+      }
+      document.getElementById('homeScreen').classList.add('hidden');
+      document.getElementById('streamHubScreen').classList.remove('hidden');
+      socket.emit("get_streams");
+    }
+
+    function closeStreamHub() {
+      leaveCurrentStream();
+      document.getElementById('streamHubScreen').classList.add('hidden');
+      document.getElementById('homeScreen').classList.remove('hidden');
+    }
+
+    function filterStreams(cat) {
+      activeStreamCategory = cat;
+      document.querySelectorAll('.stream-cat-btn').forEach(btn => {
+        if (btn.dataset.cat === cat) {
+          btn.className = "stream-cat-btn px-3 py-1.5 rounded-xl text-xs font-bold bg-indigo-500/20 border border-indigo-400 text-indigo-200 shrink-0";
+        } else {
+          btn.className = "stream-cat-btn px-3 py-1.5 rounded-xl text-xs font-bold bg-slate-900 border border-white/5 text-slate-400 shrink-0";
+        }
+      });
+      renderStreamsList(cachedStreams);
+    }
+
+    function promptStartBroadcast() {
+      if (!loggedInUser || !loggedInUser.isApprovedCreator) {
+        alert("⚠️ आप अभी व्यूअर हैं। लाइव स्ट्रीम करने के लिए क्रिएटर अप्रूवल आवश्यक है।");
+        return;
+      }
+      const title = prompt("अपनी स्ट्रीम का शीर्षक (Title) लिखें:", `${loggedInUser.channelName} लाइव`);
+      if (title) {
+        startBroadcasting(title);
+      }
+    }
+
+    async function startBroadcasting(title) {
+      try {
+        localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+        document.getElementById('streamVideoPlayer').srcObject = localStream;
+        document.getElementById('activeStreamPlayer').classList.remove('hidden');
+        socket.emit("start_stream", { email: loggedInUser.email, title, category: loggedInUser.category });
+      } catch (e) {
+        alert("कैमरा या माइक अनुमति नहीं मिली!");
+      }
+    }
+
+    function renderStreamsList(streams) {
+      cachedStreams = streams || [];
+      const container = document.getElementById("streamsListContainer");
+      
+      const filtered = activeStreamCategory === 'All' 
+        ? cachedStreams 
+        : cachedStreams.filter(s => s.category === activeStreamCategory);
+
+      if (!filtered || filtered.length === 0) {
+        container.innerHTML = `<div class="col-span-full text-center py-10 text-slate-500 text-xs">इस कैटेगरी (${activeStreamCategory}) में कोई लाइव स्ट्रीम नहीं है।</div>`;
+        return;
+      }
+
+      container.innerHTML = filtered.map(s => `
+        <div class="p-3 bg-slate-900 border border-white/10 rounded-2xl flex justify-between items-center">
+          <div>
+            <div class="flex items-center gap-1.5">
+              <span class="w-2 h-2 rounded-full bg-rose-500 animate-pulse"></span>
+              <h4 class="text-xs font-bold text-slate-200">${s.title}</h4>
+            </div>
+            <p class="text-[10px] text-slate-400 mt-0.5">चैनल: <span class="text-indigo-300 font-semibold">${s.channelName}</span> • #${s.category}</p>
+          </div>
+          <button onclick="joinStream('${s.streamId}')" class="px-3 py-1.5 bg-teal-500/20 text-teal-300 font-bold rounded-xl text-xs border border-teal-500/30">
+            देखें 👁️
+          </button>
+        </div>
+      `).join("");
+    }
+
+    function joinStream(streamId) {
+      document.getElementById('activeStreamPlayer').classList.remove('hidden');
+      socket.emit("join_stream", { streamId });
+    }
+
+    function leaveCurrentStream() {
+      if (localStream) {
+        localStream.getTracks().forEach(t => t.stop());
+        localStream = null;
+      }
+      document.getElementById('streamVideoPlayer').srcObject = null;
+      document.getElementById('activeStreamPlayer').classList.add('hidden');
+    }
+
+    // ================= रैंडम चैट & वीडियो ऑपरेशन्स =================
     async function startApp(mode) {
       currentMode = mode;
       document.getElementById('homeScreen').classList.add('hidden');
@@ -303,7 +544,7 @@
         document.getElementById('videoSection').classList.add('hidden');
       }
 
-      initSocket();
+      socket.emit("find_partner", { mode: currentMode, tag: selectedTag });
     }
 
     async function startCamera() {
@@ -314,9 +555,7 @@
           audio: true
         });
         document.getElementById('localVideo').srcObject = localStream;
-      } catch (err) {
-        alert("कैमरा या माइक एक्सेस नहीं मिला!");
-      }
+      } catch (err) { alert("कैमरा एक्सेस नहीं मिला"); }
     }
 
     async function flipCamera() {
@@ -335,74 +574,68 @@
     }
 
     function initSocket() {
-      if (!socket) {
-        socket = io();
+      if (socket) return;
+      socket = io();
 
-        socket.on("partner_found", (data) => {
-          isInitiator = data.isInitiator;
-          document.getElementById("roomStatusBadge").innerText = "ऑनलाइन 🟢";
-          document.getElementById("roomStatusBadge").className = "text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 font-medium";
-          document.getElementById("videoWaitingNotice").classList.add("hidden");
-          appendSystemMessage(`साथी जुड़ गया है! (${data.tag ? '#' + data.tag : ''})`);
+      socket.on("stream_list_updated", (streams) => renderStreamsList(streams));
+      socket.on("stream_error", ({ message }) => alert(message));
+      socket.on("stream_ended", () => {
+        alert("लाइव स्ट्रीम समाप्त हो चुकी है।");
+        leaveCurrentStream();
+      });
 
-          if (currentMode === 'video') initPeerConnection();
-        });
+      socket.on("partner_found", (data) => {
+        isInitiator = data.isInitiator;
+        document.getElementById("roomStatusBadge").innerText = "ऑनलाइन 🟢";
+        document.getElementById("roomStatusBadge").className = "text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 font-medium";
+        document.getElementById("videoWaitingNotice").classList.add("hidden");
+        appendSystemMessage(`साथी जुड़ गया! (${data.tag ? '#' + data.tag : ''})`);
+        if (currentMode === 'video') initPeerConnection();
+      });
 
-        socket.on("receive_message", ({ text, timestamp }) => appendMessage(text, "partner", timestamp));
-        socket.on("receive_media", ({ image, timestamp }) => appendImage(image, "partner", timestamp));
-        socket.on("receive_reaction", ({ emoji }) => renderFloatingReaction(emoji));
+      socket.on("receive_message", ({ text, timestamp }) => appendMessage(text, "partner", timestamp));
+      socket.on("receive_media", ({ image, timestamp }) => appendImage(image, "partner", timestamp));
+      socket.on("receive_reaction", ({ emoji }) => renderFloatingReaction(emoji));
 
-        socket.on("webrtc_signal", async (signal) => {
-          if (!peerConnection) return;
-          try {
-            if (signal.sdp) {
-              await peerConnection.setRemoteDescription(new RTCSessionDescription(signal.sdp));
-              if (signal.sdp.type === "offer") {
-                const answer = await peerConnection.createAnswer();
-                await peerConnection.setLocalDescription(answer);
-                socket.emit("webrtc_signal", { sdp: peerConnection.localDescription });
-              }
-            } else if (signal.candidate) {
-              await peerConnection.addIceCandidate(new RTCIceCandidate(signal.candidate));
+      socket.on("webrtc_signal", async (signal) => {
+        if (!peerConnection) return;
+        try {
+          if (signal.sdp) {
+            await peerConnection.setRemoteDescription(new RTCSessionDescription(signal.sdp));
+            if (signal.sdp.type === "offer") {
+              const answer = await peerConnection.createAnswer();
+              await peerConnection.setLocalDescription(answer);
+              socket.emit("webrtc_signal", { sdp: peerConnection.localDescription });
             }
-          } catch (e) { console.error("WebRTC Error:", e); }
-        });
+          } else if (signal.candidate) {
+            await peerConnection.addIceCandidate(new RTCIceCandidate(signal.candidate));
+          }
+        } catch (e) { console.error("WebRTC Error:", e); }
+      });
 
-        socket.on("message_rejected", ({ reason }) => alert(reason));
+      socket.on("message_rejected", ({ reason }) => alert(reason));
 
-        socket.on("partner_disconnected", () => {
-          document.getElementById("roomStatusBadge").innerText = "डिस्कनेक्टेड";
-          document.getElementById("roomStatusBadge").className = "text-[10px] px-2 py-0.5 rounded-full bg-rose-500/20 text-rose-300 font-medium";
-          document.getElementById("videoWaitingNotice").classList.remove("hidden");
-          appendSystemMessage("साथी चला गया है। 'Next' दबाकर नया साथी खोजें।");
-          closePeer();
-        });
-      }
-
-      document.getElementById("roomStatusBadge").innerText = "तलाश जारी...";
-      document.getElementById("roomStatusBadge").className = "text-[10px] px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 font-medium";
-      document.getElementById("videoWaitingNotice").classList.remove("hidden");
-      socket.emit("find_partner", { mode: currentMode, tag: selectedTag });
+      socket.on("partner_disconnected", () => {
+        document.getElementById("roomStatusBadge").innerText = "डिस्कनेक्टेड";
+        document.getElementById("roomStatusBadge").className = "text-[10px] px-2 py-0.5 rounded-full bg-rose-500/20 text-rose-300 font-medium";
+        document.getElementById("videoWaitingNotice").classList.remove("hidden");
+        appendSystemMessage("साथी चला गया। 'Next' दबाएँ।");
+        closePeer();
+      });
     }
 
     function initPeerConnection() {
       closePeer();
       peerConnection = new RTCPeerConnection(rtcConfig);
-
       if (localStream) {
         localStream.getTracks().forEach(track => peerConnection.addTrack(track, localStream));
       }
-
       peerConnection.ontrack = (event) => {
         document.getElementById('remoteVideo').srcObject = event.streams[0];
       };
-
       peerConnection.onicecandidate = (event) => {
-        if (event.candidate) {
-          socket.emit("webrtc_signal", { candidate: event.candidate });
-        }
+        if (event.candidate) socket.emit("webrtc_signal", { candidate: event.candidate });
       };
-
       if (isInitiator) {
         peerConnection.createOffer().then(offer => {
           peerConnection.setLocalDescription(offer);
@@ -424,14 +657,12 @@
       const inp = document.getElementById('msgInput');
       const text = inp.value.trim();
       if (!text || !socket) return;
-
       socket.emit("send_message", { text });
       appendMessage(text, "me", new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }));
       inp.value = "";
       scrollToBottom();
     }
 
-    // 10s वैनिश फोटो सेंडिंग
     function sendVanishImage(e) {
       const file = e.target.files[0];
       if (!file || !socket) return;
@@ -468,7 +699,7 @@
       div.innerHTML = `
         <div class="max-w-[80%] p-2 rounded-2xl bg-slate-800 border border-white/10 shadow-lg">
           <img src="${src}" class="max-h-48 rounded-xl object-cover">
-          <div class="text-[9px] text-amber-300 font-bold mt-1">⏳ 10 सेकंड में गायब होगा</div>
+          <div class="text-[9px] text-amber-300 font-bold mt-1">⏳ 10s Vanish Photo</div>
         </div>`;
       box.appendChild(div);
       scrollToBottom();

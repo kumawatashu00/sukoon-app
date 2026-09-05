@@ -11,20 +11,42 @@ app.use(express.static(path.join(__dirname, "public")));
 
 app.get("/ping", (req, res) => res.send("pong 24x7 active"));
 
-// ऑप्शनल लॉगिन यूज़र्स का इन-मेमरी रिकॉर्ड
 const registeredUsers = [];
+let liveStreams = [];
 
-// लॉगिन / साइनअप API
+// लॉगिन / रजिस्ट्रेशन API
 app.post("/api/auth", (req, res) => {
-  const { email, password } = req.body;
-  if (!email || !password) return res.status(400).json({ error: "ईमेल और पासवर्ड ज़रूरी है" });
+  const { email, password, role, channelName, category, socialLink, bio } = req.body;
+  if (!email || !password) return res.status(400).json({ error: "Email & password required" });
 
   let user = registeredUsers.find(u => u.email === email);
   if (!user) {
-    user = { id: "user_" + Math.random().toString(36).substr(2, 6), email, joinedAt: new Date().toLocaleDateString() };
+    user = {
+      id: "usr_" + Math.random().toString(36).substr(2, 6),
+      email,
+      role: role || "viewer",
+      channelName: channelName || email.split("@")[0],
+      category: category || "General",
+      socialLink: socialLink || "",
+      bio: bio || "",
+      isApprovedCreator: role === "creator" ? false : true,
+      joinedAt: new Date().toLocaleDateString()
+    };
     registeredUsers.push(user);
   }
   res.json({ success: true, user });
+});
+
+// एडमिन अप्रूवल API
+app.post("/api/admin/approve-creator", (req, res) => {
+  const { email } = req.body;
+  const user = registeredUsers.find(u => u.email === email);
+  if (user) {
+    user.isApprovedCreator = true;
+    broadcastAdminStats();
+    return res.json({ success: true, user });
+  }
+  res.status(404).json({ error: "User not found" });
 });
 
 const server = http.createServer(app);
@@ -47,7 +69,8 @@ const broadcastAdminStats = () => {
     activeSessions: Object.keys(activeRooms).length,
     waitingPoolCount: waitingPool.length,
     totalConnections,
-    totalRegistered: registeredUsers.length,
+    registeredUsers,
+    liveStreamsCount: liveStreams.length,
     incidents: incidentReports
   });
 };
@@ -72,6 +95,44 @@ io.on("connection", (socket) => {
     broadcastAdminStats();
   });
 
+  socket.on("start_stream", ({ email, title, category }) => {
+    const user = registeredUsers.find(u => u.email === email);
+    if (!user || !user.isApprovedCreator) {
+      return socket.emit("stream_error", { message: "आपको एडमिन द्वारा क्रिएटर अप्रूवल मिलना बाकी है।" });
+    }
+    const streamId = "stream_" + socket.id;
+    liveStreams = liveStreams.filter(s => s.socketId !== socket.id);
+    const streamData = {
+      streamId,
+      streamerEmail: email,
+      channelName: user.channelName,
+      title: title || `${user.channelName} की लाइव स्ट्रीम`,
+      category: category || user.category || "Gaming",
+      socketId: socket.id
+    };
+    liveStreams.push(streamData);
+    socket.join(streamId);
+    socket.emit("stream_started", streamData);
+    io.emit("stream_list_updated", liveStreams);
+    broadcastAdminStats();
+  });
+
+  socket.on("get_streams", () => {
+    socket.emit("stream_list_updated", liveStreams);
+  });
+
+  socket.on("join_stream", ({ streamId }) => {
+    socket.join(streamId);
+    const stream = liveStreams.find(s => s.streamId === streamId);
+    if (stream) {
+      io.to(stream.socketId).emit("viewer_joined", { viewerSocketId: socket.id });
+    }
+  });
+
+  socket.on("stream_signal", ({ to, signal }) => {
+    io.to(to).emit("stream_signal", { from: socket.id, signal });
+  });
+
   socket.on("find_partner", ({ mode, tag }) => {
     waitingPool = waitingPool.filter(u => u.socketId !== socket.id);
     const user = { socketId: socket.id, mode: mode || "text", tag: tag || "All" };
@@ -82,13 +143,7 @@ io.on("connection", (socket) => {
       socket.join(roomId);
       io.sockets.sockets.get(match.socketId).join(roomId);
 
-      activeRooms[roomId] = {
-        u1: socket.id,
-        u2: match.socketId,
-        mode: user.mode,
-        createdAt: Date.now()
-      };
-
+      activeRooms[roomId] = { u1: socket.id, u2: match.socketId, mode: user.mode, createdAt: Date.now() };
       userRooms[socket.id] = roomId;
       userRooms[match.socketId] = roomId;
 
@@ -107,7 +162,7 @@ io.on("connection", (socket) => {
     const lower = text.toLowerCase();
 
     if (ABUSE_WORDS.some(w => lower.includes(w))) {
-      socket.emit("message_rejected", { reason: "यह संदेश सुरक्षा नीति का उल्लंघन करता है।" });
+      socket.emit("message_rejected", { reason: "संदेश में अमर्यादित भाषा डिटेक्ट हुई है।" });
       incidentReports.unshift({
         id: Math.random().toString(),
         room: roomId,
@@ -128,7 +183,6 @@ io.on("connection", (socket) => {
     });
   });
 
-  // 10s वैनिश फोटो ब्रॉडकास्ट
   socket.on("send_media", ({ imageBase64 }) => {
     const roomId = userRooms[socket.id];
     if (roomId) {
@@ -160,6 +214,12 @@ io.on("connection", (socket) => {
       delete activeRooms[roomId];
       delete userRooms[socket.id];
     }
+    const streamIdx = liveStreams.findIndex(s => s.socketId === socket.id);
+    if (streamIdx !== -1) {
+      const s = liveStreams.splice(streamIdx, 1)[0];
+      io.to(s.streamId).emit("stream_ended");
+      io.emit("stream_list_updated", liveStreams);
+    }
     broadcastAdminStats();
   };
 
@@ -174,5 +234,5 @@ setInterval(() => {
 
 const PORT = process.env.PORT || 5000;
 server.listen(PORT, () => {
-  console.log(`>>> Sukoon Advanced Engine active on port ${PORT}`);
+  console.log(`>>> Sukoon V4 Engine active on port ${PORT}`);
 });

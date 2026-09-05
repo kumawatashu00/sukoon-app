@@ -7,16 +7,17 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="/socket.io/socket.io.js"></script>
 </head>
-<body class="bg-[#090d1a] text-slate-100 font-sans p-5 md:p-10 min-h-screen">
+<body class="bg-[#090e1a] text-slate-100 font-sans p-4 md:p-8 min-h-screen">
   <div class="max-w-5xl mx-auto space-y-6">
     <div class="flex justify-between items-center border-b border-white/10 pb-4">
       <div>
         <h1 class="text-xl font-black text-rose-300">🛡️ सुकून एडमिन कमांड सेंटर</h1>
-        <p class="text-xs text-slate-400">लाइव ट्रैफिक, रजिस्टर्ड अकाउंट्स और सेफ्टी लॉग्स</p>
+        <p class="text-xs text-slate-400">क्रिएटर वेरिफिकेशन, लाइव स्ट्रीम्स व रियल-टाइम ट्रैफिक</p>
       </div>
       <a href="/" class="px-3 py-1.5 bg-slate-800 rounded-xl text-xs text-slate-300">← होम पर जाएँ</a>
     </div>
 
+    <!-- 5 Stats Cards -->
     <div class="grid grid-cols-2 md:grid-cols-5 gap-3">
       <div class="p-4 bg-slate-900/80 rounded-2xl border border-white/5">
         <div class="text-xs text-slate-400">ऑनलाइन यूज़र्स</div>
@@ -27,11 +28,11 @@
         <div id="m-rooms" class="text-2xl font-black text-pink-300 mt-1">0</div>
       </div>
       <div class="p-4 bg-slate-900/80 rounded-2xl border border-white/5">
-        <div class="text-xs text-slate-400">कतार में साथी</div>
-        <div id="m-queue" class="text-2xl font-black text-indigo-300 mt-1">0</div>
+        <div class="text-xs text-slate-400">लाइव स्ट्रीम्स</div>
+        <div id="m-streams" class="text-2xl font-black text-purple-300 mt-1">0</div>
       </div>
       <div class="p-4 bg-slate-900/80 rounded-2xl border border-white/5">
-        <div class="text-xs text-slate-400">रजिस्टर्ड यूज़र्स</div>
+        <div class="text-xs text-slate-400">कुल एकाउंट्स</div>
         <div id="m-reg" class="text-2xl font-black text-amber-300 mt-1">0</div>
       </div>
       <div class="p-4 bg-slate-900/80 rounded-2xl border border-white/5">
@@ -40,6 +41,31 @@
       </div>
     </div>
 
+    <!-- क्रिएटर वेरिफिकेशन और प्रोफाइल डिटेल्स टेबल -->
+    <div class="bg-slate-900/80 p-5 rounded-3xl border border-white/5 space-y-3">
+      <div class="flex justify-between items-center">
+        <h2 class="text-sm font-bold text-slate-200">🎬 क्रिएटर ऐप्लिकेशन व अप्रूवल कंट्रोल</h2>
+        <span class="text-xs text-slate-400">पूरी प्रोफाइल जांचने के बाद ही अप्रूव करें</span>
+      </div>
+      <div class="overflow-x-auto">
+        <table class="w-full text-xs text-left">
+          <thead class="border-b border-white/5 text-slate-400">
+            <tr>
+              <th class="py-2">चैनल / ईमेल</th>
+              <th>कैटेगरी</th>
+              <th>सोशल लिंक व बायो</th>
+              <th>स्थिति</th>
+              <th>एक्शन</th>
+            </tr>
+          </thead>
+          <tbody id="creatorListBody" class="divide-y divide-white/5">
+            <tr><td colspan="5" class="py-4 text-center text-slate-500">कोई क्रिएटर पेंडिंग नहीं है</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- लाइव सेफ्टी लॉग्स -->
     <div class="bg-slate-900/80 p-5 rounded-3xl border border-white/5 space-y-3">
       <h2 class="text-sm font-bold text-slate-200">लाइव सेफ्टी व क्राइसिस डिटेक्शन लॉग</h2>
       <div class="overflow-x-auto">
@@ -48,12 +74,12 @@
             <tr>
               <th class="py-2">समय</th>
               <th>रूम ID</th>
-              <th>यूज़र ID</th>
+              <th>यूज़र</th>
               <th>कारण</th>
             </tr>
           </thead>
           <tbody id="incidentsBody" class="divide-y divide-white/5">
-            <tr><td colspan="4" class="py-4 text-center text-slate-500">कोई सुरक्षा उल्लंघन नहीं मिला</td></tr>
+            <tr><td colspan="4" class="py-4 text-center text-slate-500">कोई उल्लंघन नहीं</td></tr>
           </tbody>
         </table>
       </div>
@@ -63,12 +89,49 @@
   <script>
     const socket = io();
     socket.emit("join_admin");
+
     socket.on("admin_metrics", (m) => {
       document.getElementById("m-users").innerText = m.onlineUsers;
       document.getElementById("m-rooms").innerText = m.activeSessions;
-      document.getElementById("m-queue").innerText = m.waitingPoolCount;
-      document.getElementById("m-reg").innerText = m.totalRegistered || 0;
+      document.getElementById("m-streams").innerText = m.liveStreamsCount || 0;
+      document.getElementById("m-reg").innerText = m.registeredUsers?.length || 0;
       document.getElementById("m-incidents").innerText = m.incidents.length;
+
+      const creatorTbody = document.getElementById("creatorListBody");
+      const creators = m.registeredUsers?.filter(u => u.role === "creator") || [];
+      if (creators.length > 0) {
+        creatorTbody.innerHTML = creators.map(u => `
+          <tr>
+            <td class="py-3">
+              <div class="font-bold text-slate-200">${u.channelName || 'N/A'}</div>
+              <div class="text-[10px] text-slate-400 font-mono">${u.email}</div>
+            </td>
+            <td>
+              <span class="px-2 py-0.5 rounded bg-indigo-500/20 text-indigo-300 font-semibold text-[10px]">
+                #${u.category || 'General'}
+              </span>
+            </td>
+            <td class="max-w-xs">
+              <p class="text-slate-300 truncate">${u.bio || 'कोई बायो नहीं'}</p>
+              ${u.socialLink ? `<a href="${u.socialLink}" target="_blank" class="text-teal-400 text-[10px] underline block mt-0.5 truncate">${u.socialLink}</a>` : ''}
+            </td>
+            <td>
+              <span class="px-2 py-0.5 rounded text-[10px] ${u.isApprovedCreator ? 'bg-emerald-500/20 text-emerald-300' : 'bg-amber-500/20 text-amber-300'}">
+                ${u.isApprovedCreator ? 'Approved (सक्रिय)' : 'Pending (मंज़ूरी बाकी)'}
+              </span>
+            </td>
+            <td>
+              ${!u.isApprovedCreator ? `
+                <button onclick="approveCreator('${u.email}')" class="px-2.5 py-1 bg-gradient-to-r from-emerald-500 to-teal-500 text-slate-950 font-bold rounded-lg text-xs">
+                  Approve करें ✅
+                </button>
+              ` : '<span class="text-slate-500 text-xs">स्वीकृत</span>'}
+            </td>
+          </tr>
+        `).join("");
+      } else {
+        creatorTbody.innerHTML = '<tr><td colspan="5" class="py-4 text-center text-slate-500">कोई क्रिएटर रजिस्टर्ड नहीं है</td></tr>';
+      }
 
       const tbody = document.getElementById("incidentsBody");
       if (m.incidents && m.incidents.length > 0) {
@@ -82,6 +145,20 @@
         `).join("");
       }
     });
+
+    async function approveCreator(email) {
+      try {
+        const res = await fetch("/api/admin/approve-creator", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email })
+        });
+        const d = await res.json();
+        if (d.success) alert(email + " को क्रिएटर अप्रूवल दे दिया गया है!");
+      } catch (e) {
+        alert("अप्रूवल असफल");
+      }
+    }
   </script>
 </body>
 </html>
