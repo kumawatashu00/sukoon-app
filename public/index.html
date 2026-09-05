@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, interactive-widget=resizes-content">
-  <title>Sukoon - Anonymous Video & Text Chat</title>
+  <title>Sukoon - Anonymous Live Space</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="/socket.io/socket.io.js"></script>
   <style>
@@ -15,152 +15,221 @@
       background: #0b0f19;
       object-fit: cover;
     }
+    .filter-none { filter: none; }
+    .filter-blur { filter: blur(10px); }
+    .filter-bw { filter: grayscale(100%); }
+    .filter-sepia { filter: sepia(80%); }
+
+    @keyframes floatUp {
+      0% { transform: translateY(0) scale(0.8); opacity: 1; }
+      100% { transform: translateY(-160px) scale(1.4); opacity: 0; }
+    }
+    .float-emoji {
+      position: absolute;
+      animation: floatUp 1.8s ease-out forwards;
+      pointer-events: none;
+      z-index: 50;
+    }
   </style>
 </head>
-<body class="bg-[#070b14] text-slate-100 font-sans app-screen flex flex-col overflow-hidden selection:bg-rose-500/30">
+<body class="bg-[#070b14] text-slate-100 font-sans app-screen flex flex-col overflow-hidden selection:bg-rose-500/30 relative">
+
+  <div id="reactionOverlay" class="absolute inset-0 pointer-events-none overflow-hidden z-50"></div>
 
   <!-- ================= 1. HOME SCREEN ================= -->
-  <div id="homeScreen" class="flex-1 flex flex-col justify-between p-6 max-w-lg w-full mx-auto overflow-y-auto">
-    <!-- Brand Logo -->
-    <div class="text-center pt-8 space-y-3">
-      <div class="w-16 h-16 rounded-3xl bg-gradient-to-tr from-rose-500 via-pink-500 to-indigo-500 mx-auto flex items-center justify-center text-3xl shadow-2xl shadow-pink-500/20">
-        🌿
+  <div id="homeScreen" class="flex-1 flex flex-col justify-between p-4 md:p-6 max-w-lg w-full mx-auto overflow-y-auto">
+    
+    <!-- Top Auth Bar -->
+    <div class="flex justify-between items-center pt-2">
+      <div class="flex items-center gap-2">
+        <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+        <span class="text-[10px] text-slate-400 font-medium tracking-wide">100% सुरक्षित और अनाम</span>
       </div>
-      <h1 class="text-4xl font-black tracking-tight bg-gradient-to-r from-rose-200 via-pink-200 to-teal-200 bg-clip-text text-transparent">
-        सुकून
-      </h1>
-      <p class="text-xs text-slate-400 font-medium">
-        100% अनाम • बिना किसी पहचान के किसी नए से जुड़ें
-      </p>
-    </div>
-
-    <!-- Mode Selection Cards (Text vs Video) -->
-    <div class="space-y-4 my-auto py-6">
-      <!-- Text Chat Card -->
-      <button onclick="startApp('text')" class="w-full text-left p-5 rounded-3xl bg-gradient-to-br from-slate-900/90 to-slate-900/40 border border-white/10 hover:border-teal-400/50 hover:bg-slate-800/60 transition shadow-xl group">
-        <div class="flex items-center justify-between">
-          <div class="flex items-center gap-4">
-            <div class="w-12 h-12 rounded-2xl bg-teal-500/20 border border-teal-500/30 flex items-center justify-center text-2xl group-hover:scale-110 transition">
-              💬
-            </div>
-            <div>
-              <h2 class="text-base font-black text-teal-200">टेक्स्ट चैट (Text Chat)</h2>
-              <p class="text-xs text-slate-400 mt-0.5">बिना कैमरा ऑन किए दिल की बात साझा करें</p>
-            </div>
-          </div>
-          <span class="text-slate-500 text-lg group-hover:translate-x-1 group-hover:text-teal-300 transition">➔</span>
-        </div>
-      </button>
-
-      <!-- Video Call Card (Omegle Style) -->
-      <button onclick="startApp('video')" class="w-full text-left p-5 rounded-3xl bg-gradient-to-br from-slate-900/90 to-slate-900/40 border border-white/10 hover:border-rose-400/50 hover:bg-slate-800/60 transition shadow-xl group">
-        <div class="flex items-center justify-between">
-          <div class="flex items-center gap-4">
-            <div class="w-12 h-12 rounded-2xl bg-rose-500/20 border border-rose-500/30 flex items-center justify-center text-2xl group-hover:scale-110 transition">
-              📹
-            </div>
-            <div>
-              <h2 class="text-base font-black text-rose-200">वीडियो कॉल (Omegle Style)</h2>
-              <p class="text-xs text-slate-400 mt-0.5">कैमरे के साथ रैंडम साथियों से फेस-टू-फेस मिलें</p>
-            </div>
-          </div>
-          <span class="text-slate-500 text-lg group-hover:translate-x-1 group-hover:text-rose-300 transition">➔</span>
-        </div>
+      <button onclick="toggleAuthModal()" id="authNavBtn" class="px-3 py-1 rounded-xl bg-slate-900 border border-white/10 text-xs font-semibold text-rose-300 hover:bg-slate-800 transition">
+        👤 लॉगिन / साइनअप
       </button>
     </div>
 
-    <!-- 18+ Disclaimer -->
-    <div class="text-center pb-4 text-[11px] text-slate-500">
-      🔒 यह प्लेटफ़ॉर्म 18+ यूज़र्स के लिए है। आपकी कोई भी निजी जानकारी सेव नहीं की जाती।
+    <!-- Advanced Logo & Branding -->
+    <div class="text-center pt-4 space-y-2">
+      <div class="relative w-16 h-16 mx-auto flex items-center justify-center">
+        <div class="absolute inset-0 rounded-3xl bg-gradient-to-tr from-rose-500 via-pink-500 to-teal-400 blur-md opacity-60 animate-pulse"></div>
+        <div class="relative w-16 h-16 rounded-3xl bg-[#0d1322] border border-white/20 flex items-center justify-center text-3xl shadow-2xl">
+          🌿
+        </div>
+      </div>
+      <div>
+        <h1 class="text-3xl md:text-4xl font-black tracking-tight bg-gradient-to-r from-rose-200 via-pink-200 to-teal-200 bg-clip-text text-transparent">
+          SUKOON
+        </h1>
+        <p class="text-[11px] text-slate-400 font-medium mt-1">मन की बात, बिना किसी पहचान के</p>
+      </div>
+    </div>
+
+    <!-- Tags Selector -->
+    <div class="bg-slate-900/50 p-3 rounded-2xl border border-white/10 my-3">
+      <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-2">🎯 पसंदीदा विषय (Tags):</span>
+      <div class="flex flex-wrap gap-1.5" id="tagList">
+        <button type="button" onclick="selectTag('All')" class="tag-btn px-2.5 py-1 rounded-lg text-xs font-medium bg-rose-500/20 border border-rose-400 text-rose-200" data-tag="All">🌟 सभी</button>
+        <button type="button" onclick="selectTag('Gaming')" class="tag-btn px-2.5 py-1 rounded-lg text-xs font-medium bg-slate-950/60 border border-white/5 text-slate-400" data-tag="Gaming">🎮 #Gaming</button>
+        <button type="button" onclick="selectTag('Music')" class="tag-btn px-2.5 py-1 rounded-lg text-xs font-medium bg-slate-950/60 border border-white/5 text-slate-400" data-tag="Music">🎵 #Music</button>
+        <button type="button" onclick="selectTag('LateNight')" class="tag-btn px-2.5 py-1 rounded-lg text-xs font-medium bg-slate-950/60 border border-white/5 text-slate-400" data-tag="LateNight">🌙 #LateNight</button>
+        <button type="button" onclick="selectTag('DeepTalks')" class="tag-btn px-2.5 py-1 rounded-lg text-xs font-medium bg-slate-950/60 border border-white/5 text-slate-400" data-tag="DeepTalks">☕ #DeepTalks</button>
+      </div>
+    </div>
+
+    <!-- SIDE-BY-SIDE 2 CARDS (चैट और वीडियो कॉल साथ-साथ) -->
+    <div class="grid grid-cols-2 gap-3 my-auto py-2">
+      <!-- Left Card: Text Chat -->
+      <button onclick="startApp('text')" class="flex flex-col justify-between p-4 rounded-3xl bg-gradient-to-b from-slate-900/90 to-slate-950/80 border border-teal-500/20 hover:border-teal-400/60 hover:scale-[1.02] transition shadow-xl text-left group min-h-[150px]">
+        <div class="w-10 h-10 rounded-2xl bg-teal-500/20 border border-teal-500/30 flex items-center justify-center text-xl group-hover:scale-110 transition">
+          💬
+        </div>
+        <div>
+          <h2 class="text-sm font-black text-teal-200 leading-tight">टेक्स्ट चैट</h2>
+          <p class="text-[10px] text-slate-400 mt-1">अनाम चैट व 10s फोटो</p>
+        </div>
+        <div class="text-teal-400 text-xs font-bold flex items-center gap-1">
+          <span>शुरू करें</span> <span>➔</span>
+        </div>
+      </button>
+
+      <!-- Right Card: Video Call -->
+      <button onclick="startApp('video')" class="flex flex-col justify-between p-4 rounded-3xl bg-gradient-to-b from-slate-900/90 to-slate-950/80 border border-rose-500/20 hover:border-rose-400/60 hover:scale-[1.02] transition shadow-xl text-left group min-h-[150px]">
+        <div class="w-10 h-10 rounded-2xl bg-rose-500/20 border border-rose-500/30 flex items-center justify-center text-xl group-hover:scale-110 transition">
+          📹
+        </div>
+        <div>
+          <h2 class="text-sm font-black text-rose-200 leading-tight">वीडियो कॉल</h2>
+          <p class="text-[10px] text-slate-400 mt-1">ओमेगल स्टाइल रैंडम</p>
+        </div>
+        <div class="text-rose-400 text-xs font-bold flex items-center gap-1">
+          <span>कॉल करें</span> <span>➔</span>
+        </div>
+      </button>
+    </div>
+
+    <!-- Bottom Footer -->
+    <div class="text-center pb-2 text-[10px] text-slate-500">
+      🔒 18+ यूज़र्स के लिए • पूर्णतः अनाम एवं सुरक्षित
     </div>
   </div>
 
 
-  <!-- ================= 2. ACTIVE ROOM SCREEN (TEXT OR VIDEO) ================= -->
+  <!-- ================= 2. ACTIVE ROOM SCREEN ================= -->
   <div id="roomScreen" class="hidden flex-1 flex flex-col overflow-hidden">
-    
-    <!-- Top Bar with Home & Skip Button -->
-    <header class="px-4 py-2.5 bg-[#0b101c] border-b border-white/5 flex justify-between items-center shrink-0">
+    <!-- Header -->
+    <header class="px-3.5 py-2 bg-[#0b101c] border-b border-white/5 flex justify-between items-center shrink-0">
       <div class="flex items-center gap-2">
-        <button onclick="goHome()" class="px-3 py-1.5 rounded-xl bg-slate-800/80 hover:bg-slate-700 text-xs font-bold text-slate-200 border border-white/10 flex items-center gap-1.5 transition">
+        <button onclick="goHome()" class="px-2.5 py-1.5 rounded-xl bg-slate-800 text-xs font-bold text-slate-200 border border-white/10 flex items-center gap-1">
           <span>🏠</span> <span>होम</span>
         </button>
-        <span id="roomStatusBadge" class="text-[11px] px-2.5 py-1 rounded-full bg-amber-500/20 text-amber-300 font-medium">तलाश जारी...</span>
+        <span id="roomStatusBadge" class="text-[10px] px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 font-medium">तलाश जारी...</span>
       </div>
 
-      <div class="flex items-center gap-2">
-        <button onclick="nextPartner()" id="nextBtn" class="px-4 py-1.5 rounded-xl bg-gradient-to-r from-rose-500 to-pink-500 text-slate-950 text-xs font-bold shadow-md hover:opacity-95 transition">
-          Next ➔
-        </button>
+      <!-- Live Reaction Bar -->
+      <div class="flex items-center gap-1.5 bg-slate-900/80 px-2 py-1 rounded-xl border border-white/10">
+        <button onclick="sendReaction('❤️')" class="text-sm active:scale-125 transition">❤️</button>
+        <button onclick="sendReaction('🔥')" class="text-sm active:scale-125 transition">🔥</button>
+        <button onclick="sendReaction('😂')" class="text-sm active:scale-125 transition">😂</button>
       </div>
+
+      <button onclick="nextPartner()" id="nextBtn" class="px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-rose-500 to-pink-500 text-slate-950 text-xs font-bold shadow-md">
+        Next ➔
+      </button>
     </header>
 
-    <!-- Room Content Area -->
+    <!-- Main Container -->
     <main class="flex-1 flex flex-col md:flex-row overflow-hidden p-2 gap-2">
-
-      <!-- Video Section (Only active in Video mode) -->
+      <!-- Video Section -->
       <section id="videoSection" class="hidden flex-1 flex flex-row md:flex-col gap-2 min-h-[190px] md:min-h-0 relative">
-        <!-- Remote Stranger Video -->
         <div class="relative flex-1 rounded-2xl overflow-hidden border border-white/10 bg-slate-950 flex items-center justify-center">
           <video id="remoteVideo" autoplay playsinline class="w-full h-full video-feed"></video>
-          <span class="absolute bottom-2 left-2 text-[10px] bg-black/60 px-2 py-0.5 rounded-lg text-slate-300 font-semibold border border-white/5">
+          <span class="absolute bottom-2 left-2 text-[9px] bg-black/60 px-2 py-0.5 rounded-lg text-slate-300 font-semibold border border-white/5">
             साथी (Stranger)
           </span>
           <div id="videoWaitingNotice" class="absolute inset-0 flex flex-col items-center justify-center text-center p-4">
-            <div class="w-9 h-9 rounded-full border-2 border-rose-400 border-t-transparent animate-spin mb-2"></div>
-            <span class="text-xs text-slate-400 font-medium">साथी ढूँढ रहे हैं...</span>
+            <div class="w-8 h-8 rounded-full border-2 border-rose-400 border-t-transparent animate-spin mb-2"></div>
+            <span class="text-xs text-slate-400">साथी ढूँढ रहे हैं...</span>
           </div>
         </div>
 
-        <!-- Local Video (You) -->
         <div class="relative flex-1 rounded-2xl overflow-hidden border border-white/10 bg-slate-950 flex items-center justify-center">
-          <video id="localVideo" autoplay playsinline muted class="w-full h-full video-feed"></video>
-          <span class="absolute bottom-2 left-2 text-[10px] bg-black/60 px-2 py-0.5 rounded-lg text-slate-300 font-semibold border border-white/5">
+          <video id="localVideo" autoplay playsinline muted class="w-full h-full video-feed filter-none"></video>
+          <span class="absolute bottom-2 left-2 text-[9px] bg-black/60 px-2 py-0.5 rounded-lg text-slate-300 font-semibold border border-white/5">
             आप (You)
           </span>
-          <div class="absolute top-2 right-2 flex gap-1.5">
+          <div class="absolute top-2 right-2 flex gap-1">
+            <button onclick="flipCamera()" class="p-1.5 rounded-xl bg-slate-900/80 border border-white/10 text-xs text-indigo-300">🔄</button>
+            <button onclick="cycleFilter()" class="p-1.5 rounded-xl bg-slate-900/80 border border-white/10 text-xs text-amber-300">🎭</button>
             <button onclick="toggleAudio()" id="micBtn" class="p-1.5 rounded-xl bg-slate-900/80 border border-white/10 text-xs text-teal-300">🎙️</button>
             <button onclick="toggleVideo()" id="camBtn" class="p-1.5 rounded-xl bg-slate-900/80 border border-white/10 text-xs text-pink-300">📹</button>
           </div>
         </div>
       </section>
 
-      <!-- Chat Section (Available in both modes) -->
+      <!-- Chat Section -->
       <section class="flex-1 flex flex-col rounded-2xl border border-white/10 bg-[#0c1222]/80 backdrop-blur-xl overflow-hidden">
-        <!-- Messages Area -->
         <div id="messagesBox" class="flex-1 overflow-y-auto p-3 space-y-2">
           <div class="text-center py-4 text-xs text-slate-500">
             🌱 आप एक अनाम साथी से जुड़े हैं।
           </div>
         </div>
 
-        <!-- Input Bar (Mobile Keyboard Aware) -->
+        <!-- Input Bar with 10s Vanish Photo Button -->
         <form id="chatForm" onsubmit="handleSendSubmit(event)" class="p-2 border-t border-white/5 bg-[#090d18] flex items-center gap-2 shrink-0">
+          <input type="file" id="mediaInput" accept="image/*" class="hidden" onchange="sendVanishImage(event)">
+          <button type="button" onclick="document.getElementById('mediaInput').click()" class="p-2.5 bg-slate-800/90 rounded-xl text-pink-300 hover:bg-slate-700 transition" title="10 सेकंड में गायब होने वाली फोटो">
+            📸
+          </button>
           <input
             type="text"
             id="msgInput"
             enterkeyhint="send"
             autocomplete="off"
             placeholder="मैसेज लिखें और 'Enter' दबाएँ..."
-            class="flex-1 bg-slate-900/90 border border-white/10 rounded-xl px-3.5 py-2.5 text-xs text-slate-100 placeholder:text-slate-500 focus:outline-none focus:border-rose-400"
+            class="flex-1 bg-slate-900/90 border border-white/10 rounded-xl px-3 py-2 text-xs text-slate-100 placeholder:text-slate-500 focus:outline-none focus:border-rose-400"
           >
-          <button type="submit" class="px-4 py-2.5 bg-gradient-to-r from-rose-400 to-pink-400 text-slate-950 font-bold rounded-xl text-xs shadow-md">
+          <button type="submit" class="px-3.5 py-2 bg-gradient-to-r from-rose-400 to-pink-400 text-slate-950 font-bold rounded-xl text-xs">
             भेजें
           </button>
         </form>
       </section>
-
     </main>
+  </div>
+
+  <!-- ================= 3. OPTIONAL AUTH MODAL ================= -->
+  <div id="authModal" class="hidden fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+    <div class="bg-[#0f172a] border border-white/10 p-6 rounded-3xl max-w-sm w-full space-y-4 shadow-2xl relative">
+      <button onclick="toggleAuthModal()" class="absolute top-4 right-4 text-slate-400 hover:text-white">✕</button>
+      <div class="text-center space-y-1">
+        <h3 class="text-lg font-bold text-slate-100">वैकल्पिक लॉगिन / खाता</h3>
+        <p class="text-xs text-slate-400">लॉगिन करना अनिवार्य नहीं है (गेस्ट भी चल सकते हैं)</p>
+      </div>
+
+      <div class="space-y-3">
+        <input type="email" id="authEmail" placeholder="ईमेल पता डालें" class="w-full bg-slate-950 border border-white/10 rounded-xl p-3 text-xs text-slate-200">
+        <input type="password" id="authPassword" placeholder="पासवर्ड" class="w-full bg-slate-950 border border-white/10 rounded-xl p-3 text-xs text-slate-200">
+        <button onclick="submitAuth()" class="w-full py-3 bg-gradient-to-r from-rose-400 to-pink-400 text-slate-950 font-bold rounded-xl text-xs">
+          लॉगिन / साइनअप करें
+        </button>
+      </div>
+    </div>
   </div>
 
   <script>
     let socket;
     let currentMode = 'text';
+    let selectedTag = 'All';
     let localStream = null;
     let peerConnection = null;
     let isInitiator = false;
     let isMuted = false;
     let isCamOff = false;
+    let facingMode = "user";
+    const filters = ['filter-none', 'filter-blur', 'filter-bw', 'filter-sepia'];
+    let filterIndex = 0;
+    let loggedInUser = null;
 
     const rtcConfig = {
       iceServers: [
@@ -173,7 +242,6 @@
       fixMobileViewport();
     });
 
-    // मोबाइल पर कीबोर्ड खुलने पर स्क्रीन का साइज़ सही रखना
     function fixMobileViewport() {
       if (window.visualViewport) {
         window.visualViewport.addEventListener('resize', () => {
@@ -182,8 +250,44 @@
         });
       }
       const inp = document.getElementById('msgInput');
-      inp.addEventListener('focus', () => {
-        setTimeout(scrollToBottom, 300);
+      inp.addEventListener('focus', () => setTimeout(scrollToBottom, 300));
+    }
+
+    function toggleAuthModal() {
+      document.getElementById('authModal').classList.toggle('hidden');
+    }
+
+    async function submitAuth() {
+      const email = document.getElementById('authEmail').value.trim();
+      const password = document.getElementById('authPassword').value.trim();
+      if (!email || !password) return alert("ईमेल और पासवर्ड भरें");
+
+      try {
+        const res = await fetch("/api/auth", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email, password })
+        });
+        const data = await res.json();
+        if (data.success) {
+          loggedInUser = data.user;
+          document.getElementById('authNavBtn').innerText = "✔️ " + email.split('@')[0];
+          toggleAuthModal();
+          alert("सफलतापूर्वक लॉगिन हो गया!");
+        }
+      } catch (e) {
+        alert("लॉगिन विफल रहा");
+      }
+    }
+
+    function selectTag(tag) {
+      selectedTag = tag;
+      document.querySelectorAll('.tag-btn').forEach(btn => {
+        if (btn.dataset.tag === tag) {
+          btn.className = "tag-btn px-2.5 py-1 rounded-lg text-xs font-medium bg-rose-500/20 border border-rose-400 text-rose-200";
+        } else {
+          btn.className = "tag-btn px-2.5 py-1 rounded-lg text-xs font-medium bg-slate-950/60 border border-white/5 text-slate-400";
+        }
       });
     }
 
@@ -204,11 +308,30 @@
 
     async function startCamera() {
       try {
-        localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+        if (localStream) localStream.getTracks().forEach(t => t.stop());
+        localStream = await navigator.mediaDevices.getUserMedia({
+          video: { facingMode: facingMode },
+          audio: true
+        });
         document.getElementById('localVideo').srcObject = localStream;
       } catch (err) {
-        alert("कैमरा या माइक की अनुमति नहीं मिली। कृपया ब्राउज़र सेटिंग्स में चेक करें।");
+        alert("कैमरा या माइक एक्सेस नहीं मिला!");
       }
+    }
+
+    async function flipCamera() {
+      facingMode = facingMode === "user" ? "environment" : "user";
+      await startCamera();
+      if (peerConnection && localStream) {
+        const videoTrack = localStream.getVideoTracks()[0];
+        const sender = peerConnection.getSenders().find(s => s.track && s.track.kind === "video");
+        if (sender) sender.replaceTrack(videoTrack);
+      }
+    }
+
+    function cycleFilter() {
+      filterIndex = (filterIndex + 1) % filters.length;
+      document.getElementById('localVideo').className = `w-full h-full video-feed ${filters[filterIndex]}`;
     }
 
     function initSocket() {
@@ -218,18 +341,16 @@
         socket.on("partner_found", (data) => {
           isInitiator = data.isInitiator;
           document.getElementById("roomStatusBadge").innerText = "ऑनलाइन 🟢";
-          document.getElementById("roomStatusBadge").className = "text-[11px] px-2.5 py-1 rounded-full bg-emerald-500/20 text-emerald-300 font-medium";
+          document.getElementById("roomStatusBadge").className = "text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-300 font-medium";
           document.getElementById("videoWaitingNotice").classList.add("hidden");
-          appendSystemMessage("आप साथी से जुड़ चुके हैं!");
+          appendSystemMessage(`साथी जुड़ गया है! (${data.tag ? '#' + data.tag : ''})`);
 
-          if (currentMode === 'video') {
-            initPeerConnection();
-          }
+          if (currentMode === 'video') initPeerConnection();
         });
 
-        socket.on("receive_message", ({ text, timestamp }) => {
-          appendMessage(text, "partner", timestamp);
-        });
+        socket.on("receive_message", ({ text, timestamp }) => appendMessage(text, "partner", timestamp));
+        socket.on("receive_media", ({ image, timestamp }) => appendImage(image, "partner", timestamp));
+        socket.on("receive_reaction", ({ emoji }) => renderFloatingReaction(emoji));
 
         socket.on("webrtc_signal", async (signal) => {
           if (!peerConnection) return;
@@ -244,28 +365,24 @@
             } else if (signal.candidate) {
               await peerConnection.addIceCandidate(new RTCIceCandidate(signal.candidate));
             }
-          } catch (e) {
-            console.error("WebRTC Error:", e);
-          }
+          } catch (e) { console.error("WebRTC Error:", e); }
         });
 
-        socket.on("message_rejected", ({ reason }) => {
-          alert(reason);
-        });
+        socket.on("message_rejected", ({ reason }) => alert(reason));
 
         socket.on("partner_disconnected", () => {
           document.getElementById("roomStatusBadge").innerText = "डिस्कनेक्टेड";
-          document.getElementById("roomStatusBadge").className = "text-[11px] px-2.5 py-1 rounded-full bg-rose-500/20 text-rose-300 font-medium";
+          document.getElementById("roomStatusBadge").className = "text-[10px] px-2 py-0.5 rounded-full bg-rose-500/20 text-rose-300 font-medium";
           document.getElementById("videoWaitingNotice").classList.remove("hidden");
-          appendSystemMessage("साथी ने कॉल छोड़ दी। नया साथी खोजने के लिए 'Next' दबाएँ।");
+          appendSystemMessage("साथी चला गया है। 'Next' दबाकर नया साथी खोजें।");
           closePeer();
         });
       }
 
       document.getElementById("roomStatusBadge").innerText = "तलाश जारी...";
-      document.getElementById("roomStatusBadge").className = "text-[11px] px-2.5 py-1 rounded-full bg-amber-500/20 text-amber-300 font-medium";
+      document.getElementById("roomStatusBadge").className = "text-[10px] px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 font-medium";
       document.getElementById("videoWaitingNotice").classList.remove("hidden");
-      socket.emit("find_partner", { mode: currentMode });
+      socket.emit("find_partner", { mode: currentMode, tag: selectedTag });
     }
 
     function initPeerConnection() {
@@ -314,19 +431,63 @@
       scrollToBottom();
     }
 
+    // 10s वैनिश फोटो सेंडिंग
+    function sendVanishImage(e) {
+      const file = e.target.files[0];
+      if (!file || !socket) return;
+      const reader = new FileReader();
+      reader.onload = () => {
+        socket.emit("send_media", { imageBase64: reader.result });
+        appendImage(reader.result, "me", new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }));
+      };
+      reader.readAsDataURL(file);
+      e.target.value = "";
+    }
+
     function appendMessage(text, who, time) {
       const box = document.getElementById("messagesBox");
       const div = document.createElement("div");
       div.className = who === "me" ? "flex justify-end" : "flex justify-start";
       div.innerHTML = `
         <div class="max-w-[80%] px-3.5 py-2 rounded-2xl text-xs ${
-          who === "me" ? "bg-gradient-to-r from-rose-400 to-pink-400 text-slate-950 font-medium rounded-br-none" : "bg-slate-800 text-slate-100 rounded-bl-none border border-white/5"
+          who === "me" ? "bg-gradient-to-r from-rose-400 to-pink-400 text-slate-950 font-medium" : "bg-slate-800 text-slate-100 border border-white/5"
         }">
           <p class="leading-relaxed whitespace-pre-wrap">${text}</p>
           <span class="text-[9px] block mt-1 opacity-70 text-right">${time}</span>
         </div>`;
       box.appendChild(div);
       scrollToBottom();
+    }
+
+    function appendImage(src, who, time) {
+      const box = document.getElementById("messagesBox");
+      const id = "media_" + Math.random().toString(36).substring(2, 9);
+      const div = document.createElement("div");
+      div.id = id;
+      div.className = who === "me" ? "flex justify-end" : "flex justify-start";
+      div.innerHTML = `
+        <div class="max-w-[80%] p-2 rounded-2xl bg-slate-800 border border-white/10 shadow-lg">
+          <img src="${src}" class="max-h-48 rounded-xl object-cover">
+          <div class="text-[9px] text-amber-300 font-bold mt-1">⏳ 10 सेकंड में गायब होगा</div>
+        </div>`;
+      box.appendChild(div);
+      scrollToBottom();
+      setTimeout(() => { document.getElementById(id)?.remove(); }, 10000);
+    }
+
+    function sendReaction(emoji) {
+      if (socket) socket.emit("send_reaction", { emoji });
+    }
+
+    function renderFloatingReaction(emoji) {
+      const container = document.getElementById("reactionOverlay");
+      const span = document.createElement("span");
+      span.className = "float-emoji text-3xl";
+      span.innerText = emoji;
+      span.style.left = `${30 + Math.random() * 40}%`;
+      span.style.bottom = "80px";
+      container.appendChild(span);
+      setTimeout(() => span.remove(), 1800);
     }
 
     function appendSystemMessage(msg) {
@@ -347,11 +508,10 @@
       closePeer();
       document.getElementById("messagesBox").innerHTML = "";
       document.getElementById("roomStatusBadge").innerText = "तलाश जारी...";
-      document.getElementById("roomStatusBadge").className = "text-[11px] px-2.5 py-1 rounded-full bg-amber-500/20 text-amber-300 font-medium";
       document.getElementById("videoWaitingNotice").classList.remove("hidden");
       if (socket) {
         socket.emit("leave_chat");
-        socket.emit("find_partner", { mode: currentMode });
+        socket.emit("find_partner", { mode: currentMode, tag: selectedTag });
       }
     }
 
@@ -361,9 +521,7 @@
         localStream.getTracks().forEach(t => t.stop());
         localStream = null;
       }
-      if (socket) {
-        socket.emit("leave_chat");
-      }
+      if (socket) socket.emit("leave_chat");
       document.getElementById('messagesBox').innerHTML = '';
       document.getElementById('roomScreen').classList.add('hidden');
       document.getElementById('homeScreen').classList.remove('hidden');

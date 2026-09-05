@@ -12,12 +12,12 @@
     <div class="flex justify-between items-center border-b border-white/10 pb-4">
       <div>
         <h1 class="text-xl font-black text-rose-300">🛡️ सुकून एडमिन कमांड सेंटर</h1>
-        <p class="text-xs text-slate-400">लाइव ट्रैफिक, जेंडर कतार और सेफ्टी लॉग्स</p>
+        <p class="text-xs text-slate-400">लाइव ट्रैफिक, रजिस्टर्ड अकाउंट्स और सेफ्टी लॉग्स</p>
       </div>
       <a href="/" class="px-3 py-1.5 bg-slate-800 rounded-xl text-xs text-slate-300">← होम पर जाएँ</a>
     </div>
 
-    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+    <div class="grid grid-cols-2 md:grid-cols-5 gap-3">
       <div class="p-4 bg-slate-900/80 rounded-2xl border border-white/5">
         <div class="text-xs text-slate-400">ऑनलाइन यूज़र्स</div>
         <div id="m-users" class="text-2xl font-black text-teal-300 mt-1">0</div>
@@ -27,12 +27,16 @@
         <div id="m-rooms" class="text-2xl font-black text-pink-300 mt-1">0</div>
       </div>
       <div class="p-4 bg-slate-900/80 rounded-2xl border border-white/5">
-        <div class="text-xs text-slate-400">टेक्स्ट कतार</div>
-        <div id="m-queue-text" class="text-2xl font-black text-indigo-300 mt-1">0</div>
+        <div class="text-xs text-slate-400">कतार में साथी</div>
+        <div id="m-queue" class="text-2xl font-black text-indigo-300 mt-1">0</div>
       </div>
       <div class="p-4 bg-slate-900/80 rounded-2xl border border-white/5">
-        <div class="text-xs text-slate-400">वीडियो कतार</div>
-        <div id="m-queue-video" class="text-2xl font-black text-amber-300 mt-1">0</div>
+        <div class="text-xs text-slate-400">रजिस्टर्ड यूज़र्स</div>
+        <div id="m-reg" class="text-2xl font-black text-amber-300 mt-1">0</div>
+      </div>
+      <div class="p-4 bg-slate-900/80 rounded-2xl border border-white/5">
+        <div class="text-xs text-slate-400">सुरक्षा अलर्ट्स</div>
+        <div id="m-incidents" class="text-2xl font-black text-rose-400 mt-1">0</div>
       </div>
     </div>
 
@@ -62,12 +66,9 @@
     socket.on("admin_metrics", (m) => {
       document.getElementById("m-users").innerText = m.onlineUsers;
       document.getElementById("m-rooms").innerText = m.activeSessions;
-      if (document.getElementById("m-queue-text")) {
-        document.getElementById("m-queue-text").innerText = m.waitingText || 0;
-      }
-      if (document.getElementById("m-queue-video")) {
-        document.getElementById("m-queue-video").innerText = m.waitingVideo || 0;
-      }
+      document.getElementById("m-queue").innerText = m.waitingPoolCount;
+      document.getElementById("m-reg").innerText = m.totalRegistered || 0;
+      document.getElementById("m-incidents").innerText = m.incidents.length;
 
       const tbody = document.getElementById("incidentsBody");
       if (m.incidents && m.incidents.length > 0) {

@@ -6,7 +6,26 @@ const path = require("path");
 
 const app = express();
 app.use(cors());
+app.use(express.json());
 app.use(express.static(path.join(__dirname, "public")));
+
+app.get("/ping", (req, res) => res.send("pong 24x7 active"));
+
+// ऑप्शनल लॉगिन यूज़र्स का इन-मेमरी रिकॉर्ड
+const registeredUsers = [];
+
+// लॉगिन / साइनअप API
+app.post("/api/auth", (req, res) => {
+  const { email, password } = req.body;
+  if (!email || !password) return res.status(400).json({ error: "ईमेल और पासवर्ड ज़रूरी है" });
+
+  let user = registeredUsers.find(u => u.email === email);
+  if (!user) {
+    user = { id: "user_" + Math.random().toString(36).substr(2, 6), email, joinedAt: new Date().toLocaleDateString() };
+    registeredUsers.push(user);
+  }
+  res.json({ success: true, user });
+});
 
 const server = http.createServer(app);
 const io = new Server(server, {
@@ -16,8 +35,7 @@ const io = new Server(server, {
 
 const ABUSE_WORDS = ["mc", "bc", "bhenchod", "madarchod", "chutiya", "randi", "gand", "harami", "lodu", "bsdk"];
 
-let waitingTextPool = [];
-let waitingVideoPool = [];
+let waitingPool = [];
 const activeRooms = {};
 const userRooms = {};
 let totalConnections = 0;
@@ -27,17 +45,20 @@ const broadcastAdminStats = () => {
   io.to("admin_ops_room").emit("admin_metrics", {
     onlineUsers: io.engine.clientsCount,
     activeSessions: Object.keys(activeRooms).length,
-    waitingText: waitingTextPool.length,
-    waitingVideo: waitingVideoPool.length,
+    waitingPoolCount: waitingPool.length,
     totalConnections,
+    totalRegistered: registeredUsers.length,
     incidents: incidentReports
   });
 };
 
-function matchUser(pool, socketId) {
-  const index = pool.findIndex(id => id !== socketId);
+function attemptSmartMatch(user) {
+  let index = waitingPool.findIndex(c => c.socketId !== user.socketId && c.mode === user.mode && c.tag === user.tag && user.tag !== "All");
+  if (index === -1) {
+    index = waitingPool.findIndex(c => c.socketId !== user.socketId && c.mode === user.mode);
+  }
   if (index !== -1) {
-    return pool.splice(index, 1)[0];
+    return waitingPool.splice(index, 1)[0];
   }
   return null;
 }
@@ -51,34 +72,31 @@ io.on("connection", (socket) => {
     broadcastAdminStats();
   });
 
-  // पार्टनर ढूँढना (text या video)
-  socket.on("find_partner", ({ mode }) => {
-    waitingTextPool = waitingTextPool.filter(id => id !== socket.id);
-    waitingVideoPool = waitingVideoPool.filter(id => id !== socket.id);
+  socket.on("find_partner", ({ mode, tag }) => {
+    waitingPool = waitingPool.filter(u => u.socketId !== socket.id);
+    const user = { socketId: socket.id, mode: mode || "text", tag: tag || "All" };
+    const match = attemptSmartMatch(user);
 
-    const targetPool = mode === "video" ? waitingVideoPool : waitingTextPool;
-    const partnerId = matchUser(targetPool, socket.id);
-
-    if (partnerId && io.sockets.sockets.get(partnerId)) {
-      const roomId = `room_${mode}_${socket.id}_${partnerId}`;
+    if (match && io.sockets.sockets.get(match.socketId)) {
+      const roomId = `room_${socket.id}_${match.socketId}`;
       socket.join(roomId);
-      io.sockets.sockets.get(partnerId).join(roomId);
+      io.sockets.sockets.get(match.socketId).join(roomId);
 
       activeRooms[roomId] = {
         u1: socket.id,
-        u2: partnerId,
-        mode,
+        u2: match.socketId,
+        mode: user.mode,
         createdAt: Date.now()
       };
 
       userRooms[socket.id] = roomId;
-      userRooms[partnerId] = roomId;
+      userRooms[match.socketId] = roomId;
 
-      io.to(partnerId).emit("partner_found", { roomId, isInitiator: true, mode });
-      io.to(socket.id).emit("partner_found", { roomId, isInitiator: false, mode });
+      io.to(match.socketId).emit("partner_found", { roomId, isInitiator: true, tag: user.tag });
+      io.to(socket.id).emit("partner_found", { roomId, isInitiator: false, tag: match.tag });
     } else {
-      targetPool.push(socket.id);
-      socket.emit("waiting_in_queue", { mode });
+      waitingPool.push(user);
+      socket.emit("waiting_in_queue");
     }
     broadcastAdminStats();
   });
@@ -89,14 +107,12 @@ io.on("connection", (socket) => {
     const lower = text.toLowerCase();
 
     if (ABUSE_WORDS.some(w => lower.includes(w))) {
-      socket.emit("message_rejected", {
-        reason: "यह संदेश सुरक्षा नीति का उल्लंघन करता है।"
-      });
+      socket.emit("message_rejected", { reason: "यह संदेश सुरक्षा नीति का उल्लंघन करता है।" });
       incidentReports.unshift({
         id: Math.random().toString(),
         room: roomId,
         user: socket.id.slice(0, 5) + "***",
-        reason: "गाली-गलौज फ़िल्टर ट्रिगर हुआ",
+        reason: "अमर्यादित भाषा",
         time: new Date().toLocaleTimeString()
       });
       if (incidentReports.length > 20) incidentReports.pop();
@@ -112,17 +128,31 @@ io.on("connection", (socket) => {
     });
   });
 
-  // WebRTC Signals (Video Call)
-  socket.on("webrtc_signal", (data) => {
+  // 10s वैनिश फोटो ब्रॉडकास्ट
+  socket.on("send_media", ({ imageBase64 }) => {
     const roomId = userRooms[socket.id];
     if (roomId) {
-      socket.to(roomId).emit("webrtc_signal", data);
+      socket.to(roomId).emit("receive_media", {
+        id: Math.random().toString(),
+        image: imageBase64,
+        sender: "partner",
+        timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
+      });
     }
   });
 
+  socket.on("send_reaction", ({ emoji }) => {
+    const roomId = userRooms[socket.id];
+    if (roomId) io.to(roomId).emit("receive_reaction", { emoji });
+  });
+
+  socket.on("webrtc_signal", (data) => {
+    const roomId = userRooms[socket.id];
+    if (roomId) socket.to(roomId).emit("webrtc_signal", data);
+  });
+
   const cleanup = () => {
-    waitingTextPool = waitingTextPool.filter(id => id !== socket.id);
-    waitingVideoPool = waitingVideoPool.filter(id => id !== socket.id);
+    waitingPool = waitingPool.filter(u => u.socketId !== socket.id);
     const roomId = userRooms[socket.id];
     if (roomId) {
       socket.to(roomId).emit("partner_disconnected");
@@ -137,7 +167,12 @@ io.on("connection", (socket) => {
   socket.on("disconnect", cleanup);
 });
 
+const PING_URL = process.env.RENDER_EXTERNAL_URL || "https://sukoon-app-lthm.onrender.com";
+setInterval(() => {
+  http.get(`${PING_URL}/ping`, () => {}).on("error", () => {});
+}, 14 * 60 * 1000);
+
 const PORT = process.env.PORT || 5000;
 server.listen(PORT, () => {
-  console.log(`>>> Sukoon Live Engine active on port ${PORT}`);
+  console.log(`>>> Sukoon Advanced Engine active on port ${PORT}`);
 });
