@@ -11,11 +11,9 @@ app.use(express.static(path.join(__dirname, "public")));
 
 app.get("/ping", (req, res) => res.send("pong 24x7 active"));
 
-// रजिस्टर्ड यूज़र्स का डेटाबेस
 const registeredUsers = [];
-let liveStreams = []; // { streamId, streamerEmail, channelName, avatar, schedule, bio, category, socketId }
+let liveStreams = [];
 
-// लॉगिन / रजिस्ट्रेशन API
 app.post("/api/auth", (req, res) => {
   const { email, password, role, channelName, category, avatar, schedule, socialLink, bio } = req.body;
   if (!email || !password) return res.status(400).json({ error: "ईमेल और पासवर्ड आवश्यक हैं" });
@@ -25,7 +23,7 @@ app.post("/api/auth", (req, res) => {
     user = {
       id: "usr_" + Math.random().toString(36).substr(2, 7),
       email,
-      password, // एडमिन संदर्भ हेतु
+      password,
       role: role || "viewer",
       channelName: channelName || email.split("@")[0],
       category: category || "General",
@@ -39,7 +37,6 @@ app.post("/api/auth", (req, res) => {
     };
     registeredUsers.push(user);
   } else {
-    // अगर पहले से है, तो पासवर्ड मैच करें
     if (user.password !== password) {
       return res.status(401).json({ error: "गलत पासवर्ड!" });
     }
@@ -48,7 +45,6 @@ app.post("/api/auth", (req, res) => {
   res.json({ success: true, user });
 });
 
-// एडमिन अप्रूवल API
 app.post("/api/admin/approve-creator", (req, res) => {
   const { email } = req.body;
   const user = registeredUsers.find(u => u.email === email);
@@ -106,7 +102,6 @@ io.on("connection", (socket) => {
     broadcastAdminStats();
   });
 
-  // लाइव स्ट्रीम शुरू करना (केवल अप्रूव्ड क्रिएटर के लिए)
   socket.on("start_stream", ({ email, title, category }) => {
     const user = registeredUsers.find(u => u.email === email);
     if (!user || user.role !== "creator" || !user.isApprovedCreator) {
@@ -137,22 +132,33 @@ io.on("connection", (socket) => {
     socket.emit("stream_list_updated", liveStreams);
   });
 
-  // दर्शक का लाइव स्ट्रीम से जुड़ना
   socket.on("join_stream", ({ streamId }) => {
     socket.join(streamId);
     const stream = liveStreams.find(s => s.streamId === streamId);
     if (stream) {
-      // स्ट्रीमर को बताएं कि नया दर्शक जुड़ा है, ताकि स्ट्रीमर उसे WebRTC Offer भेज सके
       io.to(stream.socketId).emit("viewer_joined", { viewerSocketId: socket.id });
     }
   });
 
-  // स्ट्रीमर और दर्शक के बीच 1-to-many WebRTC सिग्नलिंग
+  // लाइव स्ट्रीम चैट (स्ट्रीमर और दर्शक दोनों के लिए)
+  socket.on("send_stream_chat", ({ streamId, text, senderName }) => {
+    if (!streamId || !text) return;
+    const lower = text.toLowerCase();
+    if (ABUSE_WORDS.some(w => lower.includes(w))) {
+      return socket.emit("message_rejected", { reason: "मर्यादित भाषा का उपयोग करें।" });
+    }
+    io.to(streamId).emit("receive_stream_chat", {
+      id: Math.random().toString(),
+      senderName: senderName || "दर्शक",
+      text,
+      time: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
+    });
+  });
+
   socket.on("stream_signal", ({ to, signal }) => {
     io.to(to).emit("stream_signal", { from: socket.id, signal });
   });
 
-  // वर्चुअल गिफ़्ट
   socket.on("send_gift", ({ streamId, giftName, coins, senderName }) => {
     const stream = liveStreams.find(s => s.streamId === streamId);
     if (stream) {
@@ -270,5 +276,5 @@ setInterval(() => {
 
 const PORT = process.env.PORT || 5000;
 server.listen(PORT, () => {
-  console.log(`>>> Sukoon V6 Engine active on port ${PORT}`);
+  console.log(`>>> Sukoon V7 Live Engine active on port ${PORT}`);
 });

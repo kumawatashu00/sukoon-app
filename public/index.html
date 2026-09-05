@@ -22,20 +22,22 @@
     .gift-animation {
       animation: giftPop 2.2s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
     }
+    
+    /* कस्टम स्क्रोलबार */
+    .stream-chat-scroll::-webkit-scrollbar { width: 4px; }
+    .stream-chat-scroll::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.15); border-radius: 4px; }
   </style>
 </head>
 <body class="bg-[#f8fafc] text-slate-800 font-sans app-screen flex flex-col overflow-hidden selection:bg-rose-200 relative">
 
-  <!-- ================= 1. HOME SCREEN (LIGHT THEME) ================= -->
+  <!-- ================= 1. HOME SCREEN ================= -->
   <div id="homeScreen" class="flex-1 flex flex-col justify-between p-4 md:p-6 max-w-lg w-full mx-auto overflow-y-auto">
     
-    <!-- Top Action Bar (Language + Auth/Logout) -->
     <div class="flex justify-between items-center pt-2">
       <button onclick="toggleLanguage()" id="langToggleBtn" class="px-3 py-1.5 rounded-2xl bg-white border border-slate-200 text-xs font-bold text-slate-700 hover:bg-slate-50 shadow-sm flex items-center gap-1.5 transition">
         <span>🌐</span> <span id="langText">English</span>
       </button>
 
-      <!-- User Auth State -->
       <div id="authContainer" class="flex items-center gap-1.5">
         <button onclick="toggleAuthModal()" id="authNavBtn" class="px-3 py-1.5 rounded-2xl bg-white border border-rose-200 text-xs font-bold text-rose-600 hover:bg-rose-50 shadow-sm transition">
           👤 <span data-i18n="loginBtn">लॉगिन / साइनअप</span>
@@ -46,20 +48,16 @@
       </div>
     </div>
 
-    <!-- Soft Brand Logo -->
     <div class="text-center pt-4 space-y-1.5">
       <div class="w-16 h-16 rounded-3xl bg-gradient-to-tr from-rose-500 to-pink-500 mx-auto flex items-center justify-center text-3xl shadow-xl shadow-rose-500/20 text-white">
         🌿
       </div>
       <div>
-        <h1 class="text-3xl font-black tracking-tight text-slate-900">
-          SUKOON
-        </h1>
+        <h1 class="text-3xl font-black tracking-tight text-slate-900">SUKOON</h1>
         <p class="text-xs text-slate-500 font-medium mt-0.5" data-i18n="subTitle">मन की बात, बिना किसी पहचान के</p>
       </div>
     </div>
 
-    <!-- Interest Tags -->
     <div class="bg-white p-3.5 rounded-3xl border border-slate-200/80 shadow-sm my-3">
       <span class="text-[11px] font-bold text-slate-500 uppercase tracking-wider block mb-2" data-i18n="tagTitle">🎯 पसंदीदा विषय (Tags):</span>
       <div class="flex flex-wrap gap-1.5" id="tagList">
@@ -71,10 +69,8 @@
       </div>
     </div>
 
-    <!-- 3 Action Cards -->
     <div class="space-y-3 my-auto py-1">
       <div class="grid grid-cols-2 gap-3">
-        <!-- Text Chat Card -->
         <button onclick="startApp('text')" class="flex flex-col justify-between p-4 rounded-3xl bg-white border border-teal-200/70 hover:border-teal-400 hover:shadow-md transition text-left min-h-[145px] shadow-sm">
           <div class="w-10 h-10 rounded-2xl bg-teal-50 text-teal-600 flex items-center justify-center text-xl">💬</div>
           <div>
@@ -84,7 +80,6 @@
           <span class="text-teal-600 text-xs font-bold" data-i18n="startBtn">शुरू करें ➔</span>
         </button>
 
-        <!-- Video Call Card -->
         <button onclick="startApp('video')" class="flex flex-col justify-between p-4 rounded-3xl bg-white border border-rose-200/70 hover:border-rose-400 hover:shadow-md transition text-left min-h-[145px] shadow-sm">
           <div class="w-10 h-10 rounded-2xl bg-rose-50 text-rose-600 flex items-center justify-center text-xl">📹</div>
           <div>
@@ -95,7 +90,6 @@
         </button>
       </div>
 
-      <!-- Live Stream Hub Card -->
       <button onclick="openStreamHub()" class="w-full p-4 rounded-3xl bg-gradient-to-r from-indigo-50 to-purple-50 border border-indigo-200/80 hover:border-indigo-300 hover:shadow-md transition flex items-center justify-between shadow-sm">
         <div class="flex items-center gap-3.5">
           <div class="w-11 h-11 rounded-2xl bg-white border border-indigo-100 flex items-center justify-center text-2xl shadow-sm">📡</div>
@@ -111,14 +105,13 @@
       </button>
     </div>
 
-    <!-- Safe Footnote -->
     <div class="text-center pb-2 text-[10px] text-slate-400" data-i18n="disclaimer">
       🔒 18+ यूज़र्स के लिए • पूर्णतः सुरक्षित एवं अनाम
     </div>
   </div>
 
 
-  <!-- ================= 2. RANDOM ROOM SCREEN (LIGHT THEME) ================= -->
+  <!-- ================= 2. RANDOM ROOM SCREEN ================= -->
   <div id="roomScreen" class="hidden flex-1 flex flex-col overflow-hidden bg-slate-100">
     <header class="px-4 py-2.5 bg-white border-b border-slate-200 flex justify-between items-center shrink-0 shadow-sm">
       <div class="flex items-center gap-2">
@@ -150,7 +143,7 @@
           <video id="localVideo" autoplay playsinline muted class="w-full h-full video-feed filter-none"></video>
           <span class="absolute bottom-2.5 left-2.5 text-[10px] bg-white/90 backdrop-blur-md px-2.5 py-1 rounded-xl text-slate-800 font-bold shadow-sm">You</span>
           <div class="absolute top-2.5 right-2.5 flex gap-1.5">
-            <button onclick="flipCamera()" class="p-2 rounded-xl bg-white/90 shadow text-xs" title="कैमरा पलटें">🔄</button>
+            <button onclick="flipRandomCamera()" class="p-2 rounded-xl bg-white/90 shadow text-xs" title="कैमरा पलटें">🔄</button>
             <button onclick="cycleFilter()" class="p-2 rounded-xl bg-white/90 shadow text-xs" title="प्राइवेसी फ़िल्टर">🎭</button>
             <button onclick="toggleAudio()" id="micBtn" class="p-2 rounded-xl bg-white/90 shadow text-xs">🎙️</button>
             <button onclick="toggleVideo()" id="camBtn" class="p-2 rounded-xl bg-white/90 shadow text-xs">📹</button>
@@ -174,67 +167,100 @@
   </div>
 
 
-  <!-- ================= 3. LIVE STREAM HUB (WITH SCREEN SHARE & VIEWERS RESTRICTION) ================= -->
-  <div id="streamHubScreen" class="hidden flex-1 flex flex-col overflow-hidden max-w-3xl w-full mx-auto p-4 bg-[#f8fafc]">
-    <header class="flex justify-between items-center pb-3 border-b border-slate-200">
+  <!-- ================= 3. LIVE STREAM HUB (WITH SCREEN SHARE, FLIP CAMERA & LIVE CHAT) ================= -->
+  <div id="streamHubScreen" class="hidden flex-1 flex flex-col overflow-hidden max-w-4xl w-full mx-auto p-3 md:p-4 bg-[#f8fafc]">
+    <header class="flex justify-between items-center pb-2 border-b border-slate-200">
       <div class="flex items-center gap-2">
         <button onclick="closeStreamHub()" class="px-3 py-1.5 rounded-2xl bg-white border border-slate-200 text-xs font-bold text-slate-700 shadow-sm">← बैक</button>
         <h2 class="text-base font-black text-slate-800">📡 सुकून लाइव हब</h2>
       </div>
       
-      <!-- Only Approved Creators can see this button -->
       <button onclick="promptStartBroadcast()" id="startBroadcastBtn" class="hidden px-3.5 py-1.5 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-bold rounded-2xl text-xs shadow-md">
         🔴 लाइव स्ट्रीम शुरू करें
       </button>
     </header>
 
     <!-- Category Tabs -->
-    <div class="flex gap-2 overflow-x-auto py-3 no-scrollbar">
-      <button onclick="filterStreams('All')" class="stream-cat-btn px-3.5 py-1.5 rounded-2xl text-xs font-bold bg-indigo-100 text-indigo-800 border border-indigo-200 shrink-0" data-cat="All">🌟 All</button>
-      <button onclick="filterStreams('Gaming')" class="stream-cat-btn px-3.5 py-1.5 rounded-2xl text-xs font-semibold bg-white border border-slate-200 text-slate-600 shrink-0" data-cat="Gaming">🎮 Gaming</button>
-      <button onclick="filterStreams('Cooking')" class="stream-cat-btn px-3.5 py-1.5 rounded-2xl text-xs font-semibold bg-white border border-slate-200 text-slate-600 shrink-0" data-cat="Cooking">🍳 Cooking</button>
-      <button onclick="filterStreams('Entertainment')" class="stream-cat-btn px-3.5 py-1.5 rounded-2xl text-xs font-semibold bg-white border border-slate-200 text-slate-600 shrink-0" data-cat="Entertainment">😂 Entertainment</button>
-      <button onclick="filterStreams('DeepTalks')" class="stream-cat-btn px-3.5 py-1.5 rounded-2xl text-xs font-semibold bg-white border border-slate-200 text-slate-600 shrink-0" data-cat="DeepTalks">☕ Deep Talks</button>
+    <div class="flex gap-2 overflow-x-auto py-2.5 no-scrollbar">
+      <button onclick="filterStreams('All')" class="stream-cat-btn px-3.5 py-1 rounded-2xl text-xs font-bold bg-indigo-100 text-indigo-800 border border-indigo-200 shrink-0" data-cat="All">🌟 All</button>
+      <button onclick="filterStreams('Gaming')" class="stream-cat-btn px-3.5 py-1 rounded-2xl text-xs font-semibold bg-white border border-slate-200 text-slate-600 shrink-0" data-cat="Gaming">🎮 Gaming</button>
+      <button onclick="filterStreams('Cooking')" class="stream-cat-btn px-3.5 py-1 rounded-2xl text-xs font-semibold bg-white border border-slate-200 text-slate-600 shrink-0" data-cat="Cooking">🍳 Cooking</button>
+      <button onclick="filterStreams('Entertainment')" class="stream-cat-btn px-3.5 py-1 rounded-2xl text-xs font-semibold bg-white border border-slate-200 text-slate-600 shrink-0" data-cat="Entertainment">😂 Entertainment</button>
+      <button onclick="filterStreams('DeepTalks')" class="stream-cat-btn px-3.5 py-1 rounded-2xl text-xs font-semibold bg-white border border-slate-200 text-slate-600 shrink-0" data-cat="DeepTalks">☕ Deep Talks</button>
     </div>
 
-    <!-- Active Video Player with Screen Share & Gift Toolbar -->
-    <div id="activeStreamPlayer" class="hidden mt-2 rounded-3xl overflow-hidden bg-black border border-slate-200 relative aspect-video flex items-center justify-center shadow-lg">
-      <video id="streamVideoPlayer" autoplay playsinline class="w-full h-full object-cover"></video>
-      <div class="absolute top-3 left-3 bg-rose-600 text-white px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase shadow">LIVE</div>
+    <!-- Active Live Stream Layout (Video Feed + Live Chat Box) -->
+    <div id="activeStreamPlayer" class="hidden flex-1 flex flex-col md:flex-row gap-2 mt-1 overflow-hidden min-h-0">
       
-      <!-- Streamer Controls (Screen Share & Camera Switch) -->
-      <div id="streamerLiveControls" class="hidden absolute top-3 right-3 flex gap-2">
-        <button onclick="toggleScreenShare()" id="screenShareBtn" class="bg-white/90 hover:bg-white text-indigo-700 px-3 py-1 rounded-2xl text-xs font-bold shadow">
-          📲 स्क्रीन शेयर
+      <!-- Left: Video Player Box -->
+      <div class="relative flex-1 rounded-3xl overflow-hidden bg-black border border-slate-200 flex items-center justify-center shadow-lg min-h-[220px]">
+        <video id="streamVideoPlayer" autoplay playsinline class="w-full h-full object-cover"></video>
+        <div class="absolute top-3 left-3 bg-rose-600 text-white px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase shadow">LIVE</div>
+        
+        <!-- Streamer Controls (Flip Camera, Screen Share, Stop) -->
+        <div id="streamerLiveControls" class="hidden absolute top-3 right-3 flex flex-wrap gap-1.5">
+          <button onclick="flipStreamerCamera()" class="bg-white/90 hover:bg-white text-slate-800 px-2.5 py-1 rounded-2xl text-xs font-bold shadow flex items-center gap-1" title="कैमरा आगे-पीछे पलटें">
+            🔄 फ्लिप
+          </button>
+          <button onclick="toggleScreenShare()" id="screenShareBtn" class="bg-white/90 hover:bg-white text-indigo-700 px-2.5 py-1 rounded-2xl text-xs font-bold shadow flex items-center gap-1">
+            📲 स्क्रीन शेयर
+          </button>
+          <button onclick="stopBroadcast()" class="bg-rose-600 text-white hover:bg-rose-700 px-2.5 py-1 rounded-2xl text-xs font-bold shadow">
+            ⏹️ बंद
+          </button>
+        </div>
+
+        <!-- Viewer Close Button -->
+        <button onclick="leaveCurrentStream()" id="viewerCloseStreamBtn" class="hidden absolute top-3 right-3 bg-white/80 hover:bg-white px-3 py-1 rounded-2xl text-xs font-bold text-slate-800 shadow">
+          ✕ बंद करें
         </button>
-        <button onclick="stopBroadcast()" class="bg-rose-600 text-white hover:bg-rose-700 px-3 py-1 rounded-2xl text-xs font-bold shadow">
-          ⏹️ स्ट्रीम बंद करें
-        </button>
+        
+        <!-- Live Gift Popup Notification Area -->
+        <div id="giftNotificationArea" class="absolute inset-0 flex items-center justify-center pointer-events-none z-30"></div>
+
+        <!-- Viewer Gift Bar -->
+        <div id="viewerGiftBar" class="hidden absolute bottom-2.5 inset-x-2.5 bg-white/90 backdrop-blur-md p-2 rounded-2xl flex justify-between items-center border border-white/40 shadow">
+          <span class="text-[11px] font-bold text-slate-800">🎁 गिफ़्ट:</span>
+          <div class="flex gap-1.5">
+            <button onclick="sendVirtualGift('Rose 🌹', 10)" class="px-2 py-0.5 rounded-xl bg-rose-50 border border-rose-200 text-xs font-bold text-rose-600 active:scale-95 shadow-sm">🌹 10</button>
+            <button onclick="sendVirtualGift('Heart 💖', 50)" class="px-2 py-0.5 rounded-xl bg-pink-50 border border-pink-200 text-xs font-bold text-pink-600 active:scale-95 shadow-sm">💖 50</button>
+            <button onclick="sendVirtualGift('Diamond 💎', 100)" class="px-2 py-0.5 rounded-xl bg-indigo-50 border border-indigo-200 text-xs font-bold text-indigo-600 active:scale-95 shadow-sm">💎 100</button>
+          </div>
+        </div>
       </div>
 
-      <!-- Viewer Close Button -->
-      <button onclick="leaveCurrentStream()" id="viewerCloseStreamBtn" class="hidden absolute top-3 right-3 bg-white/80 hover:bg-white px-3 py-1 rounded-2xl text-xs font-bold text-slate-800 shadow">
-        ✕ बंद करें
-      </button>
-      
-      <!-- Live Gift Popup Notification Area -->
-      <div id="giftNotificationArea" class="absolute inset-0 flex items-center justify-center pointer-events-none z-30"></div>
+      <!-- Right: Real-time Live Stream Chat Panel -->
+      <div class="w-full md:w-80 h-52 md:h-auto bg-white border border-slate-200 rounded-3xl flex flex-col overflow-hidden shadow-sm">
+        <div class="px-3.5 py-2 border-b border-slate-100 bg-slate-50 flex justify-between items-center">
+          <span class="text-xs font-bold text-slate-700">💬 लाइव चैट (Live Comments)</span>
+          <span class="w-2 h-2 rounded-full bg-emerald-500 animate-ping"></span>
+        </div>
 
-      <!-- Bottom Gift Bar for Viewers -->
-      <div id="viewerGiftBar" class="hidden absolute bottom-3 inset-x-3 bg-white/90 backdrop-blur-md p-2 rounded-2xl flex justify-between items-center border border-white/40 shadow-lg">
-        <div class="text-xs font-bold text-slate-800 flex items-center gap-1.5">
-          <span>🎁 क्रिएटर को गिफ़्ट भेजें:</span>
+        <!-- Comments Stream Box (क्रिएटर व दर्शक दोनों यहाँ चैट पढ़ेंगे) -->
+        <div id="streamChatMessagesBox" class="flex-1 overflow-y-auto p-3 space-y-2 stream-chat-scroll text-xs">
+          <div class="text-center text-slate-400 text-[10px]">🌿 लाइव चैट में आपका स्वागत है। मर्यादा बनाए रखें।</div>
         </div>
-        <div class="flex gap-2">
-          <button onclick="sendVirtualGift('Rose 🌹', 10)" class="px-2.5 py-1 rounded-xl bg-rose-50 border border-rose-200 text-xs font-bold text-rose-600 active:scale-95 shadow-sm">🌹 10</button>
-          <button onclick="sendVirtualGift('Heart 💖', 50)" class="px-2.5 py-1 rounded-xl bg-pink-50 border border-pink-200 text-xs font-bold text-pink-600 active:scale-95 shadow-sm">💖 50</button>
-          <button onclick="sendVirtualGift('Diamond 💎', 100)" class="px-2.5 py-1 rounded-xl bg-indigo-50 border border-indigo-200 text-xs font-bold text-indigo-600 active:scale-95 shadow-sm">💎 100</button>
-        </div>
+
+        <!-- Live Chat Send Form -->
+        <form id="streamChatForm" onsubmit="handleSendStreamChat(event)" class="p-2 border-t border-slate-100 bg-slate-50 flex gap-1.5">
+          <input
+            type="text"
+            id="streamChatInput"
+            enterkeyhint="send"
+            autocomplete="off"
+            placeholder="कमेंट लिखें और Enter दबाएँ..."
+            class="flex-1 bg-white border border-slate-200 rounded-xl px-3 py-1.5 text-xs text-slate-800 focus:outline-none focus:border-indigo-400"
+          >
+          <button type="submit" class="px-3 py-1.5 bg-indigo-600 text-white font-bold rounded-xl text-xs hover:bg-indigo-700 transition">
+            भेजें
+          </button>
+        </form>
       </div>
+
     </div>
 
     <!-- Live Creators Stream List -->
-    <div class="flex-1 overflow-y-auto mt-3 space-y-3">
+    <div id="streamsListWrapper" class="flex-1 overflow-y-auto mt-2 space-y-3">
       <h3 class="text-xs font-bold text-slate-500 uppercase tracking-wider">सक्रिय क्रिएटर स्ट्रीमर:</h3>
       <div id="streamsListContainer" class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
         <div class="col-span-full text-center py-12 text-slate-400 text-xs">वर्तमान में कोई क्रिएटर लाइव नहीं है।</div>
@@ -273,7 +299,6 @@
           <input type="password" id="authPassword" placeholder="••••••••" class="w-full bg-slate-50 border border-slate-200 rounded-2xl p-3 text-xs text-slate-800 focus:outline-none focus:border-rose-400">
         </div>
 
-        <!-- Creator Detailed Form -->
         <div id="creatorFields" class="space-y-3 hidden border-t border-slate-100 pt-3">
           <div>
             <label class="text-[11px] text-rose-600 font-bold block mb-1">चैनल का नाम*</label>
@@ -353,12 +378,13 @@
     let localStream = null;
     let isScreenSharing = false;
     let cameraStreamBackup = null;
+    let streamerFacingMode = "user"; // Front or environment
+    let randomFacingMode = "user";
     let peerConnection = null;
     let streamViewerPeers = {}; // { viewerSocketId: RTCPeerConnection }
     let isInitiator = false;
     let isMuted = false;
     let isCamOff = false;
-    let facingMode = "user";
     const filters = ['filter-none', 'filter-blur', 'filter-bw', 'filter-sepia'];
     let filterIndex = 0;
     let loggedInUser = null;
@@ -400,7 +426,6 @@
         authBtn.onclick = null;
         logoutBtn.classList.remove('hidden');
 
-        // केवल स्वीकृत क्रिएटर को ही लाइव ब्रॉडकास्ट बटन दिखेगा
         if (loggedInUser.role === 'creator' && loggedInUser.isApprovedCreator) {
           startBroadcastBtn.classList.remove('hidden');
         } else {
@@ -537,9 +562,9 @@
       activeStreamCategory = cat;
       document.querySelectorAll('.stream-cat-btn').forEach(btn => {
         if (btn.dataset.cat === cat) {
-          btn.className = "stream-cat-btn px-3.5 py-1.5 rounded-2xl text-xs font-bold bg-indigo-100 text-indigo-800 border border-indigo-200 shrink-0";
+          btn.className = "stream-cat-btn px-3.5 py-1 rounded-2xl text-xs font-bold bg-indigo-100 text-indigo-800 border border-indigo-200 shrink-0";
         } else {
-          btn.className = "stream-cat-btn px-3.5 py-1.5 rounded-2xl text-xs font-semibold bg-white border border-slate-200 text-slate-600 shrink-0";
+          btn.className = "stream-cat-btn px-3.5 py-1 rounded-2xl text-xs font-semibold bg-white border border-slate-200 text-slate-600 shrink-0";
         }
       });
       renderStreamsList(cachedStreams);
@@ -558,13 +583,19 @@
 
     async function startBroadcasting(title) {
       try {
-        localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+        localStream = await navigator.mediaDevices.getUserMedia({
+          video: { facingMode: streamerFacingMode },
+          audio: true
+        });
         cameraStreamBackup = localStream;
         document.getElementById('streamVideoPlayer').srcObject = localStream;
         document.getElementById('activeStreamPlayer').classList.remove('hidden');
+        document.getElementById('streamsListWrapper').classList.add('hidden');
         document.getElementById('streamerLiveControls').classList.remove('hidden');
         document.getElementById('viewerCloseStreamBtn').classList.add('hidden');
         document.getElementById('viewerGiftBar').classList.add('hidden');
+
+        document.getElementById('streamChatMessagesBox').innerHTML = '<div class="text-center text-slate-400 text-[10px]">🌿 आप लाइव हैं! दर्शक चैट यहाँ दिखाई देगी।</div>';
 
         socket.emit("start_stream", { email: loggedInUser.email, title, category: loggedInUser.category });
       } catch (e) {
@@ -572,7 +603,33 @@
       }
     }
 
-    // 📲 स्क्रीन शेयरिंग फ़ीचर (फोन/पीसी की स्क्रीन शेयर करना)
+    // 🔄 स्ट्रीमर का कैमरा फ्लिप (Front ⟷ Rear)
+    async function flipStreamerCamera() {
+      if (isScreenSharing) {
+        alert("पहले स्क्रीन शेयर बंद करके कैमरा ऑन करें!");
+        return;
+      }
+      streamerFacingMode = (streamerFacingMode === "user" ? "environment" : "user");
+      try {
+        if (localStream) localStream.getTracks().forEach(t => t.stop());
+        localStream = await navigator.mediaDevices.getUserMedia({
+          video: { facingMode: streamerFacingMode },
+          audio: true
+        });
+        cameraStreamBackup = localStream;
+        document.getElementById('streamVideoPlayer').srcObject = localStream;
+
+        const newVideoTrack = localStream.getVideoTracks()[0];
+        Object.values(streamViewerPeers).forEach(peer => {
+          const sender = peer.getSenders().find(s => s.track && s.track.kind === 'video');
+          if (sender) sender.replaceTrack(newVideoTrack);
+        });
+      } catch (err) {
+        alert("कैमरा फ्लिप करने में समस्या आई");
+      }
+    }
+
+    // 📲 स्क्रीन शेयरिंग फ़ीचर
     async function toggleScreenShare() {
       const btn = document.getElementById('screenShareBtn');
       if (!isScreenSharing) {
@@ -580,7 +637,6 @@
           const screenStream = await navigator.mediaDevices.getDisplayMedia({ video: true, audio: true });
           const screenTrack = screenStream.getVideoTracks()[0];
 
-          // सभी जुड़े हुए व्यूअर्स को नया स्क्रीन ट्रैक भेजें
           Object.values(streamViewerPeers).forEach(peer => {
             const sender = peer.getSenders().find(s => s.track && s.track.kind === 'video');
             if (sender) sender.replaceTrack(screenTrack);
@@ -588,7 +644,7 @@
 
           document.getElementById('streamVideoPlayer').srcObject = screenStream;
           isScreenSharing = true;
-          btn.innerText = "📹 कैमरा चालू करें";
+          btn.innerText = "📹 कैमरा चालू";
 
           screenTrack.onended = () => {
             revertToCamera();
@@ -626,6 +682,7 @@
 
         document.getElementById('streamVideoPlayer').srcObject = null;
         document.getElementById('activeStreamPlayer').classList.add('hidden');
+        document.getElementById('streamsListWrapper').classList.remove('hidden');
         document.getElementById('streamerLiveControls').classList.add('hidden');
         socket.emit("get_streams");
       }
@@ -674,9 +731,12 @@
     function joinStream(streamId) {
       currentActiveStreamId = streamId;
       document.getElementById('activeStreamPlayer').classList.remove('hidden');
+      document.getElementById('streamsListWrapper').classList.add('hidden');
       document.getElementById('viewerCloseStreamBtn').classList.remove('hidden');
       document.getElementById('viewerGiftBar').classList.remove('hidden');
       document.getElementById('streamerLiveControls').classList.add('hidden');
+      
+      document.getElementById('streamChatMessagesBox').innerHTML = '<div class="text-center text-slate-400 text-[10px]">🌿 आप लाइव स्ट्रीम से जुड़ चुके हैं!</div>';
       socket.emit("join_stream", { streamId });
     }
 
@@ -686,6 +746,37 @@
       }
       document.getElementById('streamVideoPlayer').srcObject = null;
       document.getElementById('activeStreamPlayer').classList.add('hidden');
+      document.getElementById('streamsListWrapper').classList.remove('hidden');
+    }
+
+    // 💬 लाइव चैट सबमिशन हैंडलर
+    function handleSendStreamChat(e) {
+      e.preventDefault();
+      const inp = document.getElementById('streamChatInput');
+      const text = inp.value.trim();
+      if (!text || !socket) return;
+
+      const streamId = currentActiveStreamId || (localStream ? ("stream_" + socket.id) : null);
+      if (!streamId) return alert("लाइव स्ट्रीम सक्रिय नहीं है");
+
+      const senderName = loggedInUser?.channelName || loggedInUser?.email?.split('@')[0] || "दर्शक";
+      socket.emit("send_stream_chat", { streamId, text, senderName });
+      inp.value = "";
+    }
+
+    function appendStreamChatMessage(senderName, text, time) {
+      const box = document.getElementById('streamChatMessagesBox');
+      const div = document.createElement('div');
+      div.className = "p-1.5 rounded-xl bg-slate-50 border border-slate-100 flex flex-col";
+      div.innerHTML = `
+        <div class="flex items-center justify-between text-[10px]">
+          <span class="font-bold text-indigo-700">${senderName}</span>
+          <span class="text-slate-400 text-[9px]">${time}</span>
+        </div>
+        <p class="text-slate-800 text-xs mt-0.5 whitespace-pre-wrap">${text}</p>
+      `;
+      box.appendChild(div);
+      box.scrollTop = box.scrollHeight;
     }
 
     function sendVirtualGift(giftName, coins) {
@@ -718,7 +809,7 @@
 
       if (mode === 'video') {
         document.getElementById('videoSection').classList.remove('hidden');
-        await startCamera();
+        await startRandomCamera();
       } else {
         document.getElementById('videoSection').classList.add('hidden');
       }
@@ -726,20 +817,20 @@
       socket.emit("find_partner", { mode: currentMode, tag: selectedTag });
     }
 
-    async function startCamera() {
+    async function startRandomCamera() {
       try {
         if (localStream) localStream.getTracks().forEach(t => t.stop());
         localStream = await navigator.mediaDevices.getUserMedia({
-          video: { facingMode: facingMode },
+          video: { facingMode: randomFacingMode },
           audio: true
         });
         document.getElementById('localVideo').srcObject = localStream;
       } catch (err) { alert("कैमरा एक्सेस नहीं मिला"); }
     }
 
-    async function flipCamera() {
-      facingMode = facingMode === "user" ? "environment" : "user";
-      await startCamera();
+    async function flipRandomCamera() {
+      randomFacingMode = (randomFacingMode === "user" ? "environment" : "user");
+      await startRandomCamera();
       if (peerConnection && localStream) {
         const videoTrack = localStream.getVideoTracks()[0];
         const sender = peerConnection.getSenders().find(s => s.track && s.track.kind === "video");
@@ -756,6 +847,10 @@
       if (socket) return;
       socket = io();
 
+      socket.on("stream_started", (s) => {
+        currentActiveStreamId = s.streamId;
+      });
+
       socket.on("stream_list_updated", (streams) => renderStreamsList(streams));
       socket.on("stream_error", ({ message }) => alert(message));
       socket.on("stream_ended", () => {
@@ -763,7 +858,11 @@
         leaveCurrentStream();
       });
 
-      // नया दर्शक जुड़ने पर स्ट्रीमर उसके साथ P2P Offer बनाता है
+      // लाइव चैट संदेश प्राप्त होना
+      socket.on("receive_stream_chat", ({ senderName, text, time }) => {
+        appendStreamChatMessage(senderName, text, time);
+      });
+
       socket.on("viewer_joined", async ({ viewerSocketId }) => {
         if (!localStream) return;
         const pc = new RTCPeerConnection(rtcConfig);
@@ -782,11 +881,9 @@
         socket.emit("stream_signal", { to: viewerSocketId, signal: { sdp: pc.localDescription } });
       });
 
-      // दर्शक या स्ट्रीमर को सिग्नल मिलना
       socket.on("stream_signal", async ({ from, signal }) => {
         if (signal.sdp) {
           if (signal.sdp.type === 'offer') {
-            // दर्शक को स्ट्रीमर से Offer मिला
             const pc = new RTCPeerConnection(rtcConfig);
             peerConnection = pc;
 
@@ -805,7 +902,6 @@
             await pc.setLocalDescription(answer);
             socket.emit("stream_signal", { to: from, signal: { sdp: pc.localDescription } });
           } else if (signal.sdp.type === 'answer') {
-            // स्ट्रीमर को दर्शक से Answer मिला
             const pc = streamViewerPeers[from];
             if (pc) await pc.setRemoteDescription(new RTCSessionDescription(signal.sdp));
           }
