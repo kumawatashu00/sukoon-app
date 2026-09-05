@@ -7,35 +7,35 @@ const fs = require("fs");
 
 const app = express();
 app.use(cors());
-app.use(express.json());
+app.use(express.json({ limit: "10mb" }));
 app.use(express.static(path.join(__dirname, "public")));
 
 app.get("/ping", (req, res) => res.send("pong 24x7 active"));
 
-// एडमिन लॉगिन क्रेडेंशियल्स
 const ADMIN_USER = "ashok_admin";
 const ADMIN_PASS = "Sukoon@2026#Secure";
-
-// स्थायी फ़ाइल-आधारित डेटाबेस (JSON Persistence)
 const DB_FILE = path.join(__dirname, "database.json");
 
 let dbData = {
   registeredUsers: [],
   totalConnectionsCount: 0,
-  incidents: []
+  incidents: [],
+  banner: {
+    imageUrl: "https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=800&auto=format&fit=crop&q=60",
+    title: "सुकून कम्युनिटी में आपका स्वागत है 🌿",
+    linkUrl: ""
+  }
 };
 
-// डेटा लोड करना
 if (fs.existsSync(DB_FILE)) {
   try {
     const raw = fs.readFileSync(DB_FILE, "utf-8");
-    dbData = JSON.parse(raw);
+    dbData = { ...dbData, ...JSON.parse(raw) };
   } catch (e) {
     console.error("DB Load Error:", e);
   }
 }
 
-// डेटा सेव करने का हेल्पर
 const saveDB = () => {
   try {
     fs.writeFileSync(DB_FILE, JSON.stringify(dbData, null, 2));
@@ -45,6 +45,27 @@ const saveDB = () => {
 };
 
 let liveStreams = [];
+
+// बैनर प्राप्त करने की पब्लिक API
+app.get("/api/banner", (req, res) => {
+  res.json({ banner: dbData.banner || null });
+});
+
+// एडमिन द्वारा बैनर अपडेट करने की API
+app.post("/api/admin/update-banner", (req, res) => {
+  const { token, imageUrl, title, linkUrl } = req.body;
+  if (token !== "sukoon_admin_auth_verified_2026") {
+    return res.status(403).json({ error: "अनधिकृत एक्सेस" });
+  }
+  dbData.banner = {
+    imageUrl: imageUrl || "",
+    title: title || "",
+    linkUrl: linkUrl || ""
+  };
+  saveDB();
+  io.emit("banner_updated", dbData.banner);
+  res.json({ success: true, banner: dbData.banner });
+});
 
 // एडमिन लॉगिन API
 app.post("/api/admin/login", (req, res) => {
@@ -87,7 +108,6 @@ app.post("/api/auth", (req, res) => {
   res.json({ success: true, user });
 });
 
-// क्रिएटर अप्रूवल
 app.post("/api/admin/approve-creator", (req, res) => {
   const { email, token } = req.body;
   if (token !== "sukoon_admin_auth_verified_2026") {
@@ -123,7 +143,8 @@ const broadcastAdminStats = () => {
     totalConnections: dbData.totalConnectionsCount,
     registeredUsers: dbData.registeredUsers,
     liveStreamsCount: liveStreams.length,
-    incidents: dbData.incidents
+    incidents: dbData.incidents,
+    banner: dbData.banner
   });
 };
 
@@ -321,5 +342,5 @@ setInterval(() => {
 
 const PORT = process.env.PORT || 5000;
 server.listen(PORT, () => {
-  console.log(`>>> Sukoon Secure V8 active on port ${PORT}`);
+  console.log(`>>> Sukoon Secure V8.1 active on port ${PORT}`);
 });

@@ -9,7 +9,6 @@
 </head>
 <body class="bg-[#f8fafc] text-slate-800 font-sans p-4 md:p-8 min-h-screen">
 
-  <!-- 1. एडमिन लॉगिन स्क्रीन (बिना इसके कोई डेटा नहीं देख सकता) -->
   <div id="adminLoginScreen" class="fixed inset-0 bg-slate-900/80 backdrop-blur-md z-50 flex items-center justify-center p-4">
     <div class="bg-white p-7 rounded-3xl max-w-sm w-full space-y-4 shadow-2xl border border-slate-200">
       <div class="text-center space-y-1">
@@ -34,12 +33,11 @@
     </div>
   </div>
 
-  <!-- 2. मेन एडमिन डैशबोर्ड (लॉगिन के बाद ही दिखाई देगा) -->
   <div id="adminDashboard" class="hidden max-w-5xl mx-auto space-y-6">
     <div class="flex justify-between items-center border-b border-slate-200 pb-4">
       <div>
         <h1 class="text-xl font-black text-rose-600">🛡️ सुकून एडमिन कमांड सेंटर</h1>
-        <p class="text-xs text-slate-500">स्थायी डेटाबेस, क्रिएटर वेरिफिकेशन व मॉनिटरिंग</p>
+        <p class="text-xs text-slate-500">होमपेज बैनर, डेटाबेस व मॉनिटरिंग</p>
       </div>
       <div class="flex items-center gap-2">
         <a href="/" class="px-3.5 py-1.5 bg-white border border-slate-200 rounded-2xl text-xs font-bold text-slate-700 shadow-sm">← होम पर जाएँ</a>
@@ -62,12 +60,47 @@
         <div id="m-streams" class="text-2xl font-black text-purple-600 mt-1">0</div>
       </div>
       <div class="p-4 bg-white rounded-3xl border border-slate-200 shadow-sm">
-        <div class="text-xs text-slate-500">कुल एकाउंट्स (स्थायी)</div>
+        <div class="text-xs text-slate-500">कुल एकाउंट्स</div>
         <div id="m-reg" class="text-2xl font-black text-amber-600 mt-1">0</div>
       </div>
       <div class="p-4 bg-white rounded-3xl border border-slate-200 shadow-sm">
         <div class="text-xs text-slate-500">सुरक्षा अलर्ट्स</div>
         <div id="m-incidents" class="text-2xl font-black text-rose-600 mt-1">0</div>
+      </div>
+    </div>
+
+    <!-- 🔥 नया बैनर / इमेज मैनेजर कंट्रोल पैनल 🔥 -->
+    <div class="bg-white p-5 rounded-3xl border border-slate-200 shadow-sm space-y-4">
+      <div class="flex justify-between items-center">
+        <div>
+          <h2 class="text-sm font-bold text-slate-800">🖼️ होमपेज बैनर व इमेज कंट्रोल (Dynamic Banner)</h2>
+          <p class="text-xs text-slate-400">यहाँ से फोटो डालते ही वेबसाइट के होमपेज पर तुरंत लग जाएगी</p>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+        <div>
+          <label class="text-[11px] font-bold text-slate-600 block mb-1">फोटो का लिंक (Image URL)*</label>
+          <input type="text" id="bannerImgInput" placeholder="https://example.com/photo.jpg" class="w-full bg-slate-50 border border-slate-200 rounded-2xl p-2.5 text-xs">
+        </div>
+        <div>
+          <label class="text-[11px] font-bold text-slate-600 block mb-1">बैनर का टाइटल / कैप्शन (वैकल्पिक)</label>
+          <input type="text" id="bannerTitleInput" placeholder="उदा. आज रात 9 बजे मेगा स्ट्रीम!" class="w-full bg-slate-50 border border-slate-200 rounded-2xl p-2.5 text-xs">
+        </div>
+        <div>
+          <label class="text-[11px] font-bold text-slate-600 block mb-1">क्लिक करने पर खुलने वाला लिंक (URL)</label>
+          <input type="text" id="bannerLinkInput" placeholder="https://..." class="w-full bg-slate-50 border border-slate-200 rounded-2xl p-2.5 text-xs">
+        </div>
+      </div>
+
+      <div class="flex items-center justify-between pt-1">
+        <div class="text-xs text-slate-500 flex items-center gap-2">
+          <span>वर्तमान बैनर प्रीव्यू:</span>
+          <img id="currentBannerPreview" src="" class="h-8 w-14 object-cover rounded-lg border border-slate-200 bg-slate-100">
+        </div>
+        <button onclick="saveHomepageBanner()" class="px-5 py-2.5 bg-gradient-to-r from-emerald-600 to-teal-600 text-white font-bold rounded-2xl text-xs shadow hover:opacity-90">
+          बैनर वेबसाइट पर अपडेट करें ➔
+        </button>
       </div>
     </div>
 
@@ -186,6 +219,33 @@
       location.reload();
     }
 
+    async function saveHomepageBanner() {
+      const imageUrl = document.getElementById('bannerImgInput').value.trim();
+      const title = document.getElementById('bannerTitleInput').value.trim();
+      const linkUrl = document.getElementById('bannerLinkInput').value.trim();
+
+      if (!imageUrl) {
+        return alert("कृपया फोटो / इमेज का लिंक (Image URL) डालें!");
+      }
+
+      try {
+        const res = await fetch("/api/admin/update-banner", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ token: adminToken, imageUrl, title, linkUrl })
+        });
+        const data = await res.json();
+        if (data.success) {
+          alert("✅ होमपेज बैनर सफलतापूर्वक अपडेट हो गया!");
+          document.getElementById('currentBannerPreview').src = imageUrl;
+        } else {
+          alert("बैनर अपडेट असफल रहा");
+        }
+      } catch (e) {
+        alert("सर्वर एरर");
+      }
+    }
+
     function connectAdminSocket() {
       socket = io();
       socket.emit("join_admin", { token: adminToken });
@@ -197,7 +257,14 @@
         document.getElementById("m-reg").innerText = m.registeredUsers?.length || 0;
         document.getElementById("m-incidents").innerText = m.incidents?.length || 0;
 
-        // 1. सभी यूज़र्स टेबल
+        // बैनर इनपुट्स भरना
+        if (m.banner) {
+          document.getElementById('bannerImgInput').value = m.banner.imageUrl || "";
+          document.getElementById('bannerTitleInput').value = m.banner.title || "";
+          document.getElementById('bannerLinkInput').value = m.banner.linkUrl || "";
+          document.getElementById('currentBannerPreview').src = m.banner.imageUrl || "";
+        }
+
         const allUsersTbody = document.getElementById("allUsersBody");
         if (m.registeredUsers && m.registeredUsers.length > 0) {
           allUsersTbody.innerHTML = m.registeredUsers.map(u => `
@@ -225,7 +292,6 @@
           allUsersTbody.innerHTML = '<tr><td colspan="6" class="py-4 text-center text-slate-400">कोई रजिस्टर्ड यूज़र नहीं मिला</td></tr>';
         }
 
-        // 2. क्रिएटर अप्रूवल टेबल
         const creatorTbody = document.getElementById("creatorListBody");
         const creators = m.registeredUsers?.filter(u => u.role === "creator") || [];
         if (creators.length > 0) {
@@ -267,7 +333,6 @@
           creatorTbody.innerHTML = '<tr><td colspan="5" class="py-4 text-center text-slate-400">कोई क्रिएटर नहीं है</td></tr>';
         }
 
-        // 3. सेफ्टी लॉग्स
         const tbody = document.getElementById("incidentsBody");
         if (m.incidents && m.incidents.length > 0) {
           tbody.innerHTML = m.incidents.map(i => `
