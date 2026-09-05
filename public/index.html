@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sukoon - Anonymous Safe Space</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="/socket.io/socket.io.js"></script>
+</head>
+<body class="bg-slate-950 text-slate-100 font-sans min-h-screen flex flex-col">
+  <!-- Topbar -->
+  <header class="p-4 border-b border-slate-800 flex justify-between items-center bg-slate-900/50">
+    <h1 class="text-xl font-bold text-teal-400">🌿 Sukoon</h1>
+    <div id="status" class="text-xs px-2.5 py-1 rounded-full bg-slate-800 text-slate-400">डिस्कनेक्टेड</div>
+  </header>
+
+  <!-- Setup Screen -->
+  <div id="setup-screen" class="p-6 max-w-md mx-auto my-auto text-center space-y-5">
+    <h2 class="text-3xl font-extrabold text-teal-200">दिल हल्का कर लो</h2>
+    <p class="text-xs text-slate-400">100% गुप्त पहचान। कोई डेटा सेव नहीं होता।</p>
+    <select id="topic" class="w-full p-3 rounded-xl bg-slate-900 border border-slate-800 text-sm text-slate-200">
+      <option value="Relationship">💔 दिल का दर्द / ब्रेकअप</option>
+      <option value="Career">💼 पढ़ाई और करियर तनाव</option>
+      <option value="Loneliness">🌧️ अकेलापन</option>
+      <option value="General">💬 सामान्य बातचीत</option>
+    </select>
+    <button onclick="startChat()" class="w-full py-3.5 rounded-xl bg-teal-500 font-bold text-slate-950 text-sm shadow-lg shadow-teal-500/20">
+      बातचीत शुरू करें
+    </button>
+  </div>
+
+  <!-- Chat Screen -->
+  <div id="chat-screen" class="hidden flex-1 flex flex-col max-w-2xl w-full mx-auto p-4 space-y-3">
+    <!-- Video Preview -->
+    <div class="flex gap-2 justify-center">
+      <video id="localVideo" autoplay playsinline muted class="w-28 h-20 bg-black rounded-lg object-cover filter blur-sm"></video>
+      <video id="remoteVideo" autoplay playsinline class="w-28 h-20 bg-black rounded-lg object-cover filter blur-sm"></video>
+    </div>
+
+    <!-- Messages -->
+    <div id="messages" class="flex-1 overflow-y-auto space-y-2 p-3 bg-slate-900/40 rounded-2xl border border-slate-800"></div>
+
+    <!-- Controls -->
+    <div class="flex gap-2">
+      <input type="file" id="mediaInput" accept="image/*" class="hidden" onchange="sendImage(event)">
+      <button onclick="document.getElementById('mediaInput').click()" class="p-3 bg-slate-800 rounded-xl text-teal-300">📷</button>
+      <input type="text" id="msgInput" placeholder="यहाँ लिखें..." class="flex-1 bg-slate-900 border border-slate-800 rounded-xl px-3 text-sm focus:outline-none focus:border-teal-500">
+      <button onclick="sendMsg()" class="px-4 py-2 bg-teal-500 text-slate-950 font-bold rounded-xl text-sm">भेजें</button>
+      <button onclick="skipPartner()" class="px-3 py-2 bg-slate-800 text-slate-300 rounded-xl text-xs">Next</button>
+    </div>
+  </div>
+
+  <script>
+    let socket, pc, localStream;
+    const config = { iceServers: [{ urls: 'stun:stun.l.google.com:19302' }] };
+
+    function startChat() {
+      document.getElementById('setup-screen').classList.add('hidden');
+      document.getElementById('chat-screen').classList.remove('hidden');
+      document.getElementById('status').innerText = 'साथी की तलाश जारी...';
+
+      socket = io();
+
+      socket.emit('find_partner', { topic: document.getElementById('topic').value });
+
+      socket.on('waiting', () => {
+        document.getElementById('status').innerText = 'इंतज़ार कर रहे हैं...';
+      });
+
+      socket.on('partner_found', async ({ isInitiator }) => {
+        document.getElementById('status').innerText = 'कनेक्टेड (Online)';
+        setupWebRTC(isInitiator);
+      });
+
+      socket.on('receive_message', ({ text }) => {
+        addMessage(text, 'partner');
+      });
+
+      socket.on('receive_media', ({ image }) => {
+        addImage(image, 'partner');
+      });
+
+      socket.on('webrtc_signal', async (signal) => {
+        if (!pc) return;
+        if (signal.sdp) {
+          await pc.setRemoteDescription(new RTCSessionDescription(signal.sdp));
+          if (signal.sdp.type === 'offer') {
+            const answer = await pc.createAnswer();
+            await pc.setLocalDescription(answer);
+            socket.emit('webrtc_signal', { sdp: pc.localDescription });
+          }
+        } else if (signal.candidate) {
+          await pc.addIceCandidate(new RTCIceCandidate(signal.candidate));
+        }
+      });
+
+      socket.on('partner_disconnected', () => {
+        document.getElementById('status').innerText = 'साथी चला गया';
+        addMessage('साथी ने चैट छोड़ दी है।', 'system');
+      });
+    }
+
+    async function setupWebRTC(isInitiator) {
+      try {
+        localStream = await navigator.mediaDevices.getUserMedia({ audio: true, video: true });
+        document.getElementById('localVideo').srcObject = localStream;
+        pc = new RTCPeerConnection(config);
+        localStream.getTracks().forEach(t => pc.addTrack(t, localStream));
+
+        pc.ontrack = (e) => {
+          document.getElementById('remoteVideo').srcObject = e.streams[0];
+        };
+
+        pc.onicecandidate = (e) => {
+          if (e.candidate) socket.emit('webrtc_signal', { candidate: e.candidate });
+        };
+
+        if (isInitiator) {
+          const offer = await pc.createOffer();
+          await pc.setLocalDescription(offer);
+          socket.emit('webrtc_signal', { sdp: pc.localDescription });
+        }
+      } catch (err) {}
+    }
+
+    function sendMsg() {
+      const inp = document.getElementById('msgInput');
+      if (!inp.value.trim()) return;
+      socket.emit('send_message', inp.value);
+      addMessage(inp.value, 'me');
+      inp.value = '';
+    }
+
+    function sendImage(e) {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = () => {
+        socket.emit('send_media', reader.result);
+        addImage(reader.result, 'me');
+      };
+      reader.readAsDataURL(file);
+    }
+
+    function addMessage(txt, who) {
+      const box = document.getElementById('messages');
+      const div = document.createElement('div');
+      div.className = who === 'me' ? 'text-right' : 'text-left';
+      div.innerHTML = `<span class="inline-block p-2.5 rounded-xl text-xs ${who === 'me' ? 'bg-teal-500 text-slate-950' : 'bg-slate-800 text-slate-200'}">${txt}</span>`;
+      box.appendChild(div);
+      box.scrollTop = box.scrollHeight;
+    }
+
+    function addImage(src, who) {
+      const box = document.getElementById('messages');
+      const id = 'img_' + Math.random();
+      const div = document.createElement('div');
+      div.id = id;
+      div.className = who === 'me' ? 'text-right' : 'text-left';
+      div.innerHTML = `<div class="inline-block p-1 bg-slate-800 rounded-xl"><img src="${src}" class="max-h-40 rounded-lg"><div class="text-[9px] text-amber-400">10s में डिलीट होगा</div></div>`;
+      box.appendChild(div);
+      box.scrollTop = box.scrollHeight;
+      setTimeout(() => { document.getElementById(id)?.remove(); }, 10000);
+    }
+
+    function skipPartner() {
+      socket.emit('skip');
+      document.getElementById('messages').innerHTML = '';
+      socket.emit('find_partner', { topic: document.getElementById('topic').value });
+    }
+  </script>
+</body>
+</html>
