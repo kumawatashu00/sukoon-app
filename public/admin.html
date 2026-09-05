@@ -8,13 +8,43 @@
   <script src="/socket.io/socket.io.js"></script>
 </head>
 <body class="bg-[#f8fafc] text-slate-800 font-sans p-4 md:p-8 min-h-screen">
-  <div class="max-w-5xl mx-auto space-y-6">
+
+  <!-- 1. एडमिन लॉगिन स्क्रीन (बिना इसके कोई डेटा नहीं देख सकता) -->
+  <div id="adminLoginScreen" class="fixed inset-0 bg-slate-900/80 backdrop-blur-md z-50 flex items-center justify-center p-4">
+    <div class="bg-white p-7 rounded-3xl max-w-sm w-full space-y-4 shadow-2xl border border-slate-200">
+      <div class="text-center space-y-1">
+        <div class="w-12 h-12 rounded-2xl bg-rose-500 text-white text-2xl flex items-center justify-center mx-auto mb-2">🔒</div>
+        <h2 class="text-lg font-black text-slate-900">सुकून एडमिन लॉगिन</h2>
+        <p class="text-xs text-slate-500">कमांड सेंटर में प्रवेश के लिए लॉगिन करें</p>
+      </div>
+
+      <form onsubmit="handleAdminLogin(event)" class="space-y-3">
+        <div>
+          <label class="text-[11px] font-bold text-slate-600 block mb-1">Admin Username</label>
+          <input type="text" id="admUser" required placeholder="यूज़रनेम डालें" class="w-full bg-slate-50 border border-slate-200 rounded-2xl p-3 text-xs focus:outline-none focus:border-rose-500">
+        </div>
+        <div>
+          <label class="text-[11px] font-bold text-slate-600 block mb-1">Admin Password</label>
+          <input type="password" id="admPass" required placeholder="••••••••" class="w-full bg-slate-50 border border-slate-200 rounded-2xl p-3 text-xs focus:outline-none focus:border-rose-500">
+        </div>
+        <button type="submit" class="w-full py-3 bg-gradient-to-r from-rose-500 to-pink-500 text-white font-bold rounded-2xl text-xs shadow-md hover:opacity-90">
+          प्रवेश करें ➔
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- 2. मेन एडमिन डैशबोर्ड (लॉगिन के बाद ही दिखाई देगा) -->
+  <div id="adminDashboard" class="hidden max-w-5xl mx-auto space-y-6">
     <div class="flex justify-between items-center border-b border-slate-200 pb-4">
       <div>
         <h1 class="text-xl font-black text-rose-600">🛡️ सुकून एडमिन कमांड सेंटर</h1>
-        <p class="text-xs text-slate-500">सभी रजिस्टर्ड यूज़र्स, क्रिएटर वेरिफिकेशन व लाइव ट्रैफिक</p>
+        <p class="text-xs text-slate-500">स्थायी डेटाबेस, क्रिएटर वेरिफिकेशन व मॉनिटरिंग</p>
       </div>
-      <a href="/" class="px-3.5 py-1.5 bg-white border border-slate-200 rounded-2xl text-xs font-bold text-slate-700 shadow-sm">← होम पर जाएँ</a>
+      <div class="flex items-center gap-2">
+        <a href="/" class="px-3.5 py-1.5 bg-white border border-slate-200 rounded-2xl text-xs font-bold text-slate-700 shadow-sm">← होम पर जाएँ</a>
+        <button onclick="adminLogout()" class="px-3.5 py-1.5 bg-rose-50 border border-rose-200 rounded-2xl text-xs font-bold text-rose-600 shadow-sm hover:bg-rose-100">लॉगआउट</button>
+      </div>
     </div>
 
     <!-- 5 Stats Cards -->
@@ -23,7 +53,7 @@
         <div class="text-xs text-slate-500">ऑनलाइन यूज़र्स</div>
         <div id="m-users" class="text-2xl font-black text-teal-600 mt-1">0</div>
       </div>
-      <div class="p-4 bg-slate-900/80 bg-white rounded-3xl border border-slate-200 shadow-sm">
+      <div class="p-4 bg-white rounded-3xl border border-slate-200 shadow-sm">
         <div class="text-xs text-slate-500">सक्रिय रूम्स</div>
         <div id="m-rooms" class="text-2xl font-black text-pink-600 mt-1">0</div>
       </div>
@@ -32,7 +62,7 @@
         <div id="m-streams" class="text-2xl font-black text-purple-600 mt-1">0</div>
       </div>
       <div class="p-4 bg-white rounded-3xl border border-slate-200 shadow-sm">
-        <div class="text-xs text-slate-500">कुल एकाउंट्स</div>
+        <div class="text-xs text-slate-500">कुल एकाउंट्स (स्थायी)</div>
         <div id="m-reg" class="text-2xl font-black text-amber-600 mt-1">0</div>
       </div>
       <div class="p-4 bg-white rounded-3xl border border-slate-200 shadow-sm">
@@ -41,11 +71,11 @@
       </div>
     </div>
 
-    <!-- 1. सभी रजिस्टर्ड यूज़र्स की लिस्ट (All Accounts Table) -->
+    <!-- 1. सभी रजिस्टर्ड यूज़र्स टेबल -->
     <div class="bg-white p-5 rounded-3xl border border-slate-200 shadow-sm space-y-3">
       <div class="flex justify-between items-center">
-        <h2 class="text-sm font-bold text-slate-800">👥 सभी रजिस्टर्ड यूज़र्स (User Database)</h2>
-        <span class="text-xs text-slate-500">किसने लॉगिन / साइनअप किया है</span>
+        <h2 class="text-sm font-bold text-slate-800">👥 सभी रजिस्टर्ड यूज़र्स (स्थायी रिकॉर्ड)</h2>
+        <span class="text-xs text-slate-400">यह डेटा कभी डिलीट नहीं होगा</span>
       </div>
       <div class="overflow-x-auto">
         <table class="w-full text-xs text-left">
@@ -54,22 +84,23 @@
               <th class="py-2">यूज़र ID / ईमेल</th>
               <th>रोल</th>
               <th>नाम / चैनल</th>
+              <th>पासवर्ड (रेफरेंस)</th>
               <th>जॉइनिंग समय</th>
               <th>स्टेटस</th>
             </tr>
           </thead>
           <tbody id="allUsersBody" class="divide-y divide-slate-100">
-            <tr><td colspan="5" class="py-4 text-center text-slate-400">कोई यूज़र नहीं मिला</td></tr>
+            <tr><td colspan="6" class="py-4 text-center text-slate-400">डेटा लोड हो रहा है...</td></tr>
           </tbody>
         </table>
       </div>
     </div>
 
-    <!-- 2. क्रिएटर वेरिफिकेशन और अप्रूवल टेबल -->
+    <!-- 2. क्रिएटर वेरिफिकेशन टेबल -->
     <div class="bg-white p-5 rounded-3xl border border-slate-200 shadow-sm space-y-3">
       <div class="flex justify-between items-center">
         <h2 class="text-sm font-bold text-slate-800">🎬 क्रिएटर प्रोफ़ाइल व अप्रूवल कंट्रोल</h2>
-        <span class="text-xs text-slate-500">केवल आपके अप्रूवल के बाद ही कोई लाइव आ सकता है</span>
+        <span class="text-xs text-slate-500">स्वीकृति के बाद ही कोई लाइव आ सकता है</span>
       </div>
       <div class="overflow-x-auto">
         <table class="w-full text-xs text-left">
@@ -89,7 +120,7 @@
       </div>
     </div>
 
-    <!-- 3. लाइव सेफ्टी लॉग्स -->
+    <!-- 3. सेफ्टी लॉग्स -->
     <div class="bg-white p-5 rounded-3xl border border-slate-200 shadow-sm space-y-3">
       <h2 class="text-sm font-bold text-slate-800">लाइव सेफ्टी व मॉडरेशन लॉग</h2>
       <div class="overflow-x-auto">
@@ -111,105 +142,152 @@
   </div>
 
   <script>
-    const socket = io();
-    socket.emit("join_admin");
+    let adminToken = sessionStorage.getItem("sukoon_admin_token");
+    let socket;
 
-    socket.on("admin_metrics", (m) => {
-      document.getElementById("m-users").innerText = m.onlineUsers;
-      document.getElementById("m-rooms").innerText = m.activeSessions;
-      document.getElementById("m-streams").innerText = m.liveStreamsCount || 0;
-      document.getElementById("m-reg").innerText = m.registeredUsers?.length || 0;
-      document.getElementById("m-incidents").innerText = m.incidents.length;
-
-      // 1. सभी रजिस्टर्ड यूज़र्स टेबल
-      const allUsersTbody = document.getElementById("allUsersBody");
-      if (m.registeredUsers && m.registeredUsers.length > 0) {
-        allUsersTbody.innerHTML = m.registeredUsers.map(u => `
-          <tr>
-            <td class="py-2.5">
-              <div class="font-bold text-slate-800">${u.email}</div>
-              <div class="text-[10px] text-slate-400 font-mono">${u.id}</div>
-            </td>
-            <td>
-              <span class="px-2 py-0.5 rounded-md text-[10px] font-bold ${u.role === 'creator' ? 'bg-purple-100 text-purple-700' : 'bg-teal-100 text-teal-700'}">
-                ${u.role === 'creator' ? '🎙️ Creator' : '👀 Viewer'}
-              </span>
-            </td>
-            <td class="font-medium text-slate-700 text-[11px]">${u.channelName || '-'}</td>
-            <td class="text-slate-500 text-[10px]">${u.joinedAt || 'आज'}</td>
-            <td>
-              <span class="px-2 py-0.5 rounded text-[10px] font-bold ${u.isApprovedCreator ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'}">
-                ${u.isApprovedCreator ? 'Active' : 'Pending'}
-              </span>
-            </td>
-          </tr>
-        `).join("");
-      } else {
-        allUsersTbody.innerHTML = '<tr><td colspan="5" class="py-4 text-center text-slate-400">कोई रजिस्टर्ड यूज़र नहीं मिला</td></tr>';
-      }
-
-      // 2. क्रिएटर अप्रूवल टेबल
-      const creatorTbody = document.getElementById("creatorListBody");
-      const creators = m.registeredUsers?.filter(u => u.role === "creator") || [];
-      if (creators.length > 0) {
-        creatorTbody.innerHTML = creators.map(u => `
-          <tr>
-            <td class="py-3">
-              <div class="flex items-center gap-2">
-                <img src="${u.avatar || 'https://api.dicebear.com/7.x/bottts/svg?seed=' + u.email}" class="w-7 h-7 rounded-lg">
-                <div>
-                  <div class="font-bold text-slate-800">${u.channelName || 'N/A'}</div>
-                  <div class="text-[10px] text-slate-400 font-mono">${u.email}</div>
-                </div>
-              </div>
-            </td>
-            <td>
-              <div class="font-bold text-indigo-600">#${u.category || 'General'}</div>
-              <div class="text-[10px] text-slate-500">⏰ ${u.schedule || 'रोज़ाना लाइव'}</div>
-            </td>
-            <td>
-              <span class="px-2 py-0.5 rounded-lg bg-amber-100 text-amber-800 font-bold text-[11px]">
-                💰 ${u.coins || 0} कॉइन्स
-              </span>
-            </td>
-            <td>
-              <span class="px-2 py-0.5 rounded text-[10px] font-bold ${u.isApprovedCreator ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'}">
-                ${u.isApprovedCreator ? 'Approved ✅' : 'Pending ⏳'}
-              </span>
-            </td>
-            <td>
-              ${!u.isApprovedCreator ? `
-                <button onclick="approveCreator('${u.email}')" class="px-3 py-1 bg-emerald-600 text-white font-bold rounded-xl text-xs shadow-sm hover:bg-emerald-700">
-                  Approve करें
-                </button>
-              ` : '<span class="text-slate-400 text-xs font-semibold">स्वीकृत</span>'}
-            </td>
-          </tr>
-        `).join("");
-      } else {
-        creatorTbody.innerHTML = '<tr><td colspan="5" class="py-4 text-center text-slate-400">कोई क्रिएटर नहीं है</td></tr>';
-      }
-
-      // 3. सेफ्टी लॉग्स
-      const tbody = document.getElementById("incidentsBody");
-      if (m.incidents && m.incidents.length > 0) {
-        tbody.innerHTML = m.incidents.map(i => `
-          <tr>
-            <td class="py-2 text-slate-500">${i.time}</td>
-            <td class="font-mono text-teal-600">${i.room}</td>
-            <td class="font-mono text-slate-600">${i.user}</td>
-            <td class="text-rose-600 font-semibold">${i.reason}</td>
-          </tr>
-        `).join("");
+    window.addEventListener("load", () => {
+      if (adminToken === "sukoon_admin_auth_verified_2026") {
+        showDashboard();
       }
     });
+
+    async function handleAdminLogin(e) {
+      e.preventDefault();
+      const u = document.getElementById('admUser').value.trim();
+      const p = document.getElementById('admPass').value.trim();
+
+      try {
+        const res = await fetch("/api/admin/login", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ username: u, password: p })
+        });
+        const d = await res.json();
+        if (d.success) {
+          adminToken = d.token;
+          sessionStorage.setItem("sukoon_admin_token", adminToken);
+          showDashboard();
+        } else {
+          alert(d.error || "लॉगिन असफल!");
+        }
+      } catch (err) {
+        alert("सर्वर से संपर्क नहीं हो पाया!");
+      }
+    }
+
+    function showDashboard() {
+      document.getElementById('adminLoginScreen').classList.add('hidden');
+      document.getElementById('adminDashboard').classList.remove('hidden');
+      connectAdminSocket();
+    }
+
+    function adminLogout() {
+      sessionStorage.removeItem("sukoon_admin_token");
+      location.reload();
+    }
+
+    function connectAdminSocket() {
+      socket = io();
+      socket.emit("join_admin", { token: adminToken });
+
+      socket.on("admin_metrics", (m) => {
+        document.getElementById("m-users").innerText = m.onlineUsers;
+        document.getElementById("m-rooms").innerText = m.activeSessions;
+        document.getElementById("m-streams").innerText = m.liveStreamsCount || 0;
+        document.getElementById("m-reg").innerText = m.registeredUsers?.length || 0;
+        document.getElementById("m-incidents").innerText = m.incidents?.length || 0;
+
+        // 1. सभी यूज़र्स टेबल
+        const allUsersTbody = document.getElementById("allUsersBody");
+        if (m.registeredUsers && m.registeredUsers.length > 0) {
+          allUsersTbody.innerHTML = m.registeredUsers.map(u => `
+            <tr>
+              <td class="py-2.5">
+                <div class="font-bold text-slate-800">${u.email}</div>
+                <div class="text-[10px] text-slate-400 font-mono">${u.id}</div>
+              </td>
+              <td>
+                <span class="px-2 py-0.5 rounded-md text-[10px] font-bold ${u.role === 'creator' ? 'bg-purple-100 text-purple-700' : 'bg-teal-100 text-teal-700'}">
+                  ${u.role === 'creator' ? '🎙️ Creator' : '👀 Viewer'}
+                </span>
+              </td>
+              <td class="font-medium text-slate-700 text-[11px]">${u.channelName || '-'}</td>
+              <td class="font-mono text-slate-400 text-[11px]">${u.password || '••••'}</td>
+              <td class="text-slate-500 text-[10px]">${u.joinedAt || 'आज'}</td>
+              <td>
+                <span class="px-2 py-0.5 rounded text-[10px] font-bold ${u.isApprovedCreator ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'}">
+                  ${u.isApprovedCreator ? 'Active' : 'Pending'}
+                </span>
+              </td>
+            </tr>
+          `).join("");
+        } else {
+          allUsersTbody.innerHTML = '<tr><td colspan="6" class="py-4 text-center text-slate-400">कोई रजिस्टर्ड यूज़र नहीं मिला</td></tr>';
+        }
+
+        // 2. क्रिएटर अप्रूवल टेबल
+        const creatorTbody = document.getElementById("creatorListBody");
+        const creators = m.registeredUsers?.filter(u => u.role === "creator") || [];
+        if (creators.length > 0) {
+          creatorTbody.innerHTML = creators.map(u => `
+            <tr>
+              <td class="py-3">
+                <div class="flex items-center gap-2">
+                  <img src="${u.avatar || 'https://api.dicebear.com/7.x/bottts/svg?seed=' + u.email}" class="w-7 h-7 rounded-lg">
+                  <div>
+                    <div class="font-bold text-slate-800">${u.channelName || 'N/A'}</div>
+                    <div class="text-[10px] text-slate-400 font-mono">${u.email}</div>
+                  </div>
+                </div>
+              </td>
+              <td>
+                <div class="font-bold text-indigo-600">#${u.category || 'General'}</div>
+                <div class="text-[10px] text-slate-500">⏰ ${u.schedule || 'रोज़ाना लाइव'}</div>
+              </td>
+              <td>
+                <span class="px-2 py-0.5 rounded-lg bg-amber-100 text-amber-800 font-bold text-[11px]">
+                  💰 ${u.coins || 0} कॉइन्स
+                </span>
+              </td>
+              <td>
+                <span class="px-2 py-0.5 rounded text-[10px] font-bold ${u.isApprovedCreator ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'}">
+                  ${u.isApprovedCreator ? 'Approved ✅' : 'Pending ⏳'}
+                </span>
+              </td>
+              <td>
+                ${!u.isApprovedCreator ? `
+                  <button onclick="approveCreator('${u.email}')" class="px-3 py-1 bg-emerald-600 text-white font-bold rounded-xl text-xs shadow-sm hover:bg-emerald-700">
+                    Approve करें
+                  </button>
+                ` : '<span class="text-slate-400 text-xs font-semibold">स्वीकृत</span>'}
+              </td>
+            </tr>
+          `).join("");
+        } else {
+          creatorTbody.innerHTML = '<tr><td colspan="5" class="py-4 text-center text-slate-400">कोई क्रिएटर नहीं है</td></tr>';
+        }
+
+        // 3. सेफ्टी लॉग्स
+        const tbody = document.getElementById("incidentsBody");
+        if (m.incidents && m.incidents.length > 0) {
+          tbody.innerHTML = m.incidents.map(i => `
+            <tr>
+              <td class="py-2 text-slate-500">${i.time}</td>
+              <td class="font-mono text-teal-600">${i.room}</td>
+              <td class="font-mono text-slate-600">${i.user}</td>
+              <td class="text-rose-600 font-semibold">${i.reason}</td>
+            </tr>
+          `).join("");
+        }
+      });
+    }
 
     async function approveCreator(email) {
       try {
         const res = await fetch("/api/admin/approve-creator", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ email })
+          body: JSON.stringify({ email, token: adminToken })
         });
         const d = await res.json();
         if (d.success) alert(email + " को क्रिएटर अप्रूवल मिल गया!");

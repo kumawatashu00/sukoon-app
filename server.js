@@ -3,6 +3,7 @@ const http = require("http");
 const { Server } = require("socket.io");
 const cors = require("cors");
 const path = require("path");
+const fs = require("fs");
 
 const app = express();
 app.use(cors());
@@ -11,14 +12,55 @@ app.use(express.static(path.join(__dirname, "public")));
 
 app.get("/ping", (req, res) => res.send("pong 24x7 active"));
 
-const registeredUsers = [];
+// एडमिन लॉगिन क्रेडेंशियल्स
+const ADMIN_USER = "ashok_admin";
+const ADMIN_PASS = "Sukoon@2026#Secure";
+
+// स्थायी फ़ाइल-आधारित डेटाबेस (JSON Persistence)
+const DB_FILE = path.join(__dirname, "database.json");
+
+let dbData = {
+  registeredUsers: [],
+  totalConnectionsCount: 0,
+  incidents: []
+};
+
+// डेटा लोड करना
+if (fs.existsSync(DB_FILE)) {
+  try {
+    const raw = fs.readFileSync(DB_FILE, "utf-8");
+    dbData = JSON.parse(raw);
+  } catch (e) {
+    console.error("DB Load Error:", e);
+  }
+}
+
+// डेटा सेव करने का हेल्पर
+const saveDB = () => {
+  try {
+    fs.writeFileSync(DB_FILE, JSON.stringify(dbData, null, 2));
+  } catch (e) {
+    console.error("DB Save Error:", e);
+  }
+};
+
 let liveStreams = [];
 
+// एडमिन लॉगिन API
+app.post("/api/admin/login", (req, res) => {
+  const { username, password } = req.body;
+  if (username === ADMIN_USER && password === ADMIN_PASS) {
+    return res.json({ success: true, token: "sukoon_admin_auth_verified_2026" });
+  }
+  return res.status(401).json({ success: false, error: "अमान्य यूज़रनेम या पासवर्ड!" });
+});
+
+// यूज़र ऑथ API
 app.post("/api/auth", (req, res) => {
-  const { email, password, role, channelName, category, avatar, schedule, socialLink, bio } = req.body;
+  const { email, password, role, channelName, category, avatar, schedule, bio } = req.body;
   if (!email || !password) return res.status(400).json({ error: "ईमेल और पासवर्ड आवश्यक हैं" });
 
-  let user = registeredUsers.find(u => u.email === email);
+  let user = dbData.registeredUsers.find(u => u.email === email);
   if (!user) {
     user = {
       id: "usr_" + Math.random().toString(36).substr(2, 7),
@@ -29,13 +71,13 @@ app.post("/api/auth", (req, res) => {
       category: category || "General",
       avatar: avatar || `https://api.dicebear.com/7.x/bottts/svg?seed=${email}`,
       schedule: schedule || "रोज़ाना लाइव",
-      socialLink: socialLink || "",
       bio: bio || (role === "creator" ? "सुकून क्रिएटर" : "सुकून दर्शक"),
       coins: 0,
       isApprovedCreator: role === "creator" ? false : true,
       joinedAt: new Date().toLocaleString()
     };
-    registeredUsers.push(user);
+    dbData.registeredUsers.push(user);
+    saveDB();
   } else {
     if (user.password !== password) {
       return res.status(401).json({ error: "गलत पासवर्ड!" });
@@ -45,11 +87,16 @@ app.post("/api/auth", (req, res) => {
   res.json({ success: true, user });
 });
 
+// क्रिएटर अप्रूवल
 app.post("/api/admin/approve-creator", (req, res) => {
-  const { email } = req.body;
-  const user = registeredUsers.find(u => u.email === email);
+  const { email, token } = req.body;
+  if (token !== "sukoon_admin_auth_verified_2026") {
+    return res.status(403).json({ error: "अनधिकृत एक्सेस" });
+  }
+  const user = dbData.registeredUsers.find(u => u.email === email);
   if (user) {
     user.isApprovedCreator = true;
+    saveDB();
     broadcastAdminStats();
     return res.json({ success: true, user });
   }
@@ -67,18 +114,16 @@ const ABUSE_WORDS = ["mc", "bc", "bhenchod", "madarchod", "chutiya", "randi", "g
 let waitingPool = [];
 const activeRooms = {};
 const userRooms = {};
-let totalConnections = 0;
-let incidentReports = [];
 
 const broadcastAdminStats = () => {
   io.to("admin_ops_room").emit("admin_metrics", {
     onlineUsers: io.engine.clientsCount,
     activeSessions: Object.keys(activeRooms).length,
     waitingPoolCount: waitingPool.length,
-    totalConnections,
-    registeredUsers,
+    totalConnections: dbData.totalConnectionsCount,
+    registeredUsers: dbData.registeredUsers,
     liveStreamsCount: liveStreams.length,
-    incidents: incidentReports
+    incidents: dbData.incidents
   });
 };
 
@@ -94,16 +139,19 @@ function attemptSmartMatch(user) {
 }
 
 io.on("connection", (socket) => {
-  totalConnections++;
+  dbData.totalConnectionsCount++;
+  saveDB();
   broadcastAdminStats();
 
-  socket.on("join_admin", () => {
-    socket.join("admin_ops_room");
-    broadcastAdminStats();
+  socket.on("join_admin", (data) => {
+    if (data && data.token === "sukoon_admin_auth_verified_2026") {
+      socket.join("admin_ops_room");
+      broadcastAdminStats();
+    }
   });
 
   socket.on("start_stream", ({ email, title, category }) => {
-    const user = registeredUsers.find(u => u.email === email);
+    const user = dbData.registeredUsers.find(u => u.email === email);
     if (!user || user.role !== "creator" || !user.isApprovedCreator) {
       return socket.emit("stream_error", { message: "केवल स्वीकृत क्रिएटर ही लाइव स्ट्रीम कर सकते हैं।" });
     }
@@ -116,7 +164,6 @@ io.on("connection", (socket) => {
       avatar: user.avatar,
       schedule: user.schedule,
       bio: user.bio,
-      socialLink: user.socialLink,
       title: title || `${user.channelName} लाइव`,
       category: category || user.category || "Gaming",
       socketId: socket.id
@@ -140,13 +187,8 @@ io.on("connection", (socket) => {
     }
   });
 
-  // लाइव स्ट्रीम चैट (स्ट्रीमर और दर्शक दोनों के लिए)
   socket.on("send_stream_chat", ({ streamId, text, senderName }) => {
     if (!streamId || !text) return;
-    const lower = text.toLowerCase();
-    if (ABUSE_WORDS.some(w => lower.includes(w))) {
-      return socket.emit("message_rejected", { reason: "मर्यादित भाषा का उपयोग करें।" });
-    }
     io.to(streamId).emit("receive_stream_chat", {
       id: Math.random().toString(),
       senderName: senderName || "दर्शक",
@@ -162,8 +204,11 @@ io.on("connection", (socket) => {
   socket.on("send_gift", ({ streamId, giftName, coins, senderName }) => {
     const stream = liveStreams.find(s => s.streamId === streamId);
     if (stream) {
-      const creator = registeredUsers.find(u => u.email === stream.streamerEmail);
-      if (creator) creator.coins = (creator.coins || 0) + coins;
+      const creator = dbData.registeredUsers.find(u => u.email === stream.streamerEmail);
+      if (creator) {
+        creator.coins = (creator.coins || 0) + coins;
+        saveDB();
+      }
       io.to(streamId).emit("gift_received", {
         giftName,
         coins,
@@ -174,7 +219,6 @@ io.on("connection", (socket) => {
     }
   });
 
-  // रैंडम 1-on-1 चैट / वीडियो
   socket.on("find_partner", ({ mode, tag }) => {
     waitingPool = waitingPool.filter(u => u.socketId !== socket.id);
     const user = { socketId: socket.id, mode: mode || "text", tag: tag || "All" };
@@ -205,14 +249,15 @@ io.on("connection", (socket) => {
 
     if (ABUSE_WORDS.some(w => lower.includes(w))) {
       socket.emit("message_rejected", { reason: "संदेश में अमर्यादित भाषा डिटेक्ट हुई है।" });
-      incidentReports.unshift({
+      dbData.incidents.unshift({
         id: Math.random().toString(),
         room: roomId,
         user: socket.id.slice(0, 5) + "***",
         reason: "अमर्यादित भाषा",
         time: new Date().toLocaleTimeString()
       });
-      if (incidentReports.length > 20) incidentReports.pop();
+      if (dbData.incidents.length > 50) dbData.incidents.pop();
+      saveDB();
       broadcastAdminStats();
       return;
     }
@@ -276,5 +321,5 @@ setInterval(() => {
 
 const PORT = process.env.PORT || 5000;
 server.listen(PORT, () => {
-  console.log(`>>> Sukoon V7 Live Engine active on port ${PORT}`);
+  console.log(`>>> Sukoon Secure V8 active on port ${PORT}`);
 });
