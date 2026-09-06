@@ -1475,12 +1475,12 @@
     async function startRandomCamera() {
       try {
         if (localStream) localStream.getTracks().forEach(t => t.stop());
-        localStream = await navigator.mediaDevices.getUserMedia({ 
+        try { localStream = await navigator.mediaDevices.getUserMedia({ 
           video: { facingMode: randomFacingMode, aspectRatio: { ideal: 0.75 } }, 
           audio: true 
         });
         document.getElementById('localVideo').srcObject = localStream;
-      } catch (err) { alert("Camera error"); }
+      } catch (err) { alert("आपने कैमरा या माइक की परमिशन नहीं दी है। कृपया ब्राउज़र सेटिंग्स में जाकर परमिशन दें!"); goHome(); }
     }
 
     async function flipRandomCamera() {
@@ -1666,7 +1666,7 @@
 
     async function startBroadcasting(title) {
       try {
-        localStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: streamerFacingMode }, audio: true });
+        try { localStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: streamerFacingMode }, audio: true });
         cameraStreamBackup = localStream;
         document.getElementById('streamVideoPlayer').srcObject = localStream;
         document.getElementById('activeStreamPlayer').classList.remove('hidden');
@@ -1696,7 +1696,7 @@
       streamerFacingMode = (streamerFacingMode === "user" ? "environment" : "user");
       try {
         if (localStream) localStream.getTracks().forEach(t => t.stop());
-        localStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: streamerFacingMode }, audio: true });
+        try { localStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: streamerFacingMode }, audio: true });
         cameraStreamBackup = localStream;
         document.getElementById('streamVideoPlayer').srcObject = localStream;
         Object.values(streamViewerPeers).forEach(peer => {
