@@ -69,38 +69,60 @@
       </div>
     </div>
 
-    <!-- 🔥 ड्यूल बैनर कंट्रोल पैनल (Banner 1 & Banner 2) 🔥 -->
+    <!-- 🔥 नया एडवांस्ड ड्यूल बैनर कंट्रोल (गैलरी से अपलोड + डायरेक्ट प्रीव्यू) 🔥 -->
     <div class="bg-white p-5 rounded-3xl border border-slate-200 shadow-sm space-y-5">
       <div class="flex justify-between items-center border-b border-slate-100 pb-2">
         <div>
-          <h2 class="text-sm font-bold text-slate-800">🖼️ होमपेज ड्यूल बैनर कंट्रोल (Dual Banner Slots)</h2>
-          <p class="text-xs text-slate-400">यहाँ से दोनों फोटो/नोटिस अलग-अलग नियंत्रित करें</p>
+          <h2 class="text-sm font-bold text-slate-800">🖼️ होमपेज ड्यूल बैनर कंट्रोल (गैलरी फ़ोटो अपलोड सक्षम)</h2>
+          <p class="text-xs text-slate-400">अब आप सीधे फोन गैलरी से भी फोटो अपलोड कर सकते हैं</p>
         </div>
       </div>
 
       <!-- BANNER 1 FORM -->
       <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200/80 space-y-3">
         <div class="flex items-center justify-between">
-          <span class="text-xs font-bold text-indigo-700 uppercase tracking-wider">📌 बैनर 1 (Banner 1)</span>
-          <img id="previewB1" src="" class="h-6 w-12 object-cover rounded border border-slate-200 bg-white">
+          <span class="text-xs font-bold text-indigo-700 uppercase tracking-wider">📌 बैनर 1 (ऊपर वाला स्लॉट)</span>
+          <img id="previewB1" src="" onerror="this.src='https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=800&auto=format&fit=crop&q=60'" class="h-8 w-14 object-cover rounded-lg border border-slate-200 bg-white">
         </div>
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-2.5">
-          <input type="text" id="b1Img" placeholder="फोटो का लिंक (Image URL 1)*" class="bg-white border border-slate-200 rounded-xl p-2 text-xs">
-          <input type="text" id="b1Title" placeholder="शीर्षक / नोटिस 1" class="bg-white border border-slate-200 rounded-xl p-2 text-xs">
-          <input type="text" id="b1Link" placeholder="क्लिक लिंक 1 (वैकल्पिक)" class="bg-white border border-slate-200 rounded-xl p-2 text-xs">
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-2.5">
+          <div>
+            <label class="text-[10px] font-bold text-slate-500 block mb-1">तरीका A: फोन गैलरी से फ़ोटो चुनें (सबसे आसान):</label>
+            <input type="file" id="b1File" accept="image/*" onchange="processFileUpload(event, 'b1Img', 'previewB1')" class="text-xs bg-white p-1 rounded-xl border border-slate-200 w-full">
+          </div>
+          <div>
+            <label class="text-[10px] font-bold text-slate-500 block mb-1">तरीका B: या फिर फ़ोटो का सीधा लिंक (Image URL):</label>
+            <input type="text" id="b1Img" oninput="document.getElementById('previewB1').src=this.value" placeholder="https://.../photo.jpg" class="bg-white border border-slate-200 rounded-xl p-2 text-xs w-full">
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-2.5">
+          <input type="text" id="b1Title" placeholder="बैनर 1 का शीर्षक / नोटिस" class="bg-white border border-slate-200 rounded-xl p-2 text-xs">
+          <input type="text" id="b1Link" placeholder="क्लिक करने पर खुलने वाला लिंक (वैकल्पिक)" class="bg-white border border-slate-200 rounded-xl p-2 text-xs">
         </div>
       </div>
 
       <!-- BANNER 2 FORM -->
       <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200/80 space-y-3">
         <div class="flex items-center justify-between">
-          <span class="text-xs font-bold text-rose-700 uppercase tracking-wider">📌 बैनर 2 (Banner 2)</span>
-          <img id="previewB2" src="" class="h-6 w-12 object-cover rounded border border-slate-200 bg-white">
+          <span class="text-xs font-bold text-rose-700 uppercase tracking-wider">📌 बैनर 2 (नीचे वाला स्लॉट)</span>
+          <img id="previewB2" src="" onerror="this.src='https://images.unsplash.com/photo-1517649763962-0c623266ddc0?w=800&auto=format&fit=crop&q=60'" class="h-8 w-14 object-cover rounded-lg border border-slate-200 bg-white">
         </div>
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-2.5">
-          <input type="text" id="b2Img" placeholder="फोटो का लिंक (Image URL 2)*" class="bg-white border border-slate-200 rounded-xl p-2 text-xs">
-          <input type="text" id="b2Title" placeholder="शीर्षक / नोटिस 2" class="bg-white border border-slate-200 rounded-xl p-2 text-xs">
-          <input type="text" id="b2Link" placeholder="क्लिक लिंक 2 (वैकल्पिक)" class="bg-white border border-slate-200 rounded-xl p-2 text-xs">
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-2.5">
+          <div>
+            <label class="text-[10px] font-bold text-slate-500 block mb-1">तरीका A: फोन गैलरी से फ़ोटो चुनें (सबसे आसान):</label>
+            <input type="file" id="b2File" accept="image/*" onchange="processFileUpload(event, 'b2Img', 'previewB2')" class="text-xs bg-white p-1 rounded-xl border border-slate-200 w-full">
+          </div>
+          <div>
+            <label class="text-[10px] font-bold text-slate-500 block mb-1">तरीका B: या फिर फ़ोटो का सीधा लिंक (Image URL):</label>
+            <input type="text" id="b2Img" oninput="document.getElementById('previewB2').src=this.value" placeholder="https://.../photo.jpg" class="bg-white border border-slate-200 rounded-xl p-2 text-xs w-full">
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-2.5">
+          <input type="text" id="b2Title" placeholder="बैनर 2 का शीर्षक / नोटिस" class="bg-white border border-slate-200 rounded-xl p-2 text-xs">
+          <input type="text" id="b2Link" placeholder="क्लिक करने पर खुलने वाला लिंक (वैकल्पिक)" class="bg-white border border-slate-200 rounded-xl p-2 text-xs">
         </div>
       </div>
 
@@ -191,6 +213,41 @@
       }
     });
 
+    // मोबाइल गैलरी से फ़ोटो को कंप्रेस करके Base64 में बदलना
+    function processFileUpload(event, targetInputId, previewImgId) {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const img = new Image();
+        img.onload = () => {
+          const canvas = document.createElement("canvas");
+          let width = img.width;
+          let height = img.height;
+          const maxDim = 1000;
+          if (width > maxDim || height > maxDim) {
+            if (width > height) {
+              height = Math.round((height * maxDim) / width);
+              width = maxDim;
+            } else {
+              width = Math.round((width * maxDim) / height);
+              height = maxDim;
+            }
+          }
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext("2d");
+          ctx.drawImage(img, 0, 0, width, height);
+          const compressedBase64 = canvas.toDataURL("image/jpeg", 0.8);
+          document.getElementById(targetInputId).value = compressedBase64;
+          document.getElementById(previewImgId).src = compressedBase64;
+        };
+        img.src = e.target.result;
+      };
+      reader.readAsDataURL(file);
+    }
+
     async function handleAdminLogin(e) {
       e.preventDefault();
       const u = document.getElementById('admUser').value.trim();
@@ -246,9 +303,7 @@
         });
         const data = await res.json();
         if (data.success) {
-          alert("✅ दोनों बैनर सफलतापूर्वक अपडेट हो गए!");
-          document.getElementById('previewB1').src = banner1.imageUrl || "";
-          document.getElementById('previewB2').src = banner2.imageUrl || "";
+          alert("✅ दोनों बैनर सफलतापूर्वक अपडेट हो गए हैं!");
         } else {
           alert("अपडेट असफल रहा");
         }
@@ -268,19 +323,18 @@
         document.getElementById("m-reg").innerText = m.registeredUsers?.length || 0;
         document.getElementById("m-incidents").innerText = m.incidents?.length || 0;
 
-        // दोनों बैनर के इनपुट्स भरना
         if (m.banners) {
           if (m.banners.banner1) {
             document.getElementById('b1Img').value = m.banners.banner1.imageUrl || "";
             document.getElementById('b1Title').value = m.banners.banner1.title || "";
             document.getElementById('b1Link').value = m.banners.banner1.linkUrl || "";
-            document.getElementById('previewB1').src = m.banners.banner1.imageUrl || "";
+            if (m.banners.banner1.imageUrl) document.getElementById('previewB1').src = m.banners.banner1.imageUrl;
           }
           if (m.banners.banner2) {
             document.getElementById('b2Img').value = m.banners.banner2.imageUrl || "";
             document.getElementById('b2Title').value = m.banners.banner2.title || "";
             document.getElementById('b2Link').value = m.banners.banner2.linkUrl || "";
-            document.getElementById('previewB2').src = m.banners.banner2.imageUrl || "";
+            if (m.banners.banner2.imageUrl) document.getElementById('previewB2').src = m.banners.banner2.imageUrl;
           }
         }
 

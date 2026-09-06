@@ -106,26 +106,25 @@
         <span class="text-indigo-600 text-xs font-bold">➔</span>
       </button>
 
-      <!-- 📲 1-टैप व्हाट्सएप वायरल शेयर बटन -->
       <button onclick="shareOnWhatsApp()" class="w-full py-2.5 px-4 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-800 font-bold text-xs flex items-center justify-center gap-2 shadow-sm hover:bg-emerald-100 transition">
         <span class="text-sm">💬</span> <span>दोस्तों को सुकून पर इनवाइट करें (WhatsApp Share)</span>
       </button>
     </div>
 
-    <!-- बैनर 1 स्लॉट -->
+    <!-- बैनर 1 स्लॉट (Protected Image Fallback) -->
     <div id="homeBannerCard1" class="hidden rounded-3xl overflow-hidden border border-slate-200 bg-white shadow-sm transition hover:shadow-md relative">
       <a id="bannerLinkWrapper1" href="#" target="_blank" class="block relative group">
-        <img id="bannerImage1" src="" alt="Notice 1" class="w-full h-32 md:h-36 object-cover bg-slate-100">
+        <img id="bannerImage1" src="" alt="Notice 1" onerror="handleImgError(this)" class="w-full h-32 md:h-36 object-cover bg-slate-100">
         <div class="absolute inset-0 bg-gradient-to-t from-black/75 via-black/20 to-transparent flex items-end p-3">
           <p id="bannerTitle1" class="text-white text-xs font-bold drop-shadow truncate"></p>
         </div>
       </a>
     </div>
 
-    <!-- बैनर 2 स्लॉट -->
+    <!-- बैनर 2 स्लॉट (Protected Image Fallback) -->
     <div id="homeBannerCard2" class="hidden rounded-3xl overflow-hidden border border-slate-200 bg-white shadow-sm transition hover:shadow-md relative">
       <a id="bannerLinkWrapper2" href="#" target="_blank" class="block relative group">
-        <img id="bannerImage2" src="" alt="Notice 2" class="w-full h-32 md:h-36 object-cover bg-slate-100">
+        <img id="bannerImage2" src="" alt="Notice 2" onerror="handleImgError(this)" class="w-full h-32 md:h-36 object-cover bg-slate-100">
         <div class="absolute inset-0 bg-gradient-to-t from-black/75 via-black/20 to-transparent flex items-end p-3">
           <p id="bannerTitle2" class="text-white text-xs font-bold drop-shadow truncate"></p>
         </div>
@@ -138,7 +137,7 @@
   </div>
 
 
-  <!-- ================= 2. RANDOM ROOM SCREEN (REPORT BUTTON INCLUDED) ================= -->
+  <!-- ================= 2. RANDOM ROOM SCREEN ================= -->
   <div id="roomScreen" class="hidden flex-1 flex flex-col overflow-hidden bg-slate-100">
     <header class="px-4 py-2 bg-white border-b border-slate-200 flex justify-between items-center shrink-0 shadow-sm">
       <div class="flex items-center gap-2">
@@ -149,7 +148,6 @@
       </div>
 
       <div class="flex items-center gap-2">
-        <!-- 🚩 1-क्लिक रिपोर्ट / ब्लॉक बटन -->
         <button onclick="reportPartner()" class="px-3 py-1.5 rounded-xl bg-rose-50 border border-rose-200 text-rose-600 text-xs font-bold hover:bg-rose-100 shadow-sm">
           🚩 रिपोर्ट
         </button>
@@ -198,7 +196,7 @@
   </div>
 
 
-  <!-- ================= 3. LIVE STREAM HUB (VIEWER COUNT & CONTROLS INCLUDED) ================= -->
+  <!-- ================= 3. LIVE STREAM HUB ================= -->
   <div id="streamHubScreen" class="hidden flex-1 flex flex-col overflow-hidden max-w-4xl w-full mx-auto p-3 md:p-4 bg-[#f8fafc]">
     <header class="flex justify-between items-center pb-2 border-b border-slate-200">
       <div class="flex items-center gap-2">
@@ -225,13 +223,11 @@
         
         <div class="absolute top-3 left-3 flex items-center gap-2">
           <div class="bg-rose-600 text-white px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase shadow">LIVE</div>
-          <!-- 👁️ लाइव व्यूअर काउंटर -->
           <div class="bg-black/60 backdrop-blur text-white px-2.5 py-0.5 rounded-full text-[10px] font-bold shadow flex items-center gap-1">
             <span>👁️</span> <span id="streamViewersCount">0</span>
           </div>
         </div>
         
-        <!-- Streamer Controls (Flip Cam, Mic Mute, Video Off, Screen Share, Stop) -->
         <div id="streamerLiveControls" class="hidden absolute top-3 right-3 flex flex-wrap gap-1.5">
           <button onclick="toggleStreamerAudio()" id="streamerMicBtn" class="bg-white/90 hover:bg-white text-slate-800 px-2.5 py-1 rounded-2xl text-xs font-bold shadow" title="माइक म्यूट करें">
             🎙️
@@ -441,13 +437,15 @@
       initSocket();
     });
 
-    // 📲 व्हाट्सएप वायरल शेयर फ़ंक्शन
+    function handleImgError(img) {
+      img.src = "https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=800&auto=format&fit=crop&q=60";
+    }
+
     function shareOnWhatsApp() {
       const text = encodeURIComponent("यार, सुकून (Sukoon) पर आओ! यहाँ बिना किसी पहचान के दिल खोलकर बात कर सकते हैं और लाइव स्ट्रीम देख सकते हैं 👉 " + window.location.origin);
       window.open(`https://api.whatsapp.com/send?text=${text}`, '_blank');
     }
 
-    // 🚩 1-क्लिक रिपोर्ट साथी
     function reportPartner() {
       if (confirm("क्या आप इस साथी को रिपोर्ट करके कॉल समाप्त करना चाहते हैं?")) {
         if (socket) socket.emit("report_partner", { reason: "यूज़र द्वारा अमर्यादित व्यवहार के लिए रिपोर्ट किया गया" });
@@ -460,9 +458,7 @@
       try {
         const res = await fetch("/api/banners");
         const data = await res.json();
-        if (data.banners) {
-          renderBanners(data.banners);
-        }
+        if (data.banners) renderBanners(data.banners);
       } catch (e) {}
     }
 
@@ -638,7 +634,6 @@
       });
     }
 
-    // ================= लाइव स्ट्रीम हब ऑपरेशन्स =================
     function openStreamHub() {
       if (!loggedInUser) {
         alert("लाइव स्ट्रीम हब खोलने के लिए पहले लॉगिन करें!");
@@ -701,7 +696,6 @@
       }
     }
 
-    // 🎙️ स्ट्रीमर ऑडियो म्यूट/अनम्यूट
     function toggleStreamerAudio() {
       if (!localStream) return;
       isStreamerMuted = !isStreamerMuted;
@@ -709,7 +703,6 @@
       document.getElementById('streamerMicBtn').innerText = isStreamerMuted ? "🔇" : "🎙️";
     }
 
-    // 📹 स्ट्रीमर वीडियो ऑन/ऑफ
     function toggleStreamerVideo() {
       if (!localStream) return;
       isStreamerCamOff = !isStreamerCamOff;
@@ -891,7 +884,6 @@
       box.scrollTop = box.scrollHeight;
     }
 
-    // ⭐ हाइलाइटेड सुपरचैट कार्ड (Superchat in Live Chat)
     function appendSuperchatMessage(senderName, giftName, coins, time) {
       const box = document.getElementById('streamChatMessagesBox');
       const div = document.createElement('div');
@@ -932,7 +924,6 @@
       setTimeout(() => el.remove(), 2200);
     }
 
-    // ================= रैंडम चैट & वीडियो =================
     async function startApp(mode) {
       currentMode = mode;
       document.getElementById('homeScreen').classList.add('hidden');

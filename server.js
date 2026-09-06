@@ -7,7 +7,8 @@ const fs = require("fs");
 
 const app = express();
 app.use(cors());
-app.use(express.json({ limit: "10mb" }));
+app.use(express.json({ limit: "25mb" }));
+app.use(express.urlencoded({ limit: "25mb", extended: true }));
 app.use(express.static(path.join(__dirname, "public")));
 
 app.get("/ping", (req, res) => res.send("pong 24x7 active"));
@@ -38,6 +39,12 @@ if (fs.existsSync(DB_FILE)) {
   try {
     const raw = fs.readFileSync(DB_FILE, "utf-8");
     dbData = { ...dbData, ...JSON.parse(raw) };
+    if (!dbData.banners) {
+      dbData.banners = {
+        banner1: dbData.banner || { imageUrl: "", title: "", linkUrl: "" },
+        banner2: { imageUrl: "", title: "", linkUrl: "" }
+      };
+    }
   } catch (e) {
     console.error("DB Load Error:", e);
   }
@@ -51,7 +58,7 @@ const saveDB = () => {
   }
 };
 
-let liveStreams = []; // { streamId, streamerEmail, channelName, avatar, schedule, bio, category, socketId, viewersCount }
+let liveStreams = [];
 
 app.get("/api/banners", (req, res) => {
   res.json({ banners: dbData.banners });
@@ -211,7 +218,6 @@ io.on("connection", (socket) => {
     socket.emit("stream_list_updated", liveStreams);
   });
 
-  // दर्शक का जुड़ना व लाइव व्यूअर काउंट अपडेट
   socket.on("join_stream", ({ streamId }) => {
     socket.join(streamId);
     const stream = liveStreams.find(s => s.streamId === streamId);
@@ -245,7 +251,6 @@ io.on("connection", (socket) => {
     io.to(to).emit("stream_signal", { from: socket.id, signal });
   });
 
-  // वर्चुअल गिफ़्ट + हाइलाइटेड सुपरचैट कार्ड
   socket.on("send_gift", ({ streamId, giftName, coins, senderName }) => {
     const stream = liveStreams.find(s => s.streamId === streamId);
     if (stream) {
@@ -265,7 +270,6 @@ io.on("connection", (socket) => {
     }
   });
 
-  // 1-क्लिक रिपोर्ट / ब्लॉक सिस्टम
   socket.on("report_partner", ({ reason }) => {
     const roomId = userRooms[socket.id];
     if (roomId) {
@@ -386,5 +390,5 @@ setInterval(() => {
 
 const PORT = process.env.PORT || 5000;
 server.listen(PORT, () => {
-  console.log(`>>> Sukoon Master V9 Active on port ${PORT}`);
+  console.log(`>>> Sukoon Master V9.1 Active on port ${PORT}`);
 });
