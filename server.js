@@ -32,7 +32,6 @@ if (fs.existsSync(DB_FILE)) {
   } catch (e) { console.error("DB Load Error:", e); }
 }
 
-// 🔥 बग फिक्स: सेफ डेटाबेस सेव (ताकि फाइल क्रैश न हो)
 let saveTimeout = null;
 const saveDB = () => {
   if (saveTimeout) clearTimeout(saveTimeout);
@@ -65,16 +64,11 @@ app.post("/api/admin/login", (req, res) => {
   return res.status(401).json({ success: false, error: "अमान्य यूज़रनेम या पासवर्ड!" });
 });
 
-// 🔥 बग फिक्स: एडमिन बैन यूज़र API
 app.post("/api/admin/ban-user", (req, res) => {
   const { email, token, banStatus } = req.body;
   if (token !== "sukoon_admin_auth_verified_2026") return res.status(403).json({ error: "अनधिकृत एक्सेस" });
   const user = dbData.registeredUsers.find(u => u.email === email);
-  if (user) {
-    user.isBanned = banStatus;
-    saveDB(); broadcastAdminStats();
-    return res.json({ success: true, user });
-  }
+  if (user) { user.isBanned = banStatus; saveDB(); broadcastAdminStats(); return res.json({ success: true, user }); }
   res.status(404).json({ error: "यूज़र नहीं मिला" });
 });
 
@@ -180,6 +174,10 @@ const broadcastAdminStats = () => {
   });
 };
 
+const broadcastGlobalCount = () => {
+  io.emit("global_online_count", io.engine.clientsCount);
+};
+
 function saveMutualConnection(e1, n1, e2, n2) {
   if (!e1 || !e2 || e1 === e2) return;
   if (!dbData.userConnections) dbData.userConnections = {};
@@ -194,7 +192,9 @@ function saveMutualConnection(e1, n1, e2, n2) {
 }
 
 io.on("connection", (socket) => {
-  dbData.totalConnectionsCount++; saveDB(); broadcastAdminStats();
+  dbData.totalConnectionsCount++; saveDB(); 
+  broadcastAdminStats();
+  broadcastGlobalCount();
 
   socket.on("join_admin", (data) => { if (data && data.token === "sukoon_admin_auth_verified_2026") { socket.join("admin_ops_room"); broadcastAdminStats(); } });
 
@@ -328,10 +328,11 @@ io.on("connection", (socket) => {
     const streamIdx = liveStreams.findIndex(s => s.socketId === socket.id);
     if (streamIdx !== -1) { const s = liveStreams.splice(streamIdx, 1)[0]; io.to(s.streamId).emit("stream_ended"); io.emit("stream_list_updated", liveStreams); }
     broadcastAdminStats();
+    broadcastGlobalCount();
   };
 
   socket.on("leave_chat", cleanup); socket.on("disconnect", cleanup);
 });
 
 const PORT = process.env.PORT || 5000;
-server.listen(PORT, () => { console.log(`>>> Sukoon V14 Master Active on port ${PORT}`); });
+server.listen(PORT, () => { console.log(`>>> Sukoon V15 Ultra Pro Active on port ${PORT}`); });
