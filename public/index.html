@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, interactive-widget=resizes-content">
-  <title>Sukoon - Anonymous & Live Stream Space</title>
+  <title>Sukoon - Anonymous, Friends & Live Space</title>
   <link rel="manifest" href="/manifest.json">
   <meta name="theme-color" content="#e11d48">
   <script src="https://cdn.tailwindcss.com"></script>
@@ -40,11 +40,17 @@
       </button>
 
       <div id="authContainer" class="flex items-center gap-1.5">
+        <button onclick="openProfileModal()" id="userProfileBtn" class="hidden px-2.5 py-1 rounded-2xl bg-white border border-slate-200 text-xs font-bold text-slate-700 hover:bg-slate-50 shadow-sm flex items-center gap-2 transition">
+          <img id="headerUserAvatar" src="" class="w-5 h-5 rounded-full object-cover border border-slate-200 bg-slate-100">
+          <span id="headerUserName" class="max-w-[90px] truncate">नाम</span>
+        </button>
+
         <button onclick="toggleAuthModal()" id="authNavBtn" class="px-3 py-1.5 rounded-2xl bg-white border border-rose-200 text-xs font-bold text-rose-600 hover:bg-rose-50 shadow-sm transition">
           👤 <span data-i18n="loginBtn">लॉगिन / साइनअप</span>
         </button>
-        <button onclick="logoutUser()" id="logoutNavBtn" class="hidden px-2.5 py-1.5 rounded-2xl bg-rose-50 border border-rose-200 text-xs font-bold text-rose-600 hover:bg-rose-100 shadow-sm transition" title="लॉगआउट करें">
-          🚪 बाहर निकलें
+
+        <button onclick="logoutUser()" id="logoutNavBtn" class="hidden px-2 py-1.5 rounded-2xl bg-rose-50 border border-rose-200 text-xs font-bold text-rose-600 hover:bg-rose-100 shadow-sm transition" title="लॉगआउट करें">
+          🚪
         </button>
       </div>
     </div>
@@ -59,6 +65,7 @@
       </div>
     </div>
 
+    <!-- Tags -->
     <div class="bg-white p-3 rounded-3xl border border-slate-200/80 shadow-sm">
       <span class="text-[10px] font-bold text-slate-500 uppercase tracking-wider block mb-1.5" data-i18n="tagTitle">🎯 पसंदीदा विषय (Tags):</span>
       <div class="flex flex-wrap gap-1.5" id="tagList">
@@ -70,7 +77,7 @@
       </div>
     </div>
 
-    <!-- Main 3 Cards -->
+    <!-- Action Cards -->
     <div class="space-y-2.5">
       <div class="grid grid-cols-2 gap-2.5">
         <button onclick="startApp('text')" class="flex flex-col justify-between p-3.5 rounded-3xl bg-white border border-teal-200/70 hover:border-teal-400 hover:shadow-md transition text-left min-h-[130px] shadow-sm">
@@ -106,12 +113,39 @@
         <span class="text-indigo-600 text-xs font-bold">➔</span>
       </button>
 
+      <div class="grid grid-cols-2 gap-2.5">
+        <button onclick="openNearbyHub()" class="p-3.5 rounded-3xl bg-gradient-to-r from-emerald-50 to-teal-50 border border-emerald-200/80 hover:border-emerald-300 hover:shadow-md transition text-left flex flex-col justify-between min-h-[120px] shadow-sm">
+          <div class="w-8 h-8 rounded-2xl bg-white text-emerald-600 flex items-center justify-center text-base shadow-sm">📍</div>
+          <div>
+            <div class="flex items-center gap-1">
+              <h3 class="text-xs font-black text-emerald-900">सुकून नियरबाय</h3>
+              <span class="text-[8px] bg-emerald-100 text-emerald-700 px-1 py-0.2 rounded font-bold">100 KM</span>
+            </div>
+            <p class="text-[9px] text-slate-500 mt-0.5">आसपास के लोग खोजें</p>
+          </div>
+          <span class="text-emerald-700 text-[10px] font-bold">ढूँढें ➔</span>
+        </button>
+
+        <!-- 👥 नए 'माई फ्रेंड्स' हब कार्ड -->
+        <button onclick="openConnectionsHub()" class="p-3.5 rounded-3xl bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200/80 hover:border-blue-300 hover:shadow-md transition text-left flex flex-col justify-between min-h-[120px] shadow-sm">
+          <div class="w-8 h-8 rounded-2xl bg-white text-blue-600 flex items-center justify-center text-base shadow-sm">👥</div>
+          <div>
+            <div class="flex items-center gap-1">
+              <h3 class="text-xs font-black text-blue-900">मेरे दोस्त व चैट्स</h3>
+              <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+            </div>
+            <p class="text-[9px] text-slate-500 mt-0.5">फ्रेंड लिस्ट व ब्लॉक सूची</p>
+          </div>
+          <span class="text-blue-700 text-[10px] font-bold">फ्रेंड्स देखें ➔</span>
+        </button>
+      </div>
+
       <button onclick="shareOnWhatsApp()" class="w-full py-2.5 px-4 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-800 font-bold text-xs flex items-center justify-center gap-2 shadow-sm hover:bg-emerald-100 transition">
         <span class="text-sm">💬</span> <span>दोस्तों को सुकून पर इनवाइट करें (WhatsApp Share)</span>
       </button>
     </div>
 
-    <!-- बैनर 1 स्लॉट (Protected Image Fallback) -->
+    <!-- Banners -->
     <div id="homeBannerCard1" class="hidden rounded-3xl overflow-hidden border border-slate-200 bg-white shadow-sm transition hover:shadow-md relative">
       <a id="bannerLinkWrapper1" href="#" target="_blank" class="block relative group">
         <img id="bannerImage1" src="" alt="Notice 1" onerror="handleImgError(this)" class="w-full h-32 md:h-36 object-cover bg-slate-100">
@@ -121,7 +155,6 @@
       </a>
     </div>
 
-    <!-- बैनर 2 स्लॉट (Protected Image Fallback) -->
     <div id="homeBannerCard2" class="hidden rounded-3xl overflow-hidden border border-slate-200 bg-white shadow-sm transition hover:shadow-md relative">
       <a id="bannerLinkWrapper2" href="#" target="_blank" class="block relative group">
         <img id="bannerImage2" src="" alt="Notice 2" onerror="handleImgError(this)" class="w-full h-32 md:h-36 object-cover bg-slate-100">
@@ -137,21 +170,76 @@
   </div>
 
 
-  <!-- ================= 2. RANDOM ROOM SCREEN ================= -->
-  <div id="roomScreen" class="hidden flex-1 flex flex-col overflow-hidden bg-slate-100">
-    <header class="px-4 py-2 bg-white border-b border-slate-200 flex justify-between items-center shrink-0 shadow-sm">
+  <!-- ================= 2. NEARBY PEOPLE HUB ================= -->
+  <div id="nearbyHubScreen" class="hidden flex-1 flex flex-col overflow-hidden max-w-lg w-full mx-auto p-4 bg-[#f8fafc]">
+    <header class="flex justify-between items-center pb-3 border-b border-slate-200">
       <div class="flex items-center gap-2">
-        <button onclick="goHome()" class="px-3 py-1.5 rounded-xl bg-slate-100 text-xs font-bold text-slate-700 border border-slate-200 flex items-center gap-1 hover:bg-slate-200 transition">
+        <button onclick="closeNearbyHub()" class="px-3 py-1.5 rounded-2xl bg-white border border-slate-200 text-xs font-bold text-slate-700 shadow-sm">← बैक</button>
+        <h2 class="text-base font-black text-slate-800">📍 आसपास के लोग</h2>
+      </div>
+      <div class="flex gap-1.5">
+        <button onclick="setNearbyRadius(25)" class="radius-btn px-2.5 py-1 rounded-xl text-[10px] font-bold bg-white border border-slate-200 text-slate-600" data-r="25">25 KM</button>
+        <button onclick="setNearbyRadius(50)" class="radius-btn px-2.5 py-1 rounded-xl text-[10px] font-bold bg-white border border-slate-200 text-slate-600" data-r="50">50 KM</button>
+        <button onclick="setNearbyRadius(100)" class="radius-btn px-2.5 py-1 rounded-xl text-[10px] font-bold bg-emerald-600 text-white shadow-sm" data-r="100">100 KM</button>
+      </div>
+    </header>
+
+    <div class="p-2.5 my-2 rounded-2xl bg-emerald-50 border border-emerald-200 text-[11px] text-emerald-800 flex items-center justify-between">
+      <span>🛡️ आपकी सटीक लोकेशन सुरक्षित है (सिर्फ अनुमानित दूरी दिखेगी)</span>
+      <button onclick="refreshNearbyUsers()" class="px-2 py-1 bg-white rounded-lg text-[10px] font-bold text-emerald-700 border border-emerald-200 shadow-sm">🔄 रीफ्रेश</button>
+    </div>
+
+    <div id="nearbyListContainer" class="flex-1 overflow-y-auto space-y-2.5">
+      <div class="text-center py-16 text-slate-400 text-xs">आसपास के यूज़र्स खोजे जा रहे हैं...</div>
+    </div>
+  </div>
+
+
+  <!-- ================= 3. 🔥 NEW: MY FRIENDS & CONNECTIONS HUB 🔥 ================= -->
+  <div id="connectionsHubScreen" class="hidden flex-1 flex flex-col overflow-hidden max-w-lg w-full mx-auto p-4 bg-[#f8fafc]">
+    <header class="flex justify-between items-center pb-3 border-b border-slate-200">
+      <div class="flex items-center gap-2">
+        <button onclick="closeConnectionsHub()" class="px-3 py-1.5 rounded-2xl bg-white border border-slate-200 text-xs font-bold text-slate-700 shadow-sm">← बैक</button>
+        <h2 class="text-base font-black text-slate-800">👥 मेरे दोस्त व चैट्स</h2>
+      </div>
+    </header>
+
+    <!-- Filter Tabs (मेरे दोस्त vs अन्य चैट्स) -->
+    <div class="flex gap-2 my-2 border-b border-slate-100 pb-2">
+      <button onclick="switchFriendsTab('friends')" id="tabFriendsBtn" class="flex-1 py-1.5 rounded-xl text-xs font-bold bg-indigo-600 text-white shadow-sm">
+        🤝 मेरे पक्के दोस्त
+      </button>
+      <button onclick="switchFriendsTab('others')" id="tabOthersBtn" class="flex-1 py-1.5 rounded-xl text-xs font-bold bg-slate-100 text-slate-600">
+        💬 अन्य चैट्स
+      </button>
+    </div>
+
+    <!-- Friends & Connections List Container -->
+    <div id="connectionsListContainer" class="flex-1 overflow-y-auto space-y-2.5">
+      <div class="text-center py-16 text-slate-400 text-xs">लोड हो रहा है...</div>
+    </div>
+  </div>
+
+
+  <!-- ================= 4. RANDOM / PRIVATE ROOM SCREEN (WITH '🤝 फ्रेंड बनाएँ' BUTTON) ================= -->
+  <div id="roomScreen" class="hidden flex-1 flex flex-col overflow-hidden bg-slate-100">
+    <header class="px-3 md:px-4 py-2 bg-white border-b border-slate-200 flex justify-between items-center shrink-0 shadow-sm">
+      <div class="flex items-center gap-2">
+        <button onclick="goHome()" class="px-2.5 py-1 rounded-xl bg-slate-100 text-xs font-bold text-slate-700 border border-slate-200 flex items-center gap-1 hover:bg-slate-200 transition">
           <span>🏠</span> <span data-i18n="homeBtn">होम</span>
         </button>
-        <span id="roomStatusBadge" class="text-[11px] px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-700 font-bold">तलाश जारी...</span>
+        <span id="roomStatusBadge" class="text-[11px] px-2 py-0.5 rounded-full bg-amber-100 text-amber-700 font-bold">तलाश जारी...</span>
       </div>
 
-      <div class="flex items-center gap-2">
-        <button onclick="reportPartner()" class="px-3 py-1.5 rounded-xl bg-rose-50 border border-rose-200 text-rose-600 text-xs font-bold hover:bg-rose-100 shadow-sm">
+      <div class="flex items-center gap-1.5">
+        <!-- 🤝 चैट रूम में सीधे फ्रेंड बनाने का बटन -->
+        <button onclick="addCurrentPartnerAsFriend()" id="addFriendRoomBtn" class="px-2.5 py-1.5 rounded-xl bg-indigo-50 border border-indigo-200 text-indigo-700 text-xs font-bold shadow-sm hover:bg-indigo-100">
+          🤝 फ्रेंड बनाएँ
+        </button>
+        <button onclick="reportPartner()" class="px-2.5 py-1.5 rounded-xl bg-rose-50 border border-rose-200 text-rose-600 text-xs font-bold hover:bg-rose-100 shadow-sm">
           🚩 रिपोर्ट
         </button>
-        <button onclick="nextPartner()" id="nextBtn" class="px-4 py-1.5 rounded-xl bg-gradient-to-r from-rose-500 to-pink-500 text-white text-xs font-bold shadow-md hover:opacity-90">
+        <button onclick="nextPartner()" id="nextBtn" class="px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-rose-500 to-pink-500 text-white text-xs font-bold shadow-md hover:opacity-90">
           Next ➔
         </button>
       </div>
@@ -196,7 +284,7 @@
   </div>
 
 
-  <!-- ================= 3. LIVE STREAM HUB ================= -->
+  <!-- ================= 5. LIVE STREAM HUB ================= -->
   <div id="streamHubScreen" class="hidden flex-1 flex flex-col overflow-hidden max-w-4xl w-full mx-auto p-3 md:p-4 bg-[#f8fafc]">
     <header class="flex justify-between items-center pb-2 border-b border-slate-200">
       <div class="flex items-center gap-2">
@@ -297,7 +385,7 @@
   </div>
 
 
-  <!-- ================= 4. AUTH MODAL ================= -->
+  <!-- ================= 6. AUTH MODAL ================= -->
   <div id="authModal" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
     <div class="bg-white border border-slate-200 p-6 rounded-3xl max-w-sm w-full space-y-4 shadow-2xl relative max-h-[90vh] overflow-y-auto">
       <button onclick="toggleAuthModal()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-700">✕</button>
@@ -357,6 +445,57 @@
         <button onclick="submitAuth()" class="w-full py-3.5 bg-gradient-to-r from-rose-500 to-pink-500 text-white font-bold rounded-2xl text-xs shadow-md hover:opacity-95">
           सबमिट करें ➔
         </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 7. यूज़र प्रोफ़ाइल मोडल -->
+  <div id="profileModal" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+    <div class="bg-white border border-slate-200 p-6 rounded-3xl max-w-sm w-full space-y-4 shadow-2xl relative">
+      <button onclick="closeProfileModal()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-700">✕</button>
+      
+      <div class="text-center space-y-2">
+        <div class="relative w-20 h-20 mx-auto">
+          <img id="myProfileImg" src="" class="w-20 h-20 rounded-full object-cover border-2 border-rose-400 shadow-md bg-slate-50">
+          <label for="profilePicInput" class="absolute bottom-0 right-0 p-1.5 rounded-full bg-rose-500 text-white text-[10px] cursor-pointer shadow hover:bg-rose-600" title="फ़ोटो बदलें">
+            📷
+          </label>
+          <input type="file" id="profilePicInput" accept="image/*" class="hidden" onchange="handleProfilePicUpload(event)">
+        </div>
+
+        <div>
+          <h3 id="myProfileName" class="text-base font-black text-slate-800">यूज़र</h3>
+          <p id="myProfileEmail" class="text-[11px] text-slate-400 font-mono"></p>
+          <span id="myProfileRoleBadge" class="inline-block mt-1 text-[10px] font-bold px-2 py-0.5 rounded-full bg-teal-50 text-teal-700 border border-teal-200">👀 दर्शक (Viewer)</span>
+        </div>
+      </div>
+
+      <div class="space-y-3 pt-2 border-t border-slate-100">
+        <div>
+          <label class="text-[11px] font-bold text-slate-600 block mb-1">डिस्प्ले नाम (Display Name)</label>
+          <input type="text" id="editProfileName" class="w-full bg-slate-50 border border-slate-200 rounded-2xl p-2.5 text-xs text-slate-800 focus:outline-none focus:border-rose-400">
+        </div>
+
+        <div>
+          <label class="text-[11px] font-bold text-slate-600 block mb-1">बायो / स्टेटस (Bio)</label>
+          <textarea id="editProfileBio" rows="2" placeholder="अपने बारे में 2 शब्द लिखें..." class="w-full bg-slate-50 border border-slate-200 rounded-2xl p-2.5 text-xs text-slate-800 focus:outline-none focus:border-rose-400"></textarea>
+        </div>
+
+        <button onclick="saveUserProfile()" class="w-full py-3 bg-gradient-to-r from-emerald-500 to-teal-500 text-white font-bold rounded-2xl text-xs shadow-md hover:opacity-95">
+          प्रोफ़ाइल सेव करें ✅
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- In-App Request Dialog -->
+  <div id="chatRequestModal" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+    <div class="bg-white p-6 rounded-3xl max-w-xs w-full text-center space-y-3 shadow-2xl border border-slate-200">
+      <div class="text-3xl">👋</div>
+      <h3 class="text-sm font-bold text-slate-800" id="chatRequestText">आपसे कोई चैट करना चाहता है!</h3>
+      <div class="grid grid-cols-2 gap-2 pt-2">
+        <button onclick="declineChatRequest()" class="py-2 bg-slate-100 text-slate-600 rounded-xl text-xs font-bold">मना करें</button>
+        <button onclick="acceptChatRequest()" class="py-2 bg-emerald-600 text-white rounded-xl text-xs font-bold shadow">बात करें ✅</button>
       </div>
     </div>
   </div>
@@ -423,6 +562,18 @@
     let cachedStreams = [];
     let currentActiveStreamId = null;
 
+    let userLat = null;
+    let userLon = null;
+    let currentRadiusKM = 100;
+    let pendingRequestFromSid = null;
+    let tempAvatarBase64 = null;
+
+    // Friends State
+    let activeFriendsTab = 'friends'; // 'friends' | 'others'
+    let currentPartnerEmail = null;
+    let currentPartnerName = null;
+    let cachedConnections = [];
+
     const rtcConfig = {
       iceServers: [
         { urls: "stun:stun.l.google.com:19302" },
@@ -442,7 +593,7 @@
     }
 
     function shareOnWhatsApp() {
-      const text = encodeURIComponent("यार, सुकून (Sukoon) पर आओ! यहाँ बिना किसी पहचान के दिल खोलकर बात कर सकते हैं और लाइव स्ट्रीम देख सकते हैं 👉 " + window.location.origin);
+      const text = encodeURIComponent("यार, सुकून (Sukoon) पर आओ! यहाँ बिना किसी पहचान के दिल खोलकर बात कर सकते हैं, आसपास के लोग ढूँढ सकते हैं और लाइव स्ट्रीम देख सकते हैं 👉 " + window.location.origin);
       window.open(`https://api.whatsapp.com/send?text=${text}`, '_blank');
     }
 
@@ -507,19 +658,24 @@
         try {
           loggedInUser = JSON.parse(saved);
           updateUserUI();
+          registerPresence();
         } catch (e) { localStorage.removeItem("sukoon_active_user"); }
       }
     }
 
     function updateUserUI() {
       const authBtn = document.getElementById('authNavBtn');
+      const profileBtn = document.getElementById('userProfileBtn');
       const logoutBtn = document.getElementById('logoutNavBtn');
       const startBroadcastBtn = document.getElementById('startBroadcastBtn');
 
       if (loggedInUser) {
-        authBtn.innerText = "✔️ " + (loggedInUser.channelName || loggedInUser.email.split('@')[0]);
-        authBtn.onclick = null;
+        authBtn.classList.add('hidden');
+        profileBtn.classList.remove('hidden');
         logoutBtn.classList.remove('hidden');
+
+        document.getElementById('headerUserName').innerText = loggedInUser.channelName || loggedInUser.email.split('@')[0];
+        document.getElementById('headerUserAvatar').src = loggedInUser.avatar || `https://api.dicebear.com/7.x/bottts/svg?seed=${loggedInUser.email}`;
 
         if (loggedInUser.role === 'creator' && loggedInUser.isApprovedCreator) {
           startBroadcastBtn.classList.remove('hidden');
@@ -527,10 +683,133 @@
           startBroadcastBtn.classList.add('hidden');
         }
       } else {
-        authBtn.innerText = "👤 " + translations[currentLang].loginBtn;
-        authBtn.onclick = toggleAuthModal;
+        authBtn.classList.remove('hidden');
+        profileBtn.classList.add('hidden');
         logoutBtn.classList.add('hidden');
         startBroadcastBtn.classList.add('hidden');
+      }
+    }
+
+    // ================= PROFILE MODAL =================
+    function openProfileModal() {
+      if (!loggedInUser) return;
+      document.getElementById('myProfileImg').src = loggedInUser.avatar || `https://api.dicebear.com/7.x/bottts/svg?seed=${loggedInUser.email}`;
+      document.getElementById('myProfileName').innerText = loggedInUser.channelName || loggedInUser.email.split('@')[0];
+      document.getElementById('myProfileEmail').innerText = loggedInUser.email;
+      document.getElementById('myProfileRoleBadge').innerText = loggedInUser.role === 'creator' ? "🎙️ क्रिएटर (Streamer)" : "👀 दर्शक (Viewer)";
+      
+      document.getElementById('editProfileName').value = loggedInUser.channelName || "";
+      document.getElementById('editProfileBio').value = loggedInUser.bio || "";
+      tempAvatarBase64 = null;
+
+      document.getElementById('profileModal').classList.remove('hidden');
+    }
+
+    function closeProfileModal() {
+      document.getElementById('profileModal').classList.add('hidden');
+    }
+
+    function handleProfilePicUpload(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const img = new Image();
+        img.onload = () => {
+          const canvas = document.createElement("canvas");
+          let width = img.width;
+          let height = img.height;
+          const maxDim = 400;
+          if (width > maxDim || height > maxDim) {
+            if (width > height) {
+              height = Math.round((height * maxDim) / width);
+              width = maxDim;
+            } else {
+              width = Math.round((width * maxDim) / height);
+              height = maxDim;
+            }
+          }
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext("2d");
+          ctx.drawImage(img, 0, 0, width, height);
+          tempAvatarBase64 = canvas.toDataURL("image/jpeg", 0.85);
+          document.getElementById('myProfileImg').src = tempAvatarBase64;
+        };
+        img.src = e.target.result;
+      };
+      reader.readAsDataURL(file);
+    }
+
+    async function saveUserProfile() {
+      if (!loggedInUser) return;
+      const newName = document.getElementById('editProfileName').value.trim();
+      const newBio = document.getElementById('editProfileBio').value.trim();
+      const newAvatar = tempAvatarBase64 || loggedInUser.avatar;
+
+      if (!newName) return alert("कृपया नाम दर्ज करें");
+
+      try {
+        const res = await fetch("/api/user/update-profile", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            email: loggedInUser.email,
+            channelName: newName,
+            bio: newBio,
+            avatar: newAvatar
+          })
+        });
+        const data = await res.json();
+        if (data.success) {
+          loggedInUser = data.user;
+          localStorage.setItem("sukoon_active_user", JSON.stringify(loggedInUser));
+          updateUserUI();
+          registerPresence();
+          closeProfileModal();
+          alert("✅ प्रोफाइल सफलतापूर्वक अपडेट हो गई!");
+        } else {
+          alert("प्रोफाइल अपडेट असफल रही");
+        }
+      } catch (err) {
+        alert("सर्वर से संपर्क नहीं हो सका");
+      }
+    }
+
+    function registerPresence() {
+      if (!loggedInUser || !socket) return;
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+          (pos) => {
+            userLat = pos.coords.latitude;
+            userLon = pos.coords.longitude;
+            socket.emit("register_user_presence", {
+              email: loggedInUser.email,
+              channelName: loggedInUser.channelName,
+              avatar: loggedInUser.avatar,
+              lat: userLat,
+              lon: userLon
+            });
+          },
+          () => {
+            socket.emit("register_user_presence", {
+              email: loggedInUser.email,
+              channelName: loggedInUser.channelName,
+              avatar: loggedInUser.avatar,
+              lat: null,
+              lon: null
+            });
+          }
+        );
+      } else {
+        socket.emit("register_user_presence", {
+          email: loggedInUser.email,
+          channelName: loggedInUser.channelName,
+          avatar: loggedInUser.avatar,
+          lat: null,
+          lon: null
+        });
       }
     }
 
@@ -540,7 +819,254 @@
         loggedInUser = null;
         updateUserUI();
         alert("आप सफलतापूर्वक लॉगआउट हो गए हैं!");
+        location.reload();
       }
+    }
+
+    // ================= 📍 NEARBY HUB =================
+    function openNearbyHub() {
+      if (!loggedInUser) {
+        alert("आसपास के लोगों को देखने के लिए पहले लॉगिन करें!");
+        toggleAuthModal();
+        return;
+      }
+      document.getElementById('homeScreen').classList.add('hidden');
+      document.getElementById('nearbyHubScreen').classList.remove('hidden');
+
+      if (!userLat || !userLon) {
+        if (navigator.geolocation) {
+          navigator.geolocation.getCurrentPosition(
+            (pos) => {
+              userLat = pos.coords.latitude;
+              userLon = pos.coords.longitude;
+              registerPresence();
+              refreshNearbyUsers();
+            },
+            () => {
+              alert("आसपास के लोग देखने के लिए कृपया ब्राउज़र में लोकेशन (GPS) चालू करें।");
+            }
+          );
+        }
+      } else {
+        refreshNearbyUsers();
+      }
+    }
+
+    function closeNearbyHub() {
+      document.getElementById('nearbyHubScreen').classList.add('hidden');
+      document.getElementById('homeScreen').classList.remove('hidden');
+    }
+
+    function setNearbyRadius(r) {
+      currentRadiusKM = r;
+      document.querySelectorAll('.radius-btn').forEach(btn => {
+        if (parseInt(btn.dataset.r) === r) {
+          btn.className = "radius-btn px-2.5 py-1 rounded-xl text-[10px] font-bold bg-emerald-600 text-white shadow-sm";
+        } else {
+          btn.className = "radius-btn px-2.5 py-1 rounded-xl text-[10px] font-bold bg-white border border-slate-200 text-slate-600";
+        }
+      });
+      refreshNearbyUsers();
+    }
+
+    function refreshNearbyUsers() {
+      if (socket) {
+        socket.emit("get_nearby_users", { maxDistanceKM: currentRadiusKM });
+      }
+    }
+
+    function renderNearbyList(users) {
+      const box = document.getElementById("nearbyListContainer");
+      if (!users || users.length === 0) {
+        box.innerHTML = `<div class="text-center py-16 text-slate-400 text-xs">आपके ${currentRadiusKM} KM के दायरे में कोई अन्य यूज़र अभी ऑनलाइन नहीं है।</div>`;
+        return;
+      }
+
+      box.innerHTML = users.map(u => `
+        <div class="p-3 bg-white border border-slate-200 rounded-2xl flex items-center justify-between shadow-sm">
+          <div class="flex items-center gap-2.5">
+            <img src="${u.avatar || 'https://api.dicebear.com/7.x/bottts/svg?seed=' + u.email}" class="w-10 h-10 rounded-2xl object-cover border border-slate-200 shadow-sm bg-slate-50">
+            <div>
+              <div class="flex items-center gap-1.5">
+                <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+                <h4 class="text-xs font-bold text-slate-800">${u.channelName}</h4>
+              </div>
+              <p class="text-[10px] text-slate-500">📍 लगभग ~${u.distanceKM} KM दूर</p>
+            </div>
+          </div>
+          <button onclick="sendNearbyHi('${u.socketId}')" class="px-3 py-1.5 bg-gradient-to-r from-emerald-500 to-teal-500 text-white text-xs font-bold rounded-xl shadow-sm hover:opacity-95">
+            👋 बात करें
+          </button>
+        </div>
+      `).join("");
+    }
+
+    function sendNearbyHi(targetSid) {
+      if (socket) {
+        socket.emit("send_nearby_request", { toSocketId: targetSid });
+        alert("चैट रिक्वेस्ट भेज दी गई है! जैसे ही वे स्वीकार करेंगे, चैट शुरू हो जाएगी।");
+      }
+    }
+
+    // ================= 🔥 MY FRIENDS & CONNECTIONS HUB 🔥 =================
+    function openConnectionsHub() {
+      if (!loggedInUser) {
+        alert("अपने फ्रेंड्स और चैट लिस्ट देखने के लिए पहले लॉगिन करें!");
+        toggleAuthModal();
+        return;
+      }
+      document.getElementById('homeScreen').classList.add('hidden');
+      document.getElementById('connectionsHubScreen').classList.remove('hidden');
+      refreshMyConnections();
+    }
+
+    function closeConnectionsHub() {
+      document.getElementById('connectionsHubScreen').classList.add('hidden');
+      document.getElementById('homeScreen').classList.remove('hidden');
+    }
+
+    function switchFriendsTab(tab) {
+      activeFriendsTab = tab;
+      const fBtn = document.getElementById('tabFriendsBtn');
+      const oBtn = document.getElementById('tabOthersBtn');
+
+      if (tab === 'friends') {
+        fBtn.className = "flex-1 py-1.5 rounded-xl text-xs font-bold bg-indigo-600 text-white shadow-sm";
+        oBtn.className = "flex-1 py-1.5 rounded-xl text-xs font-bold bg-slate-100 text-slate-600";
+      } else {
+        oBtn.className = "flex-1 py-1.5 rounded-xl text-xs font-bold bg-indigo-600 text-white shadow-sm";
+        fBtn.className = "flex-1 py-1.5 rounded-xl text-xs font-bold bg-slate-100 text-slate-600";
+      }
+      renderFilteredConnections();
+    }
+
+    function refreshMyConnections() {
+      if (socket && loggedInUser) {
+        socket.emit("get_my_connections", { email: loggedInUser.email });
+      }
+    }
+
+    function renderFilteredConnections() {
+      const box = document.getElementById("connectionsListContainer");
+      if (!cachedConnections || cachedConnections.length === 0) {
+        box.innerHTML = `<div class="text-center py-16 text-slate-400 text-xs">अभी कोई चैट या दोस्त नहीं मिले।</div>`;
+        return;
+      }
+
+      let filtered = [];
+      if (activeFriendsTab === 'friends') {
+        filtered = cachedConnections.filter(c => c.isFriend && !c.isBlocked);
+      } else {
+        filtered = cachedConnections.filter(c => !c.isFriend);
+      }
+
+      if (filtered.length === 0) {
+        box.innerHTML = activeFriendsTab === 'friends'
+          ? `<div class="text-center py-16 text-slate-400 text-xs">अभी आपका कोई पक्का दोस्त नहीं बना है। चैट के दौरान '🤝 फ्रेंड बनाएँ' दबाएँ!</div>`
+          : `<div class="text-center py-16 text-slate-400 text-xs">कोई अन्य चैट नहीं है।</div>`;
+        return;
+      }
+
+      box.innerHTML = filtered.map(c => `
+        <div class="p-3 bg-white border border-slate-200 rounded-2xl flex items-center justify-between shadow-sm">
+          <div class="flex items-center gap-2.5">
+            <div class="relative">
+              <img src="${c.avatar || 'https://api.dicebear.com/7.x/bottts/svg?seed=' + c.peerEmail}" class="w-10 h-10 rounded-2xl object-cover border border-slate-200 shadow-sm bg-slate-50">
+              <span class="absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full border-2 border-white ${c.isOnline ? 'bg-emerald-500' : 'bg-slate-300'}"></span>
+            </div>
+            <div>
+              <div class="flex items-center gap-1.5">
+                <h4 class="text-xs font-bold text-slate-800">${c.peerName}</h4>
+                ${c.isFriend ? '<span class="text-[9px] bg-indigo-50 text-indigo-700 px-1.5 py-0.2 rounded font-bold">दोस्त 🤝</span>' : ''}
+                ${c.isBlocked ? '<span class="text-[9px] bg-rose-50 text-rose-700 px-1.5 py-0.2 rounded font-bold">ब्लॉक 🚫</span>' : ''}
+              </div>
+              <p class="text-[10px] ${c.isOnline ? 'text-emerald-600 font-bold' : 'text-slate-400'}">
+                ${c.isOnline ? '🟢 अभी ऑनलाइन है' : '⚪ अंतिम चैट: ' + c.lastChatAt}
+              </p>
+            </div>
+          </div>
+
+          <div class="flex items-center gap-1">
+            ${c.isFriend ? `
+              <button onclick="manageFriendship('${c.peerEmail}', 'unfriend')" class="px-2 py-1 rounded-xl bg-slate-100 text-slate-600 text-[10px] font-bold hover:bg-slate-200" title="अनफ्रेंड करें">
+                हटाएँ
+              </button>
+            ` : `
+              <button onclick="manageFriendship('${c.peerEmail}', 'add_friend')" class="px-2 py-1 rounded-xl bg-indigo-50 text-indigo-700 text-[10px] font-bold border border-indigo-200 hover:bg-indigo-100" title="फ्रेंड बनाएँ">
+                + दोस्त
+              </button>
+            `}
+
+            ${c.isBlocked ? `
+              <button onclick="manageFriendship('${c.peerEmail}', 'unblock')" class="px-2 py-1 rounded-xl bg-slate-100 text-slate-600 text-[10px] font-bold">
+                अनब्लॉक
+              </button>
+            ` : `
+              <button onclick="manageFriendship('${c.peerEmail}', 'block')" class="px-2 py-1 rounded-xl bg-rose-50 text-rose-600 text-[10px] font-bold hover:bg-rose-100" title="ब्लॉक करें">
+                🚫
+              </button>
+            `}
+            
+            ${!c.isBlocked ? `
+              <button onclick="startApp('text')" class="px-2.5 py-1 bg-emerald-600 text-white rounded-xl text-[10px] font-bold shadow-sm">
+                चैट ➔
+              </button>
+            ` : ''}
+          </div>
+        </div>
+      `).join("");
+    }
+
+    async function manageFriendship(peerEmail, action) {
+      if (!loggedInUser) return;
+      try {
+        const res = await fetch("/api/user/manage-friend", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ myEmail: loggedInUser.email, peerEmail, action })
+        });
+        const d = await res.json();
+        if (d.success) {
+          refreshMyConnections();
+          if (action === 'add_friend') alert("दोस्त बना लिया गया! 🤝");
+          if (action === 'unfriend') alert("फ्रेंड लिस्ट से हटा दिया गया!");
+          if (action === 'block') alert("यूज़र को ब्लॉक कर दिया गया है!");
+          if (action === 'unblock') alert("यूज़र को अनब्लॉक कर दिया गया!");
+        }
+      } catch (e) {
+        alert("त्रुटि हुई");
+      }
+    }
+
+    // चैट रूम में सीधे फ्रेंड बनाना
+    async function addCurrentPartnerAsFriend() {
+      if (!loggedInUser) {
+        alert("दोस्त बनाने के लिए पहले लॉगिन करें!");
+        toggleAuthModal();
+        return;
+      }
+      if (!currentPartnerEmail) {
+        alert("यह साथी बिना लॉगिन के अनाम रूप से जुड़ा है, इसे फ्रेंड लिस्ट में जोड़ने के लिए दोनों का लॉगिन होना ज़रूरी है।");
+        return;
+      }
+      await manageFriendship(currentPartnerEmail, 'add_friend');
+      document.getElementById('addFriendRoomBtn').innerText = "दोस्त बन गए ✅";
+      document.getElementById('addFriendRoomBtn').className = "px-2.5 py-1.5 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs font-bold";
+    }
+
+    function acceptChatRequest() {
+      if (socket && pendingRequestFromSid) {
+        socket.emit("accept_chat_request", { fromSocketId: pendingRequestFromSid });
+        document.getElementById('chatRequestModal').classList.add('hidden');
+        document.getElementById('nearbyHubScreen').classList.add('hidden');
+        document.getElementById('roomScreen').classList.remove('hidden');
+        document.getElementById('videoSection').classList.add('hidden');
+      }
+    }
+
+    function declineChatRequest() {
+      pendingRequestFromSid = null;
+      document.getElementById('chatRequestModal').classList.add('hidden');
     }
 
     function fixMobileViewport() {
@@ -613,6 +1139,7 @@
           loggedInUser = data.user;
           localStorage.setItem("sukoon_active_user", JSON.stringify(loggedInUser));
           updateUserUI();
+          registerPresence();
           toggleAuthModal();
           alert(loggedInUser.role === 'creator' && !loggedInUser.isApprovedCreator
             ? "क्रिएटर रजिस्ट्रेशन सबमिट हो गया! एडमिन की मंज़ूरी के बाद आप लाइव स्ट्रीम शुरू कर सकेंगे।"
@@ -927,6 +1454,7 @@
     async function startApp(mode) {
       currentMode = mode;
       document.getElementById('homeScreen').classList.add('hidden');
+      document.getElementById('connectionsHubScreen').classList.add('hidden');
       document.getElementById('roomScreen').classList.remove('hidden');
 
       if (mode === 'video') {
@@ -936,7 +1464,12 @@
         document.getElementById('videoSection').classList.add('hidden');
       }
 
-      socket.emit("find_partner", { mode: currentMode, tag: selectedTag });
+      socket.emit("find_partner", {
+        mode: currentMode,
+        tag: selectedTag,
+        email: loggedInUser?.email || null,
+        name: loggedInUser?.channelName || null
+      });
     }
 
     async function startRandomCamera() {
@@ -971,6 +1504,27 @@
 
       socket.on("stream_started", (s) => {
         currentActiveStreamId = s.streamId;
+      });
+
+      socket.on("presence_updated", () => {
+        if (!document.getElementById('connectionsHubScreen').classList.contains('hidden')) {
+          refreshMyConnections();
+        }
+      });
+
+      socket.on("nearby_users_list", ({ users }) => {
+        renderNearbyList(users);
+      });
+
+      socket.on("my_connections_data", ({ connections }) => {
+        cachedConnections = connections || [];
+        renderFilteredConnections();
+      });
+
+      socket.on("receive_chat_request", ({ fromSocketId, fromName }) => {
+        pendingRequestFromSid = fromSocketId;
+        document.getElementById('chatRequestText').innerText = `${fromName} आपसे चैट करना चाहते हैं!`;
+        document.getElementById('chatRequestModal').classList.remove('hidden');
       });
 
       socket.on("stream_viewers_updated", ({ count }) => {
@@ -1048,10 +1602,16 @@
 
       socket.on("partner_found", (data) => {
         isInitiator = data.isInitiator;
+        currentPartnerEmail = data.partnerEmail || null;
+        currentPartnerName = data.partnerName || null;
+
+        document.getElementById("addFriendRoomBtn").innerText = "🤝 फ्रेंड बनाएँ";
+        document.getElementById("addFriendRoomBtn").className = "px-2.5 py-1.5 rounded-xl bg-indigo-50 border border-indigo-200 text-indigo-700 text-xs font-bold shadow-sm hover:bg-indigo-100";
+
         document.getElementById("roomStatusBadge").innerText = "ऑनलाइन 🟢";
         document.getElementById("roomStatusBadge").className = "text-[11px] px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-700 font-bold";
         document.getElementById("videoWaitingNotice").classList.add("hidden");
-        appendSystemMessage(`साथी जुड़ गया! (${data.tag ? '#' + data.tag : ''})`);
+        appendSystemMessage(data.partnerName ? `आप ${data.partnerName} से जुड़े हैं!` : `साथी जुड़ गया! (${data.tag ? '#' + data.tag : ''})`);
         if (currentMode === 'video') initRandomPeerConnection();
       });
 
@@ -1183,17 +1743,26 @@
 
     function nextPartner() {
       closePeer();
+      currentPartnerEmail = null;
+      currentPartnerName = null;
       document.getElementById("messagesBox").innerHTML = "";
       document.getElementById("roomStatusBadge").innerText = "तलाश जारी...";
       document.getElementById("videoWaitingNotice").classList.remove("hidden");
       if (socket) {
         socket.emit("leave_chat");
-        socket.emit("find_partner", { mode: currentMode, tag: selectedTag });
+        socket.emit("find_partner", {
+          mode: currentMode,
+          tag: selectedTag,
+          email: loggedInUser?.email || null,
+          name: loggedInUser?.channelName || null
+        });
       }
     }
 
     function goHome() {
       closePeer();
+      currentPartnerEmail = null;
+      currentPartnerName = null;
       if (localStream) {
         localStream.getTracks().forEach(t => t.stop());
         localStream = null;
