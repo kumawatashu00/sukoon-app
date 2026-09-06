@@ -7,8 +7,8 @@ const fs = require("fs");
 
 const app = express();
 app.use(cors());
-app.use(express.json({ limit: "25mb" }));
-app.use(express.urlencoded({ limit: "25mb", extended: true }));
+app.use(express.json({ limit: "35mb" }));
+app.use(express.urlencoded({ limit: "35mb", extended: true }));
 app.use(express.static(path.join(__dirname, "public")));
 
 app.get("/ping", (req, res) => res.send("pong 24x7 active"));
@@ -21,25 +21,26 @@ let dbData = {
   registeredUsers: [],
   totalConnectionsCount: 0,
   incidents: [],
-  userConnections: {}, // { email: [ { peerEmail, peerName, isFriend, isBlocked, lastChatAt } ] }
-  banners: {
-    banner1: {
-      imageUrl: "https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=800&auto=format&fit=crop&q=60",
-      title: "सुकून कम्युनिटी में आपका स्वागत है 🌿",
-      linkUrl: ""
-    },
-    banner2: {
-      imageUrl: "https://images.unsplash.com/photo-1517649763962-0c623266ddc0?w=800&auto=format&fit=crop&q=60",
-      title: "लाइव स्ट्रीम हब में अपनी प्रतिभा दिखाएँ 🎙️",
-      linkUrl: ""
-    }
+  userConnections: {},
+  posts: [], // { id, authorEmail, authorName, authorAvatar, media, mediaType, caption, likes: [], createdAt }
+  follows: {}, // { email: { followers: [], following: [] } }
+  banner: {
+    imageUrl: "https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=800&auto=format&fit=crop&q=60",
+    title: "सुकून कम्युनिटी में आपका स्वागत है 🌿",
+    linkUrl: ""
   }
 };
 
 if (fs.existsSync(DB_FILE)) {
   try {
     const raw = fs.readFileSync(DB_FILE, "utf-8");
-    dbData = { ...dbData, ...JSON.parse(raw) };
+    const loaded = JSON.parse(raw);
+    dbData = { ...dbData, ...loaded };
+    if (!dbData.posts) dbData.posts = [];
+    if (!dbData.follows) dbData.follows = {};
+    if (loaded.banners && loaded.banners.banner1) {
+      dbData.banner = loaded.banners.banner1;
+    }
   } catch (e) {
     console.error("DB Load Error:", e);
   }
@@ -68,24 +69,27 @@ function calculateDistanceKM(lat1, lon1, lat2, lon2) {
 let liveStreams = [];
 const onlineLoggedInUsers = {};
 
-app.get("/api/banners", (req, res) => {
-  res.json({ banners: dbData.banners });
+// 1. बैनर APIs (सिंगल क्लीन बैनर)
+app.get("/api/banner", (req, res) => {
+  res.json({ banner: dbData.banner });
 });
 
-app.post("/api/admin/update-banners", (req, res) => {
-  const { token, banner1, banner2 } = req.body;
+app.post("/api/admin/update-banner", (req, res) => {
+  const { token, imageUrl, title, linkUrl } = req.body;
   if (token !== "sukoon_admin_auth_verified_2026") {
     return res.status(403).json({ error: "अनधिकृत एक्सेस" });
   }
-  dbData.banners = {
-    banner1: { imageUrl: banner1?.imageUrl || "", title: banner1?.title || "", linkUrl: banner1?.linkUrl || "" },
-    banner2: { imageUrl: banner2?.imageUrl || "", title: banner2?.title || "", linkUrl: banner2?.linkUrl || "" }
+  dbData.banner = {
+    imageUrl: imageUrl || "",
+    title: title || "",
+    linkUrl: linkUrl || ""
   };
   saveDB();
-  io.emit("banners_updated", dbData.banners);
-  res.json({ success: true, banners: dbData.banners });
+  io.emit("banner_updated", dbData.banner);
+  res.json({ success: true, banner: dbData.banner });
 });
 
+// 2. ऑथेंटिकेशन & एडमिन
 app.post("/api/admin/login", (req, res) => {
   const { username, password } = req.body;
   if (username === ADMIN_USER && password === ADMIN_PASS) {
@@ -115,6 +119,9 @@ app.post("/api/auth", (req, res) => {
       joinedAt: new Date().toLocaleString()
     };
     dbData.registeredUsers.push(user);
+    if (!dbData.follows[email]) {
+      dbData.follows[email] = { followers: [], following: [] };
+    }
     saveDB();
   } else {
     if (user.password !== password) {
@@ -136,14 +143,114 @@ app.post("/api/user/update-profile", (req, res) => {
   if (avatar) user.avatar = avatar;
   if (bio !== undefined) user.bio = bio;
 
+  // पुरानी पोस्ट्स में नाम/अवतार अपडेट
+  dbData.posts.forEach(p => {
+    if (p.authorEmail === email) {
+      if (channelName) p.authorName = channelName;
+      if (avatar) p.authorAvatar = avatar;
+    }
+  });
+
   saveDB();
   broadcastAdminStats();
   res.json({ success: true, user });
 });
 
-// 🔥 फ्रेंड टॉगल API (Add Friend / Unfriend / Block)
+// 3. फॉलो / अनफॉलो APIs
+app.post("/api/user/follow-toggle", (req, res) => {
+  const { myEmail, targetEmail } = req.body;
+  if (!myEmail || !targetEmail || myEmail === targetEmail) {
+    return res.status(400).json({ error: "अवैध अनुरोध" });
+  }
+
+  if (!dbData.follows[myEmail]) dbData.follows[myEmail] = { followers: [], following: [] };
+  if (!dbData.follows[targetEmail]) dbData.follows[targetEmail] = { followers: [], following: [] };
+
+  const myFollowing = dbData.follows[myEmail].following;
+  const targetFollowers = dbData.follows[targetEmail].followers;
+
+  const isFollowing = myFollowing.includes(targetEmail);
+  if (isFollowing) {
+    dbData.follows[myEmail].following = myFollowing.filter(e => e !== targetEmail);
+    dbData.follows[targetEmail].followers = targetFollowers.filter(e => e !== myEmail);
+  } else {
+    myFollowing.push(targetEmail);
+    targetFollowers.push(myEmail);
+  }
+
+  saveDB();
+  res.json({
+    success: true,
+    isFollowing: !isFollowing,
+    targetFollowersCount: dbData.follows[targetEmail].followers.length
+  });
+});
+
+app.get("/api/user/profile-stats/:email", (req, res) => {
+  const email = req.params.email;
+  const user = dbData.registeredUsers.find(u => u.email === email);
+  if (!user) return res.status(404).json({ error: "Not found" });
+
+  const fData = dbData.follows[email] || { followers: [], following: [] };
+  const userPostsCount = dbData.posts.filter(p => p.authorEmail === email).length;
+
+  res.json({
+    user,
+    followersCount: fData.followers.length,
+    followingCount: fData.following.length,
+    postsCount: userPostsCount
+  });
+});
+
+// 4. कम्युनिटी फ़ीड व पोस्ट्स APIs
+app.get("/api/posts", (req, res) => {
+  res.json({ posts: dbData.posts || [] });
+});
+
+app.post("/api/posts/create", (req, res) => {
+  const { email, media, mediaType, caption } = req.body;
+  const user = dbData.registeredUsers.find(u => u.email === email);
+  if (!user) return res.status(401).json({ error: "लॉगिन आवश्यक है" });
+  if (!media && !caption) return res.status(400).json({ error: "फ़ोटो या कैप्शन आवश्यक है" });
+
+  const newPost = {
+    id: "post_" + Date.now() + "_" + Math.random().toString(36).substr(2, 5),
+    authorEmail: user.email,
+    authorName: user.channelName,
+    authorAvatar: user.avatar,
+    media: media || null,
+    mediaType: mediaType || "image",
+    caption: caption || "",
+    likes: [],
+    createdAt: new Date().toLocaleDateString([], { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" })
+  };
+
+  dbData.posts.unshift(newPost);
+  saveDB();
+  io.emit("new_post_published", newPost);
+  res.json({ success: true, post: newPost });
+});
+
+app.post("/api/posts/like", (req, res) => {
+  const { postId, email } = req.body;
+  const post = dbData.posts.find(p => p.id === postId);
+  if (!post || !email) return res.status(404).json({ error: "Invalid post or user" });
+
+  const idx = post.likes.indexOf(email);
+  if (idx === -1) {
+    post.likes.push(email);
+  } else {
+    post.likes.splice(idx, 1);
+  }
+
+  saveDB();
+  io.emit("post_liked", { postId, likesCount: post.likes.length, likes: post.likes });
+  res.json({ success: true, likesCount: post.likes.length, isLiked: idx === -1 });
+});
+
+// 5. फ़्रेंड्स व कनेक्शन्स
 app.post("/api/user/manage-friend", (req, res) => {
-  const { myEmail, peerEmail, action } = req.body; // action: 'add_friend', 'unfriend', 'block', 'unblock'
+  const { myEmail, peerEmail, action } = req.body;
   if (!myEmail || !peerEmail) return res.status(400).json({ error: "Data missing" });
 
   if (!dbData.userConnections[myEmail]) dbData.userConnections[myEmail] = [];
@@ -212,8 +319,9 @@ const broadcastAdminStats = () => {
     totalConnections: dbData.totalConnectionsCount,
     registeredUsers: dbData.registeredUsers,
     liveStreamsCount: liveStreams.length,
+    postsCount: dbData.posts.length,
     incidents: dbData.incidents,
-    banners: dbData.banners
+    banner: dbData.banner
   });
 };
 
@@ -306,7 +414,6 @@ io.on("connection", (socket) => {
     socket.emit("nearby_users_list", { users: list });
   });
 
-  // कनेक्शन्स व फ्रेंड्स लोड करना
   socket.on("get_my_connections", ({ email }) => {
     if (!email) return;
     const history = (dbData.userConnections && dbData.userConnections[email]) || [];
@@ -569,5 +676,5 @@ setInterval(() => {
 
 const PORT = process.env.PORT || 5000;
 server.listen(PORT, () => {
-  console.log(`>>> Sukoon Master V11 (Friends & Blocking System) Active on port ${PORT}`);
+  console.log(`>>> Sukoon Master V12 (Feed, Reels, Follow & Single Banner) Active on port ${PORT}`);
 });

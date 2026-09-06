@@ -16,17 +16,16 @@
         <h2 class="text-lg font-black text-slate-900">सुकून एडमिन लॉगिन</h2>
         <p class="text-xs text-slate-500">कमांड सेंटर में प्रवेश के लिए लॉगिन करें</p>
       </div>
-
       <form onsubmit="handleAdminLogin(event)" class="space-y-3">
         <div>
           <label class="text-[11px] font-bold text-slate-600 block mb-1">Admin Username</label>
-          <input type="text" id="admUser" required placeholder="यूज़रनेम डालें" class="w-full bg-slate-50 border border-slate-200 rounded-2xl p-3 text-xs focus:outline-none focus:border-rose-500">
+          <input type="text" id="admUser" required placeholder="यूज़रनेम डालें" class="w-full bg-slate-50 border border-slate-200 rounded-2xl p-3 text-xs">
         </div>
         <div>
           <label class="text-[11px] font-bold text-slate-600 block mb-1">Admin Password</label>
-          <input type="password" id="admPass" required placeholder="••••••••" class="w-full bg-slate-50 border border-slate-200 rounded-2xl p-3 text-xs focus:outline-none focus:border-rose-500">
+          <input type="password" id="admPass" required placeholder="••••••••" class="w-full bg-slate-50 border border-slate-200 rounded-2xl p-3 text-xs">
         </div>
-        <button type="submit" class="w-full py-3 bg-gradient-to-r from-rose-500 to-pink-500 text-white font-bold rounded-2xl text-xs shadow-md hover:opacity-90">
+        <button type="submit" class="w-full py-3 bg-gradient-to-r from-rose-500 to-pink-500 text-white font-bold rounded-2xl text-xs shadow-md">
           प्रवेश करें ➔
         </button>
       </form>
@@ -37,7 +36,7 @@
     <div class="flex justify-between items-center border-b border-slate-200 pb-4">
       <div>
         <h1 class="text-xl font-black text-rose-600">🛡️ सुकून एडमिन कमांड सेंटर</h1>
-        <p class="text-xs text-slate-500">ड्यूल बैनर, डेटाबेस व मॉनिटरिंग</p>
+        <p class="text-xs text-slate-500">सिंगल बैनर, कम्युनिटी फ़ीड, डेटाबेस व मॉनिटरिंग</p>
       </div>
       <div class="flex items-center gap-2">
         <a href="/" class="px-3.5 py-1.5 bg-white border border-slate-200 rounded-2xl text-xs font-bold text-slate-700 shadow-sm">← होम पर जाएँ</a>
@@ -45,15 +44,15 @@
       </div>
     </div>
 
-    <!-- 5 Stats Cards -->
+    <!-- 5 Stats Cards (With Posts Metric) -->
     <div class="grid grid-cols-2 md:grid-cols-5 gap-3">
       <div class="p-4 bg-white rounded-3xl border border-slate-200 shadow-sm">
         <div class="text-xs text-slate-500">ऑनलाइन यूज़र्स</div>
         <div id="m-users" class="text-2xl font-black text-teal-600 mt-1">0</div>
       </div>
       <div class="p-4 bg-white rounded-3xl border border-slate-200 shadow-sm">
-        <div class="text-xs text-slate-500">सक्रिय रूम्स</div>
-        <div id="m-rooms" class="text-2xl font-black text-pink-600 mt-1">0</div>
+        <div class="text-xs text-slate-500">कम्युनिटी पोस्ट्स</div>
+        <div id="m-posts" class="text-2xl font-black text-rose-600 mt-1">0</div>
       </div>
       <div class="p-4 bg-white rounded-3xl border border-slate-200 shadow-sm">
         <div class="text-xs text-slate-500">लाइव स्ट्रीम्स</div>
@@ -65,139 +64,58 @@
       </div>
       <div class="p-4 bg-white rounded-3xl border border-slate-200 shadow-sm">
         <div class="text-xs text-slate-500">सुरक्षा अलर्ट्स</div>
-        <div id="m-incidents" class="text-2xl font-black text-rose-600 mt-1">0</div>
+        <div id="m-incidents" class="text-2xl font-black text-indigo-600 mt-1">0</div>
       </div>
     </div>
 
-    <!-- 🔥 नया एडवांस्ड ड्यूल बैनर कंट्रोल (गैलरी से अपलोड + डायरेक्ट प्रीव्यू) 🔥 -->
-    <div class="bg-white p-5 rounded-3xl border border-slate-200 shadow-sm space-y-5">
+    <!-- 🔥 SINGLE BANNER CONTROL (गैलरी से अपलोड + प्रीव्यू) 🔥 -->
+    <div class="bg-white p-5 rounded-3xl border border-slate-200 shadow-sm space-y-4">
       <div class="flex justify-between items-center border-b border-slate-100 pb-2">
         <div>
-          <h2 class="text-sm font-bold text-slate-800">🖼️ होमपेज ड्यूल बैनर कंट्रोल (गैलरी फ़ोटो अपलोड सक्षम)</h2>
-          <p class="text-xs text-slate-400">अब आप सीधे फोन गैलरी से भी फोटो अपलोड कर सकते हैं</p>
+          <h2 class="text-sm font-bold text-slate-800">🖼️ मुख्य होमपेज बैनर कंट्रोल (Single Banner)</h2>
+          <p class="text-xs text-slate-400">वेबसाइट के होमपेज पर यही एकमात्र मुख्य पोस्टर दिखेगा</p>
+        </div>
+        <img id="previewBanner" src="" onerror="this.src='https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=800&auto=format&fit=crop&q=60'" class="h-9 w-16 object-cover rounded-xl border border-slate-200 bg-white shadow-sm">
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+        <div>
+          <label class="text-[10px] font-bold text-slate-500 block mb-1">तरीका A: फोन गैलरी से फ़ोटो चुनें:</label>
+          <input type="file" id="bannerFile" accept="image/*" onchange="processBannerFile(event)" class="text-xs bg-slate-50 p-2 rounded-xl border border-slate-200 w-full">
+        </div>
+        <div>
+          <label class="text-[10px] font-bold text-slate-500 block mb-1">तरीका B: या फिर सीधा लिंक (URL):</label>
+          <input type="text" id="bannerImgUrl" oninput="document.getElementById('previewBanner').src=this.value" placeholder="https://.../photo.jpg" class="bg-slate-50 border border-slate-200 rounded-xl p-2 text-xs w-full">
         </div>
       </div>
 
-      <!-- BANNER 1 FORM -->
-      <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200/80 space-y-3">
-        <div class="flex items-center justify-between">
-          <span class="text-xs font-bold text-indigo-700 uppercase tracking-wider">📌 बैनर 1 (ऊपर वाला स्लॉट)</span>
-          <img id="previewB1" src="" onerror="this.src='https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=800&auto=format&fit=crop&q=60'" class="h-8 w-14 object-cover rounded-lg border border-slate-200 bg-white">
-        </div>
-        
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-2.5">
-          <div>
-            <label class="text-[10px] font-bold text-slate-500 block mb-1">तरीका A: फोन गैलरी से फ़ोटो चुनें (सबसे आसान):</label>
-            <input type="file" id="b1File" accept="image/*" onchange="processFileUpload(event, 'b1Img', 'previewB1')" class="text-xs bg-white p-1 rounded-xl border border-slate-200 w-full">
-          </div>
-          <div>
-            <label class="text-[10px] font-bold text-slate-500 block mb-1">तरीका B: या फिर फ़ोटो का सीधा लिंक (Image URL):</label>
-            <input type="text" id="b1Img" oninput="document.getElementById('previewB1').src=this.value" placeholder="https://.../photo.jpg" class="bg-white border border-slate-200 rounded-xl p-2 text-xs w-full">
-          </div>
-        </div>
-
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-2.5">
-          <input type="text" id="b1Title" placeholder="बैनर 1 का शीर्षक / नोटिस" class="bg-white border border-slate-200 rounded-xl p-2 text-xs">
-          <input type="text" id="b1Link" placeholder="क्लिक करने पर खुलने वाला लिंक (वैकल्पिक)" class="bg-white border border-slate-200 rounded-xl p-2 text-xs">
-        </div>
-      </div>
-
-      <!-- BANNER 2 FORM -->
-      <div class="bg-slate-50 p-4 rounded-2xl border border-slate-200/80 space-y-3">
-        <div class="flex items-center justify-between">
-          <span class="text-xs font-bold text-rose-700 uppercase tracking-wider">📌 बैनर 2 (नीचे वाला स्लॉट)</span>
-          <img id="previewB2" src="" onerror="this.src='https://images.unsplash.com/photo-1517649763962-0c623266ddc0?w=800&auto=format&fit=crop&q=60'" class="h-8 w-14 object-cover rounded-lg border border-slate-200 bg-white">
-        </div>
-
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-2.5">
-          <div>
-            <label class="text-[10px] font-bold text-slate-500 block mb-1">तरीका A: फोन गैलरी से फ़ोटो चुनें (सबसे आसान):</label>
-            <input type="file" id="b2File" accept="image/*" onchange="processFileUpload(event, 'b2Img', 'previewB2')" class="text-xs bg-white p-1 rounded-xl border border-slate-200 w-full">
-          </div>
-          <div>
-            <label class="text-[10px] font-bold text-slate-500 block mb-1">तरीका B: या फिर फ़ोटो का सीधा लिंक (Image URL):</label>
-            <input type="text" id="b2Img" oninput="document.getElementById('previewB2').src=this.value" placeholder="https://.../photo.jpg" class="bg-white border border-slate-200 rounded-xl p-2 text-xs w-full">
-          </div>
-        </div>
-
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-2.5">
-          <input type="text" id="b2Title" placeholder="बैनर 2 का शीर्षक / नोटिस" class="bg-white border border-slate-200 rounded-xl p-2 text-xs">
-          <input type="text" id="b2Link" placeholder="क्लिक करने पर खुलने वाला लिंक (वैकल्पिक)" class="bg-white border border-slate-200 rounded-xl p-2 text-xs">
-        </div>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+        <input type="text" id="bannerTitle" placeholder="बैनर का शीर्षक / नोटिस" class="bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-xs">
+        <input type="text" id="bannerLink" placeholder="क्लिक करने पर खुलने वाला लिंक (वैकल्पिक)" class="bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-xs">
       </div>
 
       <div class="text-right">
-        <button onclick="saveHomepageBanners()" class="px-6 py-2.5 bg-gradient-to-r from-emerald-600 to-teal-600 text-white font-bold rounded-2xl text-xs shadow hover:opacity-90">
-          दोनों बैनर वेबसाइट पर अपडेट करें ➔
+        <button onclick="saveBanner()" class="px-6 py-2.5 bg-gradient-to-r from-emerald-600 to-teal-600 text-white font-bold rounded-2xl text-xs shadow hover:opacity-90">
+          बैनर वेबसाइट पर अपडेट करें ➔
         </button>
       </div>
     </div>
 
-    <!-- 1. सभी रजिस्टर्ड यूज़र्स टेबल -->
+    <!-- Registered Users Table -->
     <div class="bg-white p-5 rounded-3xl border border-slate-200 shadow-sm space-y-3">
-      <div class="flex justify-between items-center">
-        <h2 class="text-sm font-bold text-slate-800">👥 सभी रजिस्टर्ड यूज़र्स (स्थायी रिकॉर्ड)</h2>
-        <span class="text-xs text-slate-400">यह डेटा कभी डिलीट नहीं होगा</span>
-      </div>
+      <h2 class="text-sm font-bold text-slate-800">👥 सभी रजिस्टर्ड यूज़र्स (स्थायी रिकॉर्ड)</h2>
       <div class="overflow-x-auto">
         <table class="w-full text-xs text-left">
           <thead class="border-b border-slate-100 text-slate-400">
             <tr>
-              <th class="py-2">यूज़र ID / ईमेल</th>
+              <th class="py-2">ईमेल</th>
               <th>रोल</th>
-              <th>नाम / चैनल</th>
-              <th>पासवर्ड (रेफरेंस)</th>
-              <th>जॉइनिंग समय</th>
+              <th>नाम</th>
+              <th>जॉइनिंग</th>
               <th>स्टेटस</th>
             </tr>
           </thead>
-          <tbody id="allUsersBody" class="divide-y divide-slate-100">
-            <tr><td colspan="6" class="py-4 text-center text-slate-400">डेटा लोड हो रहा है...</td></tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
-
-    <!-- 2. क्रिएटर वेरिफिकेशन टेबल -->
-    <div class="bg-white p-5 rounded-3xl border border-slate-200 shadow-sm space-y-3">
-      <div class="flex justify-between items-center">
-        <h2 class="text-sm font-bold text-slate-800">🎬 क्रिएटर प्रोफ़ाइल व अप्रूवल कंट्रोल</h2>
-        <span class="text-xs text-slate-500">स्वीकृति के बाद ही कोई लाइव आ सकता है</span>
-      </div>
-      <div class="overflow-x-auto">
-        <table class="w-full text-xs text-left">
-          <thead class="border-b border-slate-100 text-slate-400">
-            <tr>
-              <th class="py-2">क्रिएटर / ईमेल</th>
-              <th>कैटेगरी & शेड्यूल</th>
-              <th>कॉइन बैलेंस</th>
-              <th>स्थिति</th>
-              <th>एक्शन</th>
-            </tr>
-          </thead>
-          <tbody id="creatorListBody" class="divide-y divide-slate-100">
-            <tr><td colspan="5" class="py-4 text-center text-slate-400">कोई क्रिएटर पेंडिंग नहीं है</td></tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
-
-    <!-- 3. सेफ्टी लॉग्स -->
-    <div class="bg-white p-5 rounded-3xl border border-slate-200 shadow-sm space-y-3">
-      <h2 class="text-sm font-bold text-slate-800">लाइव सेफ्टी व मॉडरेशन लॉग</h2>
-      <div class="overflow-x-auto">
-        <table class="w-full text-xs text-left">
-          <thead class="border-b border-slate-100 text-slate-400">
-            <tr>
-              <th class="py-2">समय</th>
-              <th>रूम ID</th>
-              <th>यूज़र</th>
-              <th>कारण</th>
-            </tr>
-          </thead>
-          <tbody id="incidentsBody" class="divide-y divide-slate-100">
-            <tr><td colspan="4" class="py-4 text-center text-slate-400">कोई उल्लंघन नहीं</td></tr>
-          </tbody>
+          <tbody id="allUsersBody" class="divide-y divide-slate-100"></tbody>
         </table>
       </div>
     </div>
@@ -208,40 +126,28 @@
     let socket;
 
     window.addEventListener("load", () => {
-      if (adminToken === "sukoon_admin_auth_verified_2026") {
-        showDashboard();
-      }
+      if (adminToken === "sukoon_admin_auth_verified_2026") showDashboard();
     });
 
-    // मोबाइल गैलरी से फ़ोटो को कंप्रेस करके Base64 में बदलना
-    function processFileUpload(event, targetInputId, previewImgId) {
+    function processBannerFile(event) {
       const file = event.target.files[0];
       if (!file) return;
-
       const reader = new FileReader();
       reader.onload = (e) => {
         const img = new Image();
         img.onload = () => {
           const canvas = document.createElement("canvas");
-          let width = img.width;
-          let height = img.height;
+          let width = img.width; let height = img.height;
           const maxDim = 1000;
           if (width > maxDim || height > maxDim) {
-            if (width > height) {
-              height = Math.round((height * maxDim) / width);
-              width = maxDim;
-            } else {
-              width = Math.round((width * maxDim) / height);
-              height = maxDim;
-            }
+            if (width > height) { height = Math.round((height * maxDim) / width); width = maxDim; }
+            else { width = Math.round((width * maxDim) / height); height = maxDim; }
           }
-          canvas.width = width;
-          canvas.height = height;
-          const ctx = canvas.getContext("2d");
-          ctx.drawImage(img, 0, 0, width, height);
-          const compressedBase64 = canvas.toDataURL("image/jpeg", 0.8);
-          document.getElementById(targetInputId).value = compressedBase64;
-          document.getElementById(previewImgId).src = compressedBase64;
+          canvas.width = width; canvas.height = height;
+          canvas.getContext("2d").drawImage(img, 0, 0, width, height);
+          const compressed = canvas.toDataURL("image/jpeg", 0.82);
+          document.getElementById('bannerImgUrl').value = compressed;
+          document.getElementById('previewBanner').src = compressed;
         };
         img.src = e.target.result;
       };
@@ -252,24 +158,15 @@
       e.preventDefault();
       const u = document.getElementById('admUser').value.trim();
       const p = document.getElementById('admPass').value.trim();
-
       try {
-        const res = await fetch("/api/admin/login", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ username: u, password: p })
-        });
+        const res = await fetch("/api/admin/login", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ username: u, password: p }) });
         const d = await res.json();
         if (d.success) {
           adminToken = d.token;
           sessionStorage.setItem("sukoon_admin_token", adminToken);
           showDashboard();
-        } else {
-          alert(d.error || "लॉगिन असफल!");
-        }
-      } catch (err) {
-        alert("सर्वर से संपर्क नहीं हो पाया!");
-      }
+        } else { alert("गलत क्रेडेंशियल्स"); }
+      } catch (err) {}
     }
 
     function showDashboard() {
@@ -283,155 +180,53 @@
       location.reload();
     }
 
-    async function saveHomepageBanners() {
-      const banner1 = {
-        imageUrl: document.getElementById('b1Img').value.trim(),
-        title: document.getElementById('b1Title').value.trim(),
-        linkUrl: document.getElementById('b1Link').value.trim()
-      };
-      const banner2 = {
-        imageUrl: document.getElementById('b2Img').value.trim(),
-        title: document.getElementById('b2Title').value.trim(),
-        linkUrl: document.getElementById('b2Link').value.trim()
-      };
+    async function saveBanner() {
+      const imageUrl = document.getElementById('bannerImgUrl').value.trim();
+      const title = document.getElementById('bannerTitle').value.trim();
+      const linkUrl = document.getElementById('bannerLink').value.trim();
+      if (!imageUrl) return alert("फ़ोटो चुनें या लिंक डालें!");
 
       try {
-        const res = await fetch("/api/admin/update-banners", {
+        const res = await fetch("/api/admin/update-banner", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ token: adminToken, banner1, banner2 })
+          body: JSON.stringify({ token: adminToken, imageUrl, title, linkUrl })
         });
-        const data = await res.json();
-        if (data.success) {
-          alert("✅ दोनों बैनर सफलतापूर्वक अपडेट हो गए हैं!");
-        } else {
-          alert("अपडेट असफल रहा");
-        }
-      } catch (e) {
-        alert("सर्वर एरर");
-      }
+        const d = await res.json();
+        if (d.success) alert("✅ मुख्य बैनर सफलतापूर्वक अपडेट हो गया!");
+      } catch (e) {}
     }
 
     function connectAdminSocket() {
       socket = io();
       socket.emit("join_admin", { token: adminToken });
-
       socket.on("admin_metrics", (m) => {
         document.getElementById("m-users").innerText = m.onlineUsers;
-        document.getElementById("m-rooms").innerText = m.activeSessions;
+        document.getElementById("m-posts").innerText = m.postsCount || 0;
         document.getElementById("m-streams").innerText = m.liveStreamsCount || 0;
         document.getElementById("m-reg").innerText = m.registeredUsers?.length || 0;
         document.getElementById("m-incidents").innerText = m.incidents?.length || 0;
 
-        if (m.banners) {
-          if (m.banners.banner1) {
-            document.getElementById('b1Img').value = m.banners.banner1.imageUrl || "";
-            document.getElementById('b1Title').value = m.banners.banner1.title || "";
-            document.getElementById('b1Link').value = m.banners.banner1.linkUrl || "";
-            if (m.banners.banner1.imageUrl) document.getElementById('previewB1').src = m.banners.banner1.imageUrl;
-          }
-          if (m.banners.banner2) {
-            document.getElementById('b2Img').value = m.banners.banner2.imageUrl || "";
-            document.getElementById('b2Title').value = m.banners.banner2.title || "";
-            document.getElementById('b2Link').value = m.banners.banner2.linkUrl || "";
-            if (m.banners.banner2.imageUrl) document.getElementById('previewB2').src = m.banners.banner2.imageUrl;
-          }
+        if (m.banner) {
+          document.getElementById('bannerImgUrl').value = m.banner.imageUrl || "";
+          document.getElementById('bannerTitle').value = m.banner.title || "";
+          document.getElementById('bannerLink').value = m.banner.linkUrl || "";
+          if (m.banner.imageUrl) document.getElementById('previewBanner').src = m.banner.imageUrl;
         }
 
         const allUsersTbody = document.getElementById("allUsersBody");
         if (m.registeredUsers && m.registeredUsers.length > 0) {
           allUsersTbody.innerHTML = m.registeredUsers.map(u => `
             <tr>
-              <td class="py-2.5">
-                <div class="font-bold text-slate-800">${u.email}</div>
-                <div class="text-[10px] text-slate-400 font-mono">${u.id}</div>
-              </td>
-              <td>
-                <span class="px-2 py-0.5 rounded-md text-[10px] font-bold ${u.role === 'creator' ? 'bg-purple-100 text-purple-700' : 'bg-teal-100 text-teal-700'}">
-                  ${u.role === 'creator' ? '🎙️ Creator' : '👀 Viewer'}
-                </span>
-              </td>
-              <td class="font-medium text-slate-700 text-[11px]">${u.channelName || '-'}</td>
-              <td class="font-mono text-slate-400 text-[11px]">${u.password || '••••'}</td>
-              <td class="text-slate-500 text-[10px]">${u.joinedAt || 'आज'}</td>
-              <td>
-                <span class="px-2 py-0.5 rounded text-[10px] font-bold ${u.isApprovedCreator ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'}">
-                  ${u.isApprovedCreator ? 'Active' : 'Pending'}
-                </span>
-              </td>
-            </tr>
-          `).join("");
-        } else {
-          allUsersTbody.innerHTML = '<tr><td colspan="6" class="py-4 text-center text-slate-400">कोई रजिस्टर्ड यूज़र नहीं मिला</td></tr>';
-        }
-
-        const creatorTbody = document.getElementById("creatorListBody");
-        const creators = m.registeredUsers?.filter(u => u.role === "creator") || [];
-        if (creators.length > 0) {
-          creatorTbody.innerHTML = creators.map(u => `
-            <tr>
-              <td class="py-3">
-                <div class="flex items-center gap-2">
-                  <img src="${u.avatar || 'https://api.dicebear.com/7.x/bottts/svg?seed=' + u.email}" class="w-7 h-7 rounded-lg">
-                  <div>
-                    <div class="font-bold text-slate-800">${u.channelName || 'N/A'}</div>
-                    <div class="text-[10px] text-slate-400 font-mono">${u.email}</div>
-                  </div>
-                </div>
-              </td>
-              <td>
-                <div class="font-bold text-indigo-600">#${u.category || 'General'}</div>
-                <div class="text-[10px] text-slate-500">⏰ ${u.schedule || 'रोज़ाना लाइव'}</div>
-              </td>
-              <td>
-                <span class="px-2 py-0.5 rounded-lg bg-amber-100 text-amber-800 font-bold text-[11px]">
-                  💰 ${u.coins || 0} कॉइन्स
-                </span>
-              </td>
-              <td>
-                <span class="px-2 py-0.5 rounded text-[10px] font-bold ${u.isApprovedCreator ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'}">
-                  ${u.isApprovedCreator ? 'Approved ✅' : 'Pending ⏳'}
-                </span>
-              </td>
-              <td>
-                ${!u.isApprovedCreator ? `
-                  <button onclick="approveCreator('${u.email}')" class="px-3 py-1 bg-emerald-600 text-white font-bold rounded-xl text-xs shadow-sm hover:bg-emerald-700">
-                    Approve करें
-                  </button>
-                ` : '<span class="text-slate-400 text-xs font-semibold">स्वीकृत</span>'}
-              </td>
-            </tr>
-          `).join("");
-        } else {
-          creatorTbody.innerHTML = '<tr><td colspan="5" class="py-4 text-center text-slate-400">कोई क्रिएटर नहीं है</td></tr>';
-        }
-
-        const tbody = document.getElementById("incidentsBody");
-        if (m.incidents && m.incidents.length > 0) {
-          tbody.innerHTML = m.incidents.map(i => `
-            <tr>
-              <td class="py-2 text-slate-500">${i.time}</td>
-              <td class="font-mono text-teal-600">${i.room}</td>
-              <td class="font-mono text-slate-600">${i.user}</td>
-              <td class="text-rose-600 font-semibold">${i.reason}</td>
+              <td class="py-2.5 font-bold text-slate-800">${u.email}</td>
+              <td><span class="px-2 py-0.5 rounded-md text-[10px] font-bold ${u.role === 'creator' ? 'bg-purple-100 text-purple-700' : 'bg-teal-100 text-teal-700'}">${u.role}</span></td>
+              <td class="font-medium text-slate-700">${u.channelName}</td>
+              <td class="text-slate-500">${u.joinedAt || 'आज'}</td>
+              <td><span class="px-2 py-0.5 rounded text-[10px] font-bold ${u.isApprovedCreator ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'}">${u.isApprovedCreator ? 'Active' : 'Pending'}</span></td>
             </tr>
           `).join("");
         }
       });
-    }
-
-    async function approveCreator(email) {
-      try {
-        const res = await fetch("/api/admin/approve-creator", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ email, token: adminToken })
-        });
-        const d = await res.json();
-        if (d.success) alert(email + " को क्रिएटर अप्रूवल मिल गया!");
-      } catch (e) {
-        alert("अप्रूवल असफल");
-      }
     }
   </script>
 </body>
