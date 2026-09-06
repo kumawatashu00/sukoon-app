@@ -9,13 +9,12 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="/socket.io/socket.io.js"></script>
   <style>
-    /* मोबाइल कीबोर्ड फिक्स */
     .app-screen { 
       height: 100vh; 
       height: 100dvh; 
       height: -webkit-fill-available; 
     }
-    .video-feed { background: #e2e8f0; object-fit: cover; }
+    .video-feed { background: #0f172a; object-fit: cover; }
     .filter-none { filter: none; }
     .filter-blur { filter: blur(10px); }
     .filter-bw { filter: grayscale(100%); }
@@ -34,20 +33,46 @@
     .stream-chat-scroll::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.15); border-radius: 4px; }
     .no-scrollbar::-webkit-scrollbar { display: none; }
 
-    /* कीबोर्ड आने पर चैट कंटेनर ऑटो-एडजस्ट */
-    .room-chat-pane {
+    /* पासपोर्ट-साइज़ (3:4) बड़ा वीडियो कार्ड */
+    .passport-video-card {
+      aspect-ratio: 3 / 4;
+      height: 230px;
+      max-height: 38vh;
+      border-radius: 1.25rem;
+      overflow: hidden;
+      position: relative;
+      background: #1e293b;
+      box-shadow: 0 8px 20px -4px rgba(0, 0, 0, 0.2);
+    }
+    @media (min-width: 640px) {
+      .passport-video-card {
+        height: 280px;
+      }
+    }
+
+    /* Instagram स्टाइल गोल नेविगेशन बटन */
+    .nav-circle-btn {
+      width: 42px;
+      height: 42px;
+      border-radius: 9999px;
       display: flex;
-      flex-direction: column;
-      height: 100%;
-      min-height: 0;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .nav-circle-btn.active {
+      background: #ffe4e6;
+      color: #e11d48;
+      box-shadow: 0 4px 12px rgba(225, 29, 72, 0.2);
+      transform: translateY(-2px);
     }
   </style>
 </head>
 <body class="bg-[#f8fafc] text-slate-800 font-sans app-screen flex flex-col overflow-hidden selection:bg-rose-200 relative">
 
   <!-- ================= TOP HEADER ================= -->
-  <header class="px-4 py-2.5 bg-white border-b border-slate-200/80 flex justify-between items-center shrink-0 shadow-sm z-20">
-    <div class="flex items-center gap-2">
+  <header class="px-4 py-2 bg-white border-b border-slate-200/80 flex justify-between items-center shrink-0 shadow-sm z-20">
+    <div class="flex items-center gap-2 cursor-pointer" onclick="switchMainTab('home')">
       <div class="w-8 h-8 rounded-2xl bg-gradient-to-tr from-rose-500 to-pink-500 flex items-center justify-center text-lg text-white shadow-md shadow-rose-500/20">
         🌿
       </div>
@@ -78,11 +103,12 @@
   </header>
 
 
-  <!-- ================= MAIN CONTENT WRAPPER ================= -->
-  <main class="flex-1 overflow-hidden relative flex flex-col">
+  <!-- ================= MAIN CONTENT AREA ================= -->
+  <main class="flex-1 overflow-hidden relative flex flex-col pb-16">
 
     <!-- ================= 1. HOME VIEW ================= -->
-    <div id="homeScreen" class="flex-1 overflow-y-auto p-4 max-w-lg w-full mx-auto space-y-3.5 pb-20">
+    <div id="homeScreen" class="flex-1 overflow-y-auto p-4 max-w-lg w-full mx-auto space-y-3.5 pb-6">
+      
       <div class="bg-white p-2.5 rounded-2xl border border-slate-200/80 shadow-sm">
         <div class="flex gap-1.5 overflow-x-auto no-scrollbar" id="tagList">
           <button type="button" onclick="selectTag('All')" class="tag-btn px-3 py-1 rounded-xl text-xs font-bold bg-rose-50 border border-rose-300 text-rose-600 shrink-0" data-tag="All">🌟 All</button>
@@ -95,32 +121,32 @@
 
       <div class="space-y-2.5">
         <div class="grid grid-cols-2 gap-2.5">
-          <button onclick="startApp('text')" class="p-4 rounded-3xl bg-white border border-teal-200/80 hover:border-teal-400 hover:shadow-md transition text-left flex flex-col justify-between min-h-[125px] shadow-sm">
-            <div class="w-9 h-9 rounded-2xl bg-teal-50 text-teal-600 flex items-center justify-center text-lg">💬</div>
+          <button onclick="startApp('text')" class="p-4 rounded-3xl bg-white border border-teal-200/80 hover:border-teal-400 hover:shadow-md transition text-left flex flex-col justify-between min-h-[135px] shadow-sm">
+            <div class="w-10 h-10 rounded-2xl bg-teal-50 text-teal-600 flex items-center justify-center text-xl">💬</div>
             <div>
-              <h2 class="text-xs font-black text-slate-800" data-i18n="textChatTitle">टेक्स्ट चैट</h2>
-              <p class="text-[9px] text-slate-500 mt-0.5" data-i18n="textChatDesc">अनाम चैट व 10s वैनिश फ़ोटो</p>
+              <h2 class="text-sm font-black text-slate-800" data-i18n="textChatTitle">टेक्स्ट चैट</h2>
+              <p class="text-[10px] text-slate-500 mt-0.5" data-i18n="textChatDesc">अनाम चैट व 10s वैनिश फ़ोटो</p>
             </div>
-            <span class="text-teal-600 text-[11px] font-bold" data-i18n="startBtn">शुरू करें ➔</span>
+            <span class="text-teal-600 text-xs font-bold" data-i18n="startBtn">शुरू करें ➔</span>
           </button>
 
-          <button onclick="startApp('video')" class="p-4 rounded-3xl bg-white border border-rose-200/80 hover:border-rose-400 hover:shadow-md transition text-left flex flex-col justify-between min-h-[125px] shadow-sm">
-            <div class="w-9 h-9 rounded-2xl bg-rose-50 text-rose-600 flex items-center justify-center text-lg">📹</div>
+          <button onclick="startApp('video')" class="p-4 rounded-3xl bg-white border border-rose-200/80 hover:border-rose-400 hover:shadow-md transition text-left flex flex-col justify-between min-h-[135px] shadow-sm">
+            <div class="w-10 h-10 rounded-2xl bg-rose-50 text-rose-600 flex items-center justify-center text-xl">📹</div>
             <div>
-              <h2 class="text-xs font-black text-slate-800" data-i18n="videoCallTitle">वीडियो कॉल</h2>
-              <p class="text-[9px] text-slate-500 mt-0.5" data-i18n="videoCallDesc">ओमेगल स्टाइल रैंडम मैच</p>
+              <h2 class="text-sm font-black text-slate-800" data-i18n="videoCallTitle">वीडियो कॉल</h2>
+              <p class="text-[10px] text-slate-500 mt-0.5" data-i18n="videoCallDesc">ओमेगल स्टाइल रैंडम मैच</p>
             </div>
-            <span class="text-rose-600 text-[11px] font-bold" data-i18n="callBtn">कॉल करें ➔</span>
+            <span class="text-rose-600 text-xs font-bold" data-i18n="callBtn">कॉल करें ➔</span>
           </button>
         </div>
 
         <button onclick="openStreamHub()" class="w-full p-4 rounded-3xl bg-gradient-to-r from-indigo-50 via-purple-50 to-pink-50 border border-indigo-200/80 hover:border-indigo-300 hover:shadow-md transition flex items-center justify-between shadow-sm">
           <div class="flex items-center gap-3">
-            <div class="w-10 h-10 rounded-2xl bg-white border border-indigo-100 flex items-center justify-center text-lg shadow-sm">📡</div>
+            <div class="w-11 h-11 rounded-2xl bg-white border border-indigo-100 flex items-center justify-center text-xl shadow-sm">📡</div>
             <div class="text-left">
               <div class="flex items-center gap-1.5">
-                <h2 class="text-xs font-black text-indigo-950" data-i18n="streamHubTitle">क्रिएटर लाइव हब</h2>
-                <span class="text-[8px] bg-rose-600 text-white px-1.5 py-0.2 rounded-full font-bold uppercase tracking-wider">Live</span>
+                <h2 class="text-sm font-black text-indigo-950" data-i18n="streamHubTitle">क्रिएटर लाइव हब</h2>
+                <span class="text-[9px] bg-rose-600 text-white px-2 py-0.5 rounded-full font-bold uppercase tracking-wider">Live</span>
               </div>
               <p class="text-[10px] text-slate-500 mt-0.5" data-i18n="streamHubDesc">स्क्रीन शेयर, लाइव चैट व गिफ़्ट्स</p>
             </div>
@@ -132,7 +158,7 @@
       <!-- Single Banner -->
       <div id="homeBannerCard" class="hidden rounded-3xl overflow-hidden border border-slate-200 bg-white shadow-sm transition hover:shadow-md relative">
         <a id="bannerLinkWrapper" href="#" target="_blank" class="block relative group">
-          <img id="bannerImage" src="" alt="Sukoon Notice" onerror="handleImgError(this)" class="w-full h-36 object-cover bg-slate-100">
+          <img id="bannerImage" src="" alt="Notice" onerror="handleImgError(this)" class="w-full h-36 object-cover bg-slate-100">
           <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/25 to-transparent flex items-end p-3.5">
             <p id="bannerTitle" class="text-white text-xs font-bold drop-shadow truncate"></p>
           </div>
@@ -150,12 +176,9 @@
 
 
     <!-- ================= 2. 📸 SUKOON FEED ================= -->
-    <div id="feedScreen" class="hidden flex-1 overflow-y-auto p-4 max-w-lg w-full mx-auto space-y-3.5 pb-20">
+    <div id="feedScreen" class="hidden flex-1 overflow-y-auto p-4 max-w-lg w-full mx-auto space-y-3.5 pb-6">
       <div class="flex justify-between items-center pb-2 border-b border-slate-200">
-        <div>
-          <h2 class="text-base font-black text-slate-900" data-i18n="feedHeader">📸 सुकून कम्युनिटी फ़ीड</h2>
-          <p class="text-[10px] text-slate-500" data-i18n="feedSubHeader">फ़ोटो, रील्स, विचार और क्रिएटर्स</p>
-        </div>
+        <h2 class="text-base font-black text-slate-900" data-i18n="feedHeader">📸 सुकून कम्युनिटी फ़ीड</h2>
         <button onclick="openCreatePostModal()" class="px-3.5 py-1.5 bg-gradient-to-r from-rose-500 to-pink-500 text-white font-bold rounded-2xl text-xs shadow-md flex items-center gap-1">
           <span>➕</span> <span data-i18n="newPostBtn">नया पोस्ट</span>
         </button>
@@ -167,8 +190,8 @@
     </div>
 
 
-    <!-- ================= 3. 📍 NEARBY PEOPLE HUB ================= -->
-    <div id="nearbyHubScreen" class="hidden flex-1 overflow-y-auto p-4 max-w-lg w-full mx-auto space-y-3 pb-20">
+    <!-- ================= 3. 📍 NEARBY PEOPLE ================= -->
+    <div id="nearbyHubScreen" class="hidden flex-1 overflow-y-auto p-4 max-w-lg w-full mx-auto space-y-3 pb-6">
       <header class="flex justify-between items-center pb-2 border-b border-slate-200">
         <h2 class="text-base font-black text-slate-900" data-i18n="nearbyTitle">📍 आसपास के लोग</h2>
         <div class="flex gap-1">
@@ -189,11 +212,10 @@
     </div>
 
 
-    <!-- ================= 4. 👥 FRIENDS & CONNECTIONS HUB ================= -->
-    <div id="connectionsHubScreen" class="hidden flex-1 overflow-y-auto p-4 max-w-lg w-full mx-auto space-y-3 pb-20">
+    <!-- ================= 4. 👥 FRIENDS & CONNECTIONS ================= -->
+    <div id="connectionsHubScreen" class="hidden flex-1 overflow-y-auto p-4 max-w-lg w-full mx-auto space-y-3 pb-6">
       <header class="flex justify-between items-center pb-2 border-b border-slate-200">
         <h2 class="text-base font-black text-slate-900" data-i18n="friendsTitle">👥 मेरे दोस्त व चैट्स</h2>
-        <span class="text-[10px] bg-indigo-50 border border-indigo-200 text-indigo-700 px-2 py-1 rounded-xl font-bold">Connections</span>
       </header>
 
       <div class="flex gap-2">
@@ -212,7 +234,7 @@
 
 
     <!-- ================= 5. LIVE STREAM HUB ================= -->
-    <div id="streamHubScreen" class="hidden flex-1 flex flex-col overflow-hidden max-w-4xl w-full mx-auto p-3 md:p-4 pb-20">
+    <div id="streamHubScreen" class="hidden flex-1 flex flex-col overflow-hidden max-w-4xl w-full mx-auto p-3 md:p-4 pb-6">
       <header class="flex justify-between items-center pb-2 border-b border-slate-200">
         <div class="flex items-center gap-2">
           <button onclick="switchMainTab('home')" class="px-3 py-1.5 rounded-2xl bg-white border border-slate-200 text-xs font-bold text-slate-700 shadow-sm" data-i18n="backBtn">← बैक</button>
@@ -232,7 +254,7 @@
       </div>
 
       <div id="activeStreamPlayer" class="hidden flex-1 flex flex-col md:flex-row gap-2 mt-1 overflow-hidden min-h-0">
-        <div class="relative flex-1 rounded-3xl overflow-hidden bg-black border border-slate-200 flex items-center justify-center shadow-lg min-h-[220px]">
+        <div class="relative flex-1 rounded-3xl overflow-hidden bg-black border border-slate-200 flex items-center justify-center shadow-lg min-h-[240px]">
           <video id="streamVideoPlayer" autoplay playsinline class="w-full h-full object-cover"></video>
           <div class="absolute top-3 left-3 flex items-center gap-2">
             <div class="bg-rose-600 text-white px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase shadow">LIVE</div>
@@ -264,7 +286,7 @@
 
         <div class="w-full md:w-80 h-52 md:h-auto bg-white border border-slate-200 rounded-3xl flex flex-col overflow-hidden shadow-sm">
           <div class="px-3.5 py-2 border-b border-slate-100 bg-slate-50 flex justify-between items-center">
-            <span class="text-xs font-bold text-slate-700" data-i18n="liveChatTitle">💬 लाइव चैट (Live Comments)</span>
+            <span class="text-xs font-bold text-slate-700" data-i18n="liveChatTitle">💬 लाइव चैट</span>
             <span class="w-2 h-2 rounded-full bg-emerald-500 animate-ping"></span>
           </div>
           <div id="streamChatMessagesBox" class="flex-1 overflow-y-auto p-3 space-y-2 stream-chat-scroll text-xs">
@@ -286,21 +308,21 @@
     </div>
 
 
-    <!-- ================= 6. 🔥 FIX: RANDOM / 1-ON-1 CHAT SCREEN (KEYBOARD BUG FIXED) 🔥 ================= -->
-    <div id="roomScreen" class="hidden flex-1 flex flex-col overflow-hidden bg-slate-100 z-30 h-full">
-      <header class="px-3 md:px-4 py-2 bg-white border-b border-slate-200 flex justify-between items-center shrink-0 shadow-sm">
+    <!-- ================= 6. 🔥 बड़ा पासपोर्ट-साइज़ (3:4) वीडियो कॉल व चैट 🔥 ================= -->
+    <div id="roomScreen" class="hidden flex-1 flex flex-col overflow-hidden bg-slate-900 z-30 h-full">
+      <header class="px-3 py-2 bg-slate-900/95 backdrop-blur border-b border-slate-800 flex justify-between items-center shrink-0">
         <div class="flex items-center gap-2">
-          <button onclick="goHome()" class="px-2.5 py-1 rounded-xl bg-slate-100 text-xs font-bold text-slate-700 border border-slate-200 flex items-center gap-1 hover:bg-slate-200 transition">
+          <button onclick="goHome()" class="px-2.5 py-1 rounded-xl bg-slate-800 text-xs font-bold text-slate-200 hover:bg-slate-700 transition flex items-center gap-1">
             <span>🏠</span> <span data-i18n="homeBtn">होम</span>
           </button>
-          <span id="roomStatusBadge" class="text-[11px] px-2 py-0.5 rounded-full bg-amber-100 text-amber-700 font-bold">तलाश जारी...</span>
+          <span id="roomStatusBadge" class="text-[11px] px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-400 font-bold">तलाश जारी...</span>
         </div>
 
         <div class="flex items-center gap-1.5">
-          <button onclick="addCurrentPartnerAsFriend()" id="addFriendRoomBtn" class="px-2.5 py-1.5 rounded-xl bg-indigo-50 border border-indigo-200 text-indigo-700 text-xs font-bold shadow-sm hover:bg-indigo-100" data-i18n="addFriendBtn">
+          <button onclick="addCurrentPartnerAsFriend()" id="addFriendRoomBtn" class="px-2.5 py-1.5 rounded-xl bg-indigo-500/20 border border-indigo-400 text-indigo-300 text-xs font-bold shadow-sm" data-i18n="addFriendBtn">
             🤝 फ्रेंड बनाएँ
           </button>
-          <button onclick="reportPartner()" class="px-2.5 py-1.5 rounded-xl bg-rose-50 border border-rose-200 text-rose-600 text-xs font-bold hover:bg-rose-100 shadow-sm" data-i18n="reportBtn">
+          <button onclick="reportPartner()" class="px-2.5 py-1.5 rounded-xl bg-rose-500/20 border border-rose-500 text-rose-400 text-xs font-bold" data-i18n="reportBtn">
             🚩 रिपोर्ट
           </button>
           <button onclick="nextPartner()" id="nextBtn" class="px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-rose-500 to-pink-500 text-white text-xs font-bold shadow-md hover:opacity-90">
@@ -309,35 +331,39 @@
         </div>
       </header>
 
-      <!-- कीबोर्ड आने पर फ्लेक्स और हाइट रेस्पॉन्सिव -->
-      <main class="flex-1 flex flex-col md:flex-row overflow-hidden p-2 gap-2 min-h-0">
-        <!-- Video Pane (कीबोर्ड खुलने पर भी संतुलित रहेगा) -->
-        <section id="videoSection" class="hidden shrink-0 flex flex-row md:flex-col gap-2 h-36 md:h-auto md:flex-1 relative">
-          <div class="relative flex-1 rounded-2xl overflow-hidden border border-slate-200 bg-slate-200 flex items-center justify-center shadow-inner">
+      <main class="flex-1 flex flex-col overflow-hidden p-2.5 gap-2.5 min-h-0">
+        
+        <!-- 🔥 पासपोर्ट-साइज़ आस्पेक्ट रेशियो (3:4) के 2 बड़े वीडियो कार्ड्स 🔥 -->
+        <section id="videoSection" class="hidden shrink-0 flex justify-center items-center gap-2.5 w-full">
+          <!-- 1. अजनबी / साथी का पासपोर्ट-साइज़ बड़ा वीडियो -->
+          <div class="flex-1 passport-video-card">
             <video id="remoteVideo" autoplay playsinline class="w-full h-full video-feed"></video>
-            <span class="absolute bottom-1.5 left-1.5 text-[9px] bg-white/90 backdrop-blur-md px-2 py-0.5 rounded-lg text-slate-800 font-bold shadow-sm">Stranger</span>
-            <div id="videoWaitingNotice" class="absolute inset-0 flex flex-col items-center justify-center text-center p-2">
-              <div class="w-6 h-6 rounded-full border-2 border-rose-500 border-t-transparent animate-spin mb-1"></div>
-              <span class="text-[10px] text-slate-600 font-semibold">साथी ढूँढ रहे हैं...</span>
+            <span class="absolute top-2 left-2 text-[10px] bg-black/60 backdrop-blur px-2 py-0.5 rounded-lg text-white font-bold">Stranger</span>
+            
+            <div id="videoWaitingNotice" class="absolute inset-0 flex flex-col items-center justify-center text-center p-2 bg-slate-900">
+              <div class="w-7 h-7 rounded-full border-2 border-rose-500 border-t-transparent animate-spin mb-1.5"></div>
+              <span class="text-[11px] text-slate-400 font-semibold">साथी ढूँढ रहे हैं...</span>
             </div>
           </div>
 
-          <div class="relative flex-1 rounded-2xl overflow-hidden border border-slate-200 bg-slate-200 flex items-center justify-center shadow-inner">
+          <!-- 2. यूज़र का खुद का पासपोर्ट-साइज़ बड़ा वीडियो -->
+          <div class="flex-1 passport-video-card">
             <video id="localVideo" autoplay playsinline muted class="w-full h-full video-feed filter-none"></video>
-            <span class="absolute bottom-1.5 left-1.5 text-[9px] bg-white/90 backdrop-blur-md px-2 py-0.5 rounded-lg text-slate-800 font-bold shadow-sm">You</span>
-            <div class="absolute top-1.5 right-1.5 flex gap-1">
-              <button onclick="flipRandomCamera()" class="p-1.5 rounded-lg bg-white/90 shadow text-[10px]">🔄</button>
-              <button onclick="cycleFilter()" class="p-1.5 rounded-lg bg-white/90 shadow text-[10px]">🎭</button>
-              <button onclick="toggleAudio()" id="micBtn" class="p-1.5 rounded-lg bg-white/90 shadow text-[10px]">🎙️</button>
-              <button onclick="toggleVideo()" id="camBtn" class="p-1.5 rounded-lg bg-white/90 shadow text-[10px]">📹</button>
+            <span class="absolute top-2 left-2 text-[10px] bg-black/60 backdrop-blur px-2 py-0.5 rounded-lg text-white font-bold">You</span>
+            
+            <div class="absolute bottom-2 inset-x-2 flex justify-center gap-1.5 z-10">
+              <button onclick="flipRandomCamera()" class="p-1.5 rounded-xl bg-black/60 backdrop-blur text-white text-xs" title="कैमरा पलटें">🔄</button>
+              <button onclick="cycleFilter()" class="p-1.5 rounded-xl bg-black/60 backdrop-blur text-white text-xs" title="फिल्टर">🎭</button>
+              <button onclick="toggleAudio()" id="micBtn" class="p-1.5 rounded-xl bg-black/60 backdrop-blur text-white text-xs">🎙️</button>
+              <button onclick="toggleVideo()" id="camBtn" class="p-1.5 rounded-xl bg-black/60 backdrop-blur text-white text-xs">📹</button>
             </div>
           </div>
         </section>
 
-        <!-- Chat Pane (कीबोर्ड के ऊपर तैरता रहेगा, कोई ओवरलैप नहीं) -->
-        <section class="flex-1 room-chat-pane rounded-2xl border border-slate-200 bg-white shadow-sm overflow-hidden">
+        <!-- नीचे का साफ़ चैट बॉक्स -->
+        <section class="flex-1 flex flex-col rounded-2xl border border-slate-200 bg-white shadow-sm overflow-hidden min-h-0">
           <div id="messagesBox" class="flex-1 overflow-y-auto p-3 space-y-2 stream-chat-scroll text-xs">
-            <div class="text-center py-2 text-[10px] text-slate-400 font-medium">🌱 सुकून अनाम चैट रूम</div>
+            <div class="text-center py-1.5 text-[10px] text-slate-400 font-medium">🌱 सुकून अनाम चैट रूम</div>
           </div>
           
           <form id="chatForm" onsubmit="handleSendSubmit(event)" class="p-2 border-t border-slate-100 bg-slate-50 flex items-center gap-1.5 shrink-0">
@@ -351,7 +377,7 @@
               placeholder="मैसेज लिखें और Enter दबाएँ..." 
               class="flex-1 bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-800 focus:outline-none focus:border-rose-400 shadow-sm"
             >
-            <button type="submit" class="px-3 py-2 bg-gradient-to-r from-rose-500 to-pink-500 text-white font-bold rounded-xl text-xs shadow-md" data-i18n="sendBtn">भेजें</button>
+            <button type="submit" class="px-3.5 py-2 bg-gradient-to-r from-rose-500 to-pink-500 text-white font-bold rounded-xl text-xs shadow-md" data-i18n="sendBtn">भेजें</button>
           </form>
         </section>
       </main>
@@ -360,31 +386,44 @@
   </main>
 
 
-  <!-- ================= BOTTOM NAVIGATION BAR ================= -->
-  <nav class="fixed bottom-0 inset-x-0 bg-white/95 backdrop-blur-md border-t border-slate-200 py-2 px-6 flex justify-around items-center z-40">
-    <button onclick="switchMainTab('home')" id="nav-home" class="flex flex-col items-center gap-0.5 text-rose-600 transition">
-      <span class="text-lg leading-none">🏠</span>
-      <span class="text-[9px] font-bold" data-i18n="navHome">होम</span>
+  <!-- ================= 🔥 ENHANCED INSTAGRAM STYLE BOTTOM DOCK (स्थिर व गोल बटन) 🔥 ================= -->
+  <nav class="fixed bottom-0 inset-x-0 bg-white/95 backdrop-blur-lg border-t border-slate-200/90 py-1.5 px-4 flex justify-around items-center z-40 shadow-lg">
+    <button onclick="switchMainTab('home')" class="flex flex-col items-center gap-0.5 group">
+      <div id="dock-home" class="nav-circle-btn active text-lg">
+        🏠
+      </div>
+      <span class="text-[9px] font-bold text-slate-600" data-i18n="navHome">होम</span>
     </button>
-    <button onclick="switchMainTab('feed')" id="nav-feed" class="flex flex-col items-center gap-0.5 text-slate-400 hover:text-slate-800 transition">
-      <span class="text-lg leading-none">📸</span>
-      <span class="text-[9px] font-bold" data-i18n="navFeed">फ़ीड</span>
+
+    <button onclick="switchMainTab('feed')" class="flex flex-col items-center gap-0.5 group">
+      <div id="dock-feed" class="nav-circle-btn text-slate-500 text-lg hover:bg-slate-100">
+        📸
+      </div>
+      <span class="text-[9px] font-bold text-slate-600" data-i18n="navFeed">फ़ीड</span>
     </button>
-    <button onclick="openCreatePostModal()" class="w-10 h-10 -mt-3 rounded-full bg-gradient-to-tr from-rose-500 to-pink-500 text-white flex items-center justify-center text-xl shadow-lg shadow-rose-500/30 active:scale-95 transition">
+
+    <!-- सेंटर बड़ा गोल प्लस बटन -->
+    <button onclick="openCreatePostModal()" class="w-12 h-12 -mt-4 rounded-full bg-gradient-to-tr from-rose-500 to-pink-500 text-white flex items-center justify-center text-2xl shadow-lg shadow-rose-500/40 active:scale-95 transition">
       <span>➕</span>
     </button>
-    <button onclick="switchMainTab('nearby')" id="nav-nearby" class="flex flex-col items-center gap-0.5 text-slate-400 hover:text-slate-800 transition">
-      <span class="text-lg leading-none">📍</span>
-      <span class="text-[9px] font-bold" data-i18n="navNearby">आसपास</span>
+
+    <button onclick="switchMainTab('nearby')" class="flex flex-col items-center gap-0.5 group">
+      <div id="dock-nearby" class="nav-circle-btn text-slate-500 text-lg hover:bg-slate-100">
+        📍
+      </div>
+      <span class="text-[9px] font-bold text-slate-600" data-i18n="navNearby">आसपास</span>
     </button>
-    <button onclick="switchMainTab('friends')" id="nav-friends" class="flex flex-col items-center gap-0.5 text-slate-400 hover:text-slate-800 transition">
-      <span class="text-lg leading-none">👥</span>
-      <span class="text-[9px] font-bold" data-i18n="navFriends">दोस्त</span>
+
+    <button onclick="switchMainTab('friends')" class="flex flex-col items-center gap-0.5 group">
+      <div id="dock-friends" class="nav-circle-btn text-slate-500 text-lg hover:bg-slate-100">
+        👥
+      </div>
+      <span class="text-[9px] font-bold text-slate-600" data-i18n="navFriends">दोस्त</span>
     </button>
   </nav>
 
 
-  <!-- ================= CREATE POST MODAL ================= -->
+  <!-- ================= 📸 CREATE POST MODAL ================= -->
   <div id="createPostModal" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
     <div class="bg-white border border-slate-200 p-5 rounded-3xl max-w-sm w-full space-y-3.5 shadow-2xl relative">
       <button onclick="closeCreatePostModal()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-700">✕</button>
@@ -575,7 +614,7 @@
         backBtn: "← बैक",
         startStreamBtn: "🔴 लाइव स्ट्रीम शुरू करें",
         closeBtn: "✕ बंद करें",
-        liveChatTitle: "💬 लाइव चैट (Live Comments)",
+        liveChatTitle: "💬 लाइव चैट",
         sendBtn: "भेजें",
         activeStreamers: "सक्रिय क्रिएटर स्ट्रीमर:",
         homeBtn: "होम",
@@ -714,7 +753,47 @@
       setupMobileKeyboardHandler();
     });
 
-    // 🔥 मोबाइल कीबोर्ड बग फिक्स (Auto-scroll & Viewport Resize)
+    // ================= 🧭 STABLE DOCK WITH CIRCLE BUTTONS =================
+    function switchMainTab(tab) {
+      const screens = ['homeScreen', 'feedScreen', 'nearbyHubScreen', 'connectionsHubScreen', 'streamHubScreen', 'roomScreen'];
+      screens.forEach(s => document.getElementById(s).classList.add('hidden'));
+
+      // सभी डॉक बटनों से एक्टिव क्लास हटाना
+      ['home', 'feed', 'nearby', 'friends'].forEach(t => {
+        const el = document.getElementById(`dock-${t}`);
+        if (el) el.classList.remove('active');
+      });
+
+      if (tab === 'home') {
+        document.getElementById('homeScreen').classList.remove('hidden');
+        document.getElementById('dock-home').classList.add('active');
+      } else if (tab === 'feed') {
+        document.getElementById('feedScreen').classList.remove('hidden');
+        document.getElementById('dock-feed').classList.add('active');
+        fetchFeedPosts();
+      } else if (tab === 'nearby') {
+        if (!loggedInUser) {
+          alert(currentLang === 'hi' ? "आसपास के लोगों को खोजने के लिए लॉगिन करें!" : "Please login to find nearby people!");
+          toggleAuthModal();
+          switchMainTab('home');
+          return;
+        }
+        document.getElementById('nearbyHubScreen').classList.remove('hidden');
+        document.getElementById('dock-nearby').classList.add('active');
+        openNearbyHub();
+      } else if (tab === 'friends') {
+        if (!loggedInUser) {
+          alert(currentLang === 'hi' ? "फ्रेंड लिस्ट व चैट्स के लिए लॉगिन करें!" : "Please login for friends list!");
+          toggleAuthModal();
+          switchMainTab('home');
+          return;
+        }
+        document.getElementById('connectionsHubScreen').classList.remove('hidden');
+        document.getElementById('dock-friends').classList.add('active');
+        refreshMyConnections();
+      }
+    }
+
     function setupMobileKeyboardHandler() {
       const msgInput = document.getElementById("msgInput");
       const messagesBox = document.getElementById("messagesBox");
@@ -753,47 +832,6 @@
       updateUserUI();
     }
 
-    // ================= 🧭 DOCK TAB NAVIGATION =================
-    function switchMainTab(tab) {
-      const screens = ['homeScreen', 'feedScreen', 'nearbyHubScreen', 'connectionsHubScreen', 'streamHubScreen', 'roomScreen'];
-      screens.forEach(s => document.getElementById(s).classList.add('hidden'));
-
-      const navBtns = ['home', 'feed', 'nearby', 'friends'];
-      navBtns.forEach(b => {
-        const btn = document.getElementById(`nav-${b}`);
-        if (btn) btn.className = "flex flex-col items-center gap-0.5 text-slate-400 hover:text-slate-800 transition";
-      });
-
-      if (tab === 'home') {
-        document.getElementById('homeScreen').classList.remove('hidden');
-        document.getElementById('nav-home').className = "flex flex-col items-center gap-0.5 text-rose-600 transition";
-      } else if (tab === 'feed') {
-        document.getElementById('feedScreen').classList.remove('hidden');
-        document.getElementById('nav-feed').className = "flex flex-col items-center gap-0.5 text-rose-600 transition";
-        fetchFeedPosts();
-      } else if (tab === 'nearby') {
-        if (!loggedInUser) {
-          alert(currentLang === 'hi' ? "आसपास के लोगों को खोजने के लिए लॉगिन करें!" : "Please login to find nearby people!");
-          toggleAuthModal();
-          switchMainTab('home');
-          return;
-        }
-        document.getElementById('nearbyHubScreen').classList.remove('hidden');
-        document.getElementById('nav-nearby').className = "flex flex-col items-center gap-0.5 text-rose-600 transition";
-        openNearbyHub();
-      } else if (tab === 'friends') {
-        if (!loggedInUser) {
-          alert(currentLang === 'hi' ? "फ्रेंड लिस्ट व चैट्स के लिए लॉगिन करें!" : "Please login for friends list!");
-          toggleAuthModal();
-          switchMainTab('home');
-          return;
-        }
-        document.getElementById('connectionsHubScreen').classList.remove('hidden');
-        document.getElementById('nav-friends').className = "flex flex-col items-center gap-0.5 text-rose-600 transition";
-        refreshMyConnections();
-      }
-    }
-
     // ================= 📸 FEED, POSTS & REELS ENGINE =================
     async function fetchFeedPosts() {
       try {
@@ -807,7 +845,7 @@
     function renderFeedPosts(posts) {
       const box = document.getElementById("feedPostsContainer");
       if (!posts || posts.length === 0) {
-        box.innerHTML = `<div class="text-center py-16 text-slate-400 text-xs">${currentLang === 'hi' ? "अभी कोई पोस्ट नहीं है। नीचे '➕' दबाकर पहली फ़ोटो या रील शेयर करें!" : "No posts yet. Tap '➕' below to create one!"}</div>`;
+        box.innerHTML = `<div class="text-center py-16 text-slate-400 text-xs">${currentLang === 'hi' ? "अभी कोई पोस्ट नहीं है। 'नया पोस्ट' दबाकर पहली फ़ोटो या रील शेयर करें!" : "No posts yet. Tap 'New Post' to share one!"}</div>`;
         return;
       }
 
@@ -819,7 +857,7 @@
           <div class="bg-white border border-slate-200/90 rounded-3xl overflow-hidden shadow-sm hover:shadow-md transition">
             <div class="p-3 flex items-center justify-between">
               <div class="flex items-center gap-2.5">
-                <img src="${p.authorAvatar || 'https://api.dicebear.com/7.x/bottts/svg?seed=' + p.authorEmail}" class="w-9 h-9 rounded-2xl object-cover border border-slate-100 shadow-sm bg-slate-50">
+                <img src="${p.authorAvatar || 'https://api.dicebear.com/7.x/bottts/svg?seed=' + p.authorEmail}" class="w-10 h-10 rounded-2xl object-cover border border-slate-100 shadow-sm bg-slate-50">
                 <div>
                   <h4 class="text-xs font-black text-slate-900 leading-tight">${p.authorName}</h4>
                   <span class="text-[9px] text-slate-400">${p.createdAt}</span>
@@ -1327,7 +1365,8 @@
       if (socket && pendingRequestFromSid) {
         socket.emit("accept_chat_request", { fromSocketId: pendingRequestFromSid });
         document.getElementById('chatRequestModal').classList.add('hidden');
-        document.getElementById('nearbyHubScreen').classList.add('hidden');
+        switchMainTab('home');
+        document.getElementById('homeScreen').classList.add('hidden');
         document.getElementById('roomScreen').classList.remove('hidden');
         document.getElementById('videoSection').classList.add('hidden');
       }
@@ -1419,8 +1458,8 @@
 
     async function startApp(mode) {
       currentMode = mode;
-      document.getElementById('homeScreen').classList.add('hidden');
-      document.getElementById('connectionsHubScreen').classList.add('hidden');
+      const screens = ['homeScreen', 'feedScreen', 'nearbyHubScreen', 'connectionsHubScreen', 'streamHubScreen'];
+      screens.forEach(s => document.getElementById(s).classList.add('hidden'));
       document.getElementById('roomScreen').classList.remove('hidden');
 
       if (mode === 'video') {
@@ -1436,7 +1475,10 @@
     async function startRandomCamera() {
       try {
         if (localStream) localStream.getTracks().forEach(t => t.stop());
-        localStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: randomFacingMode }, audio: true });
+        localStream = await navigator.mediaDevices.getUserMedia({ 
+          video: { facingMode: randomFacingMode, aspectRatio: { ideal: 0.75 } }, 
+          audio: true 
+        });
         document.getElementById('localVideo').srcObject = localStream;
       } catch (err) { alert("Camera error"); }
     }
@@ -1564,11 +1606,19 @@
       document.getElementById('camBtn').innerText = isCamOff ? "🚫" : "📹";
     }
 
+    function reportPartner() {
+      if (confirm(currentLang === 'hi' ? "साथी को रिपोर्ट करके कॉल समाप्त करना चाहते हैं?" : "Do you want to report this user?")) {
+        if (socket) socket.emit("report_partner", { reason: "Reported" });
+        alert(currentLang === 'hi' ? "रिपोर्ट दर्ज कर ली गई है!" : "Reported successfully!");
+        nextPartner();
+      }
+    }
+
     // ================= LIVE STREAM =================
     function openStreamHub() {
       if (!loggedInUser) { alert(currentLang === 'hi' ? "लॉगिन करें!" : "Please login!"); toggleAuthModal(); return; }
-      switchMainTab('home');
-      document.getElementById('homeScreen').classList.add('hidden');
+      const screens = ['homeScreen', 'feedScreen', 'nearbyHubScreen', 'connectionsHubScreen'];
+      screens.forEach(s => document.getElementById(s).classList.add('hidden'));
       document.getElementById('streamHubScreen').classList.remove('hidden');
       socket.emit("get_streams");
     }
