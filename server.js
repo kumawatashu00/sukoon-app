@@ -11,7 +11,7 @@ app.use(express.json({ limit: "50mb" }));
 app.use(express.urlencoded({ limit: "50mb", extended: true }));
 app.use(express.static(path.join(__dirname, "public")));
 
-app.get("/ping", (req, res) => res.send("pong 24x7 active"));
+app.get("/ping", (req, res) => res.send("pong active"));
 
 const ADMIN_USER = "ashok_admin";
 const ADMIN_PASS = "Sukoon@2026#Secure";
@@ -51,33 +51,31 @@ function calculateDistanceKM(lat1, lon1, lat2, lon2) {
 }
 
 app.get("/api/banner", (req, res) => res.json({ banner: dbData.banner }));
-
 app.post("/api/admin/update-banner", (req, res) => {
-  const { token, imageUrl, title, linkUrl } = req.body;
-  if (token !== "sukoon_admin_auth_verified_2026") return res.status(403).json({ error: "अनधिकृत एक्सेस" });
-  dbData.banner = { imageUrl: imageUrl || "", title: title || "", linkUrl: linkUrl || "" };
+  if (req.body.token !== "sukoon_admin_auth_verified_2026") return res.status(403).json({ error: "अनधिकृत एक्सेस" });
+  dbData.banner = { imageUrl: req.body.imageUrl || "", title: req.body.title || "", linkUrl: req.body.linkUrl || "" };
   saveDB(); io.emit("banner_updated", dbData.banner); res.json({ success: true, banner: dbData.banner });
 });
 
 app.post("/api/admin/login", (req, res) => {
   if (req.body.username === ADMIN_USER && req.body.password === ADMIN_PASS) return res.json({ success: true, token: "sukoon_admin_auth_verified_2026" });
-  return res.status(401).json({ success: false, error: "अमान्य यूज़रनेम या पासवर्ड!" });
+  return res.status(401).json({ success: false, error: "अमान्य क्रेडेंशियल्स!" });
 });
 
 app.post("/api/admin/ban-user", (req, res) => {
   const { email, token, banStatus } = req.body;
-  if (token !== "sukoon_admin_auth_verified_2026") return res.status(403).json({ error: "अनधिकृत एक्सेस" });
+  if (token !== "sukoon_admin_auth_verified_2026") return res.status(403).json({ error: "Denied" });
   const user = dbData.registeredUsers.find(u => u.email === email);
   if (user) { user.isBanned = banStatus; saveDB(); broadcastAdminStats(); return res.json({ success: true, user }); }
-  res.status(404).json({ error: "यूज़र नहीं मिला" });
+  res.status(404).json({ error: "Not found" });
 });
 
 app.post("/api/admin/approve-creator", (req, res) => {
   const { email, token } = req.body;
-  if (token !== "sukoon_admin_auth_verified_2026") return res.status(403).json({ error: "अनधिकृत एक्सेस" });
+  if (token !== "sukoon_admin_auth_verified_2026") return res.status(403).json({ error: "Denied" });
   const user = dbData.registeredUsers.find(u => u.email === email);
   if (user) { user.isApprovedCreator = true; saveDB(); broadcastAdminStats(); return res.json({ success: true, user }); }
-  res.status(404).json({ error: "यूज़र नहीं मिला" });
+  res.status(404).json({ error: "Not found" });
 });
 
 app.post("/api/auth", (req, res) => {
@@ -174,9 +172,7 @@ const broadcastAdminStats = () => {
   });
 };
 
-const broadcastGlobalCount = () => {
-  io.emit("global_online_count", io.engine.clientsCount);
-};
+const broadcastGlobalCount = () => { io.emit("global_online_count", io.engine.clientsCount); };
 
 function saveMutualConnection(e1, n1, e2, n2) {
   if (!e1 || !e2 || e1 === e2) return;
@@ -334,5 +330,8 @@ io.on("connection", (socket) => {
   socket.on("leave_chat", cleanup); socket.on("disconnect", cleanup);
 });
 
+const PING_URL = process.env.RENDER_EXTERNAL_URL || "https://sukoon-app-lthm.onrender.com";
+setInterval(() => { http.get(`${PING_URL}/ping`, () => {}).on("error", () => {}); }, 14 * 60 * 1000);
+
 const PORT = process.env.PORT || 5000;
-server.listen(PORT, () => { console.log(`>>> Sukoon V15 Ultra Pro Active on port ${PORT}`); });
+server.listen(PORT, () => { console.log(`>>> Sukoon Recovery Active on port ${PORT}`); });

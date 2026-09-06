@@ -1,63 +1,75 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="hi">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Sukoon CyberAdmin Pro</title>
+  <title>Sukoon - Admin Command Center</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="/socket.io/socket.io.js"></script>
-  <style>
-    body { background-color: #09090b; color: #e2e8f0; font-family: monospace; }
-    .cyber-panel { background: rgba(24, 24, 27, 0.8); backdrop-filter: blur(12px); border: 1px solid rgba(34, 211, 238, 0.2); box-shadow: 0 0 20px rgba(0,0,0,0.5); }
-    .neon-text { text-shadow: 0 0 10px currentColor; }
-  </style>
 </head>
-<body class="p-4 md:p-8 min-h-screen flex flex-col selection:bg-cyan-500/30">
+<body class="bg-[#f8fafc] text-slate-800 font-sans p-4 md:p-8 min-h-screen flex flex-col">
 
-  <div id="adminLoginScreen" class="fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-4">
-    <div class="cyber-panel p-8 rounded-xl max-w-sm w-full space-y-5 border-cyan-500/50">
-      <div class="text-center space-y-2">
-        <h2 class="text-2xl font-black text-cyan-400 tracking-widest neon-text">SYS_ADMIN</h2>
-        <p class="text-[10px] text-slate-400 uppercase tracking-widest">Secure Gateway</p>
+  <div id="adminLoginScreen" class="fixed inset-0 bg-slate-900/80 backdrop-blur-md z-50 flex items-center justify-center p-4">
+    <div class="bg-white p-7 rounded-3xl max-w-sm w-full space-y-4 shadow-2xl border border-slate-200">
+      <div class="text-center space-y-1">
+        <div class="w-12 h-12 rounded-2xl bg-rose-500 text-white text-2xl flex items-center justify-center mx-auto mb-2">🔒</div>
+        <h2 class="text-lg font-black text-slate-900">सुकून एडमिन लॉगिन</h2>
       </div>
-      <form onsubmit="handleAdminLogin(event)" class="space-y-4">
-        <input type="text" id="admUser" required placeholder="USERNAME" class="w-full bg-black/50 border border-cyan-500/30 rounded p-3 text-xs text-cyan-300 focus:outline-none focus:border-cyan-400">
-        <input type="password" id="admPass" required placeholder="PASSWORD" class="w-full bg-black/50 border border-cyan-500/30 rounded p-3 text-xs text-cyan-300 focus:outline-none focus:border-cyan-400">
-        <button type="submit" class="w-full py-3 bg-cyan-600 hover:bg-cyan-500 text-black font-black uppercase tracking-widest rounded text-xs transition">Authenticate</button>
+      <form onsubmit="handleAdminLogin(event)" class="space-y-3">
+        <input type="text" id="admUser" required placeholder="Admin Username" class="w-full bg-slate-50 border border-slate-200 rounded-2xl p-3 text-xs">
+        <input type="password" id="admPass" required placeholder="Admin Password" class="w-full bg-slate-50 border border-slate-200 rounded-2xl p-3 text-xs">
+        <button type="submit" class="w-full py-3 bg-gradient-to-r from-rose-500 to-pink-500 text-white font-bold rounded-2xl text-xs">लॉगिन ➔</button>
       </form>
     </div>
   </div>
 
-  <div id="adminDashboard" class="hidden max-w-6xl w-full mx-auto space-y-6 pb-12">
-    <div class="flex justify-between items-center border-b border-slate-800 pb-4">
+  <div id="adminDashboard" class="hidden max-w-5xl w-full mx-auto space-y-6 pb-12">
+    <div class="flex justify-between items-center border-b border-slate-200 pb-4">
       <div>
-        <h1 class="text-2xl font-black text-cyan-400 tracking-widest neon-text">SUKOON COMMAND CENTER</h1>
-        <p class="text-xs text-slate-500 uppercase mt-1 tracking-widest">Global Server Metrics & Control</p>
+        <h1 class="text-xl font-black text-rose-600">🛡️ सुकून एडमिन कमांड सेंटर</h1>
       </div>
-      <button onclick="adminLogout()" class="px-4 py-2 border border-rose-500/50 text-rose-400 hover:bg-rose-500/10 rounded uppercase text-[10px] font-bold tracking-widest transition">Terminate Session</button>
+      <div class="flex items-center gap-2">
+        <button onclick="adminLogout()" class="px-3.5 py-1.5 bg-rose-50 text-rose-600 rounded-2xl text-xs font-bold">लॉगआउट</button>
+      </div>
     </div>
 
-    <!-- Metrics -->
-    <div class="grid grid-cols-2 md:grid-cols-5 gap-4">
-      <div class="p-5 cyber-panel rounded-xl"><div class="text-[10px] text-slate-400 uppercase tracking-widest">Active Nodes</div><div id="m-users" class="text-3xl font-black text-emerald-400 mt-2 neon-text">0</div></div>
-      <div class="p-5 cyber-panel rounded-xl"><div class="text-[10px] text-slate-400 uppercase tracking-widest">Data Packets</div><div id="m-posts" class="text-3xl font-black text-cyan-400 mt-2 neon-text">0</div></div>
-      <div class="p-5 cyber-panel rounded-xl"><div class="text-[10px] text-slate-400 uppercase tracking-widest">Live Uplinks</div><div id="m-streams" class="text-3xl font-black text-purple-400 mt-2 neon-text">0</div></div>
-      <div class="p-5 cyber-panel rounded-xl"><div class="text-[10px] text-slate-400 uppercase tracking-widest">Registered IDs</div><div id="m-reg" class="text-3xl font-black text-amber-400 mt-2 neon-text">0</div></div>
-      <div class="p-5 cyber-panel rounded-xl"><div class="text-[10px] text-slate-400 uppercase tracking-widest">Security Flags</div><div id="m-incidents" class="text-3xl font-black text-rose-500 mt-2 neon-text">0</div></div>
+    <div class="grid grid-cols-2 md:grid-cols-5 gap-3">
+      <div class="p-4 bg-white rounded-3xl border border-slate-200"><div class="text-xs text-slate-500">ऑनलाइन यूज़र्स</div><div id="m-users" class="text-2xl font-black text-teal-600 mt-1">0</div></div>
+      <div class="p-4 bg-white rounded-3xl border border-slate-200"><div class="text-xs text-slate-500">कम्युनिटी पोस्ट्स</div><div id="m-posts" class="text-2xl font-black text-rose-600 mt-1">0</div></div>
+      <div class="p-4 bg-white rounded-3xl border border-slate-200"><div class="text-xs text-slate-500">लाइव स्ट्रीम्स</div><div id="m-streams" class="text-2xl font-black text-purple-600 mt-1">0</div></div>
+      <div class="p-4 bg-white rounded-3xl border border-slate-200"><div class="text-xs text-slate-500">कुल एकाउंट्स</div><div id="m-reg" class="text-2xl font-black text-amber-600 mt-1">0</div></div>
+      <div class="p-4 bg-white rounded-3xl border border-slate-200"><div class="text-xs text-slate-500">सुरक्षा अलर्ट्स</div><div id="m-incidents" class="text-2xl font-black text-indigo-600 mt-1">0</div></div>
     </div>
 
-    <!-- Users Table with Ban Feature -->
-    <div class="cyber-panel p-6 rounded-xl space-y-4">
-      <h2 class="text-sm font-bold text-cyan-400 uppercase tracking-widest border-b border-slate-800 pb-2">User Registry & Moderation</h2>
-      <div class="overflow-x-auto max-h-96 overflow-y-auto">
+    <!-- 1. बैनर कंट्रोल -->
+    <div class="bg-white p-5 rounded-3xl border border-slate-200 shadow-sm space-y-4">
+      <div class="flex justify-between items-center border-b border-slate-100 pb-2">
+        <h2 class="text-sm font-bold text-slate-800">🖼️ होमपेज बैनर कंट्रोल</h2>
+      </div>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+        <input type="text" id="bannerImgUrl" placeholder="Image URL (https://...)" class="bg-slate-50 border border-slate-200 rounded-xl p-2 text-xs w-full">
+        <input type="text" id="bannerTitle" placeholder="बैनर का नोटिस" class="bg-slate-50 border border-slate-200 rounded-xl p-2 text-xs">
+      </div>
+      <button onclick="saveBanner()" class="px-6 py-2 bg-emerald-600 text-white font-bold rounded-2xl text-xs">अपडेट करें</button>
+    </div>
+
+    <!-- 2. क्रिएटर अप्रूवल -->
+    <div class="bg-white p-5 rounded-3xl border border-slate-200 shadow-sm space-y-3">
+      <h2 class="text-sm font-bold text-slate-800">🎬 क्रिएटर अप्रूवल (Pending)</h2>
+      <div class="overflow-x-auto"><table class="w-full text-xs text-left"><tbody id="creatorListBody"></tbody></table></div>
+    </div>
+
+    <!-- 3. सभी यूज़र्स और BAN कंट्रोल -->
+    <div class="bg-white p-5 rounded-3xl border border-slate-200 shadow-sm space-y-3">
+      <h2 class="text-sm font-bold text-slate-800">👥 सभी रजिस्टर्ड यूज़र्स व कंट्रोल</h2>
+      <div class="overflow-x-auto max-h-72 overflow-y-auto">
         <table class="w-full text-xs text-left">
-          <thead class="sticky top-0 bg-[#18181b] border-b border-cyan-500/20 text-cyan-600/70 uppercase tracking-widest">
-            <tr><th class="py-3 px-2">Entity ID / Email</th><th class="px-2">Clearance</th><th class="px-2">Alias</th><th class="px-2">System Status</th><th class="px-2">Override Command</th></tr>
-          </thead>
-          <tbody id="allUsersBody" class="divide-y divide-slate-800/50"></tbody>
+          <thead class="sticky top-0 bg-white border-b border-slate-100 text-slate-400"><tr><th class="py-2">ईमेल</th><th>रोल</th><th>नाम</th><th>स्टेटस</th><th>एक्शन (Ban/Unban)</th></tr></thead>
+          <tbody id="allUsersBody"></tbody>
         </table>
       </div>
     </div>
+
   </div>
 
   <script>
@@ -65,15 +77,25 @@
     window.addEventListener("load", () => { if (adminToken === "sukoon_admin_auth_verified_2026") showDashboard(); });
 
     async function handleAdminLogin(e) {
-      e.preventDefault(); const u = document.getElementById('admUser').value; const p = document.getElementById('admPass').value;
+      e.preventDefault();
+      const u = document.getElementById('admUser').value.trim(); const p = document.getElementById('admPass').value.trim();
       try {
         const res = await fetch("/api/admin/login", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ username: u, password: p }) });
-        const d = await res.json(); if (d.success) { adminToken = d.token; sessionStorage.setItem("sukoon_admin_token", adminToken); showDashboard(); } else alert("ACCESS DENIED");
+        const d = await res.json();
+        if (d.success) { adminToken = d.token; sessionStorage.setItem("sukoon_admin_token", adminToken); showDashboard(); } else alert("गलत पासवर्ड");
       } catch (err) {}
     }
 
     function showDashboard() { document.getElementById('adminLoginScreen').classList.add('hidden'); document.getElementById('adminDashboard').classList.remove('hidden'); connectAdminSocket(); }
     function adminLogout() { sessionStorage.removeItem("sukoon_admin_token"); location.reload(); }
+
+    async function saveBanner() {
+      const imageUrl = document.getElementById('bannerImgUrl').value.trim(); const title = document.getElementById('bannerTitle').value.trim();
+      try {
+        const res = await fetch("/api/admin/update-banner", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ token: adminToken, imageUrl, title }) });
+        const d = await res.json(); if (d.success) alert("बैनर अपडेट हो गया!");
+      } catch (e) {}
+    }
 
     function connectAdminSocket() {
       socket = io({ reconnection: true, reconnectionDelay: 1000 });
@@ -86,28 +108,51 @@
         document.getElementById("m-reg").innerText = m.registeredUsers?.length || 0;
         document.getElementById("m-incidents").innerText = m.incidents?.length || 0;
 
+        if (m.banner) { document.getElementById('bannerImgUrl').value = m.banner.imageUrl || ""; document.getElementById('bannerTitle').value = m.banner.title || ""; }
+
         const allUsersTbody = document.getElementById("allUsersBody");
         if (m.registeredUsers && m.registeredUsers.length > 0) {
           allUsersTbody.innerHTML = m.registeredUsers.map(u => `
-            <tr class="hover:bg-cyan-900/10 transition">
-              <td class="py-3 px-2 text-slate-300 font-bold">${u.email}</td>
-              <td class="px-2"><span class="px-2 py-0.5 border border-slate-700 rounded text-[9px] uppercase tracking-widest text-slate-400">${u.role}</span></td>
-              <td class="px-2 text-slate-400">${u.channelName || 'N/A'}</td>
-              <td class="px-2"><span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider ${u.isBanned ? 'bg-rose-500/20 text-rose-400 border border-rose-500/30' : 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30'}">${u.isBanned ? 'BANNED' : 'ACTIVE'}</span></td>
-              <td class="px-2">
-                <button onclick="toggleBan('${u.email}', ${!u.isBanned})" class="px-3 py-1.5 rounded text-[10px] font-bold uppercase tracking-widest transition ${u.isBanned ? 'bg-emerald-600/20 text-emerald-400 hover:bg-emerald-600/40 border border-emerald-500/50' : 'bg-rose-600/20 text-rose-400 hover:bg-rose-600/40 border border-rose-500/50'}">
-                  ${u.isBanned ? 'Restore Access' : 'Execute Ban'}
+            <tr class="border-b border-slate-50">
+              <td class="py-2 font-bold">${u.email}</td>
+              <td><span class="px-2 py-0.5 rounded text-[10px] bg-slate-100">${u.role}</span></td>
+              <td>${u.channelName || '-'}</td>
+              <td><span class="px-2 py-0.5 rounded text-[10px] font-bold ${u.isBanned ? 'bg-rose-100 text-rose-700' : 'bg-emerald-100 text-emerald-700'}">${u.isBanned ? 'Banned 🚫' : 'Active ✅'}</span></td>
+              <td>
+                <button onclick="toggleBan('${u.email}', ${!u.isBanned})" class="px-3 py-1 rounded text-xs font-bold text-white shadow-sm ${u.isBanned ? 'bg-emerald-500' : 'bg-rose-500'}">
+                  ${u.isBanned ? 'Unban करें' : 'Ban करें'}
                 </button>
               </td>
             </tr>
           `).join("");
         }
+
+        const creatorTbody = document.getElementById("creatorListBody");
+        const creators = m.registeredUsers?.filter(u => u.role === "creator") || [];
+        if (creators.length > 0) {
+          creatorTbody.innerHTML = creators.map(u => `
+            <tr class="border-b border-slate-50">
+              <td class="py-2 font-bold">${u.email}</td>
+              <td>${u.isApprovedCreator ? '<span class="text-emerald-600">Approved</span>' : `<button onclick="approveCreator('${u.email}')" class="px-3 py-1 bg-indigo-600 text-white font-bold rounded">Approve</button>`}</td>
+            </tr>
+          `).join("");
+        } else { creatorTbody.innerHTML = '<tr><td class="py-4">कोई क्रिएटर पेंडिंग नहीं है</td></tr>'; }
       });
     }
 
     async function toggleBan(email, banStatus) {
-      if(!confirm(`WARNING: Executing override for ${email}. Proceed?`)) return;
-      try { await fetch("/api/admin/ban-user", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ email, token: adminToken, banStatus }) }); } catch (e) {}
+      if(!confirm(`क्या आप वाकई इस यूज़र को ${banStatus ? 'Ban' : 'Unban'} करना चाहते हैं?`)) return;
+      try {
+        const res = await fetch("/api/admin/ban-user", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ email, token: adminToken, banStatus }) });
+        const d = await res.json(); if (d.success) alert("यूज़र स्टेटस अपडेट हो गया!");
+      } catch (e) { alert("एरर!"); }
+    }
+
+    async function approveCreator(email) {
+      try {
+        const res = await fetch("/api/admin/approve-creator", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ email, token: adminToken }) });
+        const d = await res.json(); if (d.success) alert("अप्रूव हो गया!");
+      } catch (e) { }
     }
   </script>
 </body>
