@@ -32,7 +32,7 @@
 </head>
 <body class="bg-[#f8fafc] text-slate-800 font-sans app-screen flex flex-col overflow-hidden selection:bg-rose-200 relative">
 
-  <!-- ================= TOP HEADER (PRO-BRANDING) ================= -->
+  <!-- ================= TOP HEADER ================= -->
   <header class="px-4 py-2.5 bg-white border-b border-slate-200/80 flex justify-between items-center shrink-0 shadow-sm z-20">
     <div class="flex items-center gap-2">
       <div class="w-8 h-8 rounded-2xl bg-gradient-to-tr from-rose-500 to-pink-500 flex items-center justify-center text-lg text-white shadow-md shadow-rose-500/20">
@@ -40,13 +40,14 @@
       </div>
       <div>
         <h1 class="text-sm font-black tracking-tight text-slate-900 leading-none">SUKOON</h1>
-        <span class="text-[9px] text-slate-400 font-medium">मन की बात • सोशल स्पेस</span>
+        <span class="text-[9px] text-slate-400 font-medium" data-i18n="subTitle">मन की बात • सोशल स्पेस</span>
       </div>
     </div>
 
     <div id="authContainer" class="flex items-center gap-2">
-      <button onclick="toggleLanguage()" id="langToggleBtn" class="px-2.5 py-1 rounded-xl bg-slate-50 border border-slate-200 text-[11px] font-bold text-slate-600 hover:bg-slate-100 flex items-center gap-1 transition">
-        <span>🌐</span> <span id="langText">EN</span>
+      <!-- 🌐 भाषा बदलने का बटन -->
+      <button onclick="toggleLanguage()" id="langToggleBtn" class="px-2.5 py-1 rounded-xl bg-slate-50 border border-slate-200 text-[11px] font-bold text-slate-700 hover:bg-slate-100 flex items-center gap-1 transition shadow-sm">
+        <span>🌐</span> <span id="langText">English</span>
       </button>
 
       <button onclick="openProfileModal()" id="userProfileBtn" class="hidden px-2 py-1 rounded-xl bg-slate-50 border border-slate-200 text-xs font-bold text-slate-700 hover:bg-slate-100 flex items-center gap-1.5 transition">
@@ -68,7 +69,7 @@
   <!-- ================= MAIN CONTENT WRAPPER ================= -->
   <main class="flex-1 overflow-hidden relative flex flex-col">
 
-    <!-- ================= 1. HOME VIEW (DISCOVERY & HERO ACTIONS) ================= -->
+    <!-- ================= 1. HOME VIEW ================= -->
     <div id="homeScreen" class="flex-1 overflow-y-auto p-4 max-w-lg w-full mx-auto space-y-3.5 pb-20">
       
       <!-- Tags Pill Bar -->
@@ -82,45 +83,44 @@
         </div>
       </div>
 
-      <!-- Action Hero Cards (Text, Video, Live) -->
+      <!-- Action Hero Cards -->
       <div class="space-y-2.5">
         <div class="grid grid-cols-2 gap-2.5">
           <button onclick="startApp('text')" class="p-4 rounded-3xl bg-white border border-teal-200/80 hover:border-teal-400 hover:shadow-md transition text-left flex flex-col justify-between min-h-[125px] shadow-sm">
             <div class="w-9 h-9 rounded-2xl bg-teal-50 text-teal-600 flex items-center justify-center text-lg">💬</div>
             <div>
               <h2 class="text-xs font-black text-slate-800" data-i18n="textChatTitle">टेक्स्ट चैट</h2>
-              <p class="text-[9px] text-slate-500 mt-0.5">अनाम चैट व 10s वैनिश फ़ोटो</p>
+              <p class="text-[9px] text-slate-500 mt-0.5" data-i18n="textChatDesc">अनाम चैट व 10s वैनिश फ़ोटो</p>
             </div>
-            <span class="text-teal-600 text-[11px] font-bold">शुरू करें ➔</span>
+            <span class="text-teal-600 text-[11px] font-bold" data-i18n="startBtn">शुरू करें ➔</span>
           </button>
 
           <button onclick="startApp('video')" class="p-4 rounded-3xl bg-white border border-rose-200/80 hover:border-rose-400 hover:shadow-md transition text-left flex flex-col justify-between min-h-[125px] shadow-sm">
             <div class="w-9 h-9 rounded-2xl bg-rose-50 text-rose-600 flex items-center justify-center text-lg">📹</div>
             <div>
               <h2 class="text-xs font-black text-slate-800" data-i18n="videoCallTitle">वीडियो कॉल</h2>
-              <p class="text-[9px] text-slate-500 mt-0.5">ओमेगल स्टाइल रैंडम मैच</p>
+              <p class="text-[9px] text-slate-500 mt-0.5" data-i18n="videoCallDesc">ओमेगल स्टाइल रैंडम मैच</p>
             </div>
-            <span class="text-rose-600 text-[11px] font-bold">कॉल करें ➔</span>
+            <span class="text-rose-600 text-[11px] font-bold" data-i18n="callBtn">कॉल करें ➔</span>
           </button>
         </div>
 
-        <!-- Live Hub Hero Card -->
         <button onclick="openStreamHub()" class="w-full p-4 rounded-3xl bg-gradient-to-r from-indigo-50 via-purple-50 to-pink-50 border border-indigo-200/80 hover:border-indigo-300 hover:shadow-md transition flex items-center justify-between shadow-sm">
           <div class="flex items-center gap-3">
             <div class="w-10 h-10 rounded-2xl bg-white border border-indigo-100 flex items-center justify-center text-lg shadow-sm">📡</div>
             <div class="text-left">
               <div class="flex items-center gap-1.5">
-                <h2 class="text-xs font-black text-indigo-950">क्रिएटर लाइव हब</h2>
+                <h2 class="text-xs font-black text-indigo-950" data-i18n="streamHubTitle">क्रिएटर लाइव हब</h2>
                 <span class="text-[8px] bg-rose-600 text-white px-1.5 py-0.2 rounded-full font-bold uppercase tracking-wider">Live</span>
               </div>
-              <p class="text-[10px] text-slate-500 mt-0.5">स्क्रीन शेयर, लाइव चैट व गिफ़्ट्स</p>
+              <p class="text-[10px] text-slate-500 mt-0.5" data-i18n="streamHubDesc">स्क्रीन शेयर, लाइव चैट व गिफ़्ट्स</p>
             </div>
           </div>
           <span class="text-indigo-600 text-xs font-bold">➔</span>
         </button>
       </div>
 
-      <!-- 🔥 SINGLE CLEAN BANNER CARD (नीचे वाला दूसरा बैनर हटा दिया गया) 🔥 -->
+      <!-- Single Banner -->
       <div id="homeBannerCard" class="hidden rounded-3xl overflow-hidden border border-slate-200 bg-white shadow-sm transition hover:shadow-md relative">
         <a id="bannerLinkWrapper" href="#" target="_blank" class="block relative group">
           <img id="bannerImage" src="" alt="Sukoon Notice" onerror="handleImgError(this)" class="w-full h-36 object-cover bg-slate-100">
@@ -130,40 +130,39 @@
         </a>
       </div>
 
-      <!-- Quick WhatsApp Share Bar -->
+      <!-- WhatsApp Share -->
       <button onclick="shareOnWhatsApp()" class="w-full py-2.5 px-4 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-800 font-bold text-xs flex items-center justify-center gap-2 shadow-sm hover:bg-emerald-100 transition">
-        <span>💬</span> <span>दोस्तों को सुकून पर इनवाइट करें (WhatsApp Share)</span>
+        <span>💬</span> <span data-i18n="whatsappShare">दोस्तों को सुकून पर इनवाइट करें (WhatsApp Share)</span>
       </button>
 
-      <div class="text-center pb-2 text-[10px] text-slate-400">
+      <div class="text-center pb-2 text-[10px] text-slate-400" data-i18n="disclaimer">
         🔒 18+ यूज़र्स के लिए • पूर्णतः सुरक्षित एवं अनाम प्लेटफ़ॉर्म
       </div>
     </div>
 
 
-    <!-- ================= 2. 📸 SUKOON FEED (COMMUNITY POSTS, REELS & LIKES) ================= -->
+    <!-- ================= 2. 📸 SUKOON FEED ================= -->
     <div id="feedScreen" class="hidden flex-1 overflow-y-auto p-4 max-w-lg w-full mx-auto space-y-3.5 pb-20">
       <div class="flex justify-between items-center pb-2 border-b border-slate-200">
         <div>
-          <h2 class="text-base font-black text-slate-900">📸 सुकून कम्युनिटी फ़ीड</h2>
-          <p class="text-[10px] text-slate-500">फ़ोटो, रील्स, विचार और क्रिएटर्स</p>
+          <h2 class="text-base font-black text-slate-900" data-i18n="feedHeader">📸 सुकून कम्युनिटी फ़ीड</h2>
+          <p class="text-[10px] text-slate-500" data-i18n="feedSubHeader">फ़ोटो, रील्स, विचार और क्रिएटर्स</p>
         </div>
         <button onclick="openCreatePostModal()" class="px-3.5 py-1.5 bg-gradient-to-r from-rose-500 to-pink-500 text-white font-bold rounded-2xl text-xs shadow-md flex items-center gap-1">
-          <span>➕</span> <span>नया पोस्ट</span>
+          <span>➕</span> <span data-i18n="newPostBtn">नया पोस्ट</span>
         </button>
       </div>
 
-      <!-- Post Feed Container -->
       <div id="feedPostsContainer" class="space-y-4">
-        <div class="text-center py-16 text-slate-400 text-xs">फ़ीड लोड हो रही है...</div>
+        <div class="text-center py-16 text-slate-400 text-xs" data-i18n="feedLoading">फ़ीड लोड हो रही है...</div>
       </div>
     </div>
 
 
-    <!-- ================= 3. 📍 NEARBY PEOPLE HUB (100 KM) ================= -->
+    <!-- ================= 3. 📍 NEARBY PEOPLE HUB ================= -->
     <div id="nearbyHubScreen" class="hidden flex-1 overflow-y-auto p-4 max-w-lg w-full mx-auto space-y-3 pb-20">
       <header class="flex justify-between items-center pb-2 border-b border-slate-200">
-        <h2 class="text-base font-black text-slate-900">📍 आसपास के लोग</h2>
+        <h2 class="text-base font-black text-slate-900" data-i18n="nearbyTitle">📍 आसपास के लोग</h2>
         <div class="flex gap-1">
           <button onclick="setNearbyRadius(25)" class="radius-btn px-2.5 py-1 rounded-xl text-[10px] font-bold bg-white border border-slate-200 text-slate-600" data-r="25">25 KM</button>
           <button onclick="setNearbyRadius(50)" class="radius-btn px-2.5 py-1 rounded-xl text-[10px] font-bold bg-white border border-slate-200 text-slate-600" data-r="50">50 KM</button>
@@ -172,12 +171,12 @@
       </header>
 
       <div class="p-2.5 rounded-2xl bg-emerald-50 border border-emerald-200 text-[11px] text-emerald-800 flex items-center justify-between">
-        <span>🛡️ सटीक GPS पिन सुरक्षित है (सिर्फ अनुमानित दूरी दिखेगी)</span>
+        <span data-i18n="nearbyPrivacyNotice">🛡️ सटीक GPS पिन सुरक्षित है (सिर्फ अनुमानित दूरी दिखेगी)</span>
         <button onclick="refreshNearbyUsers()" class="px-2 py-1 bg-white rounded-lg text-[10px] font-bold text-emerald-700 border border-emerald-200 shadow-sm">🔄</button>
       </div>
 
       <div id="nearbyListContainer" class="space-y-2.5">
-        <div class="text-center py-16 text-slate-400 text-xs">आसपास के यूज़र्स खोजे जा रहे हैं...</div>
+        <div class="text-center py-16 text-slate-400 text-xs" data-i18n="nearbySearching">आसपास के यूज़र्स खोजे जा रहे हैं...</div>
       </div>
     </div>
 
@@ -185,15 +184,15 @@
     <!-- ================= 4. 👥 FRIENDS & CONNECTIONS HUB ================= -->
     <div id="connectionsHubScreen" class="hidden flex-1 overflow-y-auto p-4 max-w-lg w-full mx-auto space-y-3 pb-20">
       <header class="flex justify-between items-center pb-2 border-b border-slate-200">
-        <h2 class="text-base font-black text-slate-900">👥 मेरे दोस्त व चैट्स</h2>
+        <h2 class="text-base font-black text-slate-900" data-i18n="friendsTitle">👥 मेरे दोस्त व चैट्स</h2>
         <span class="text-[10px] bg-indigo-50 border border-indigo-200 text-indigo-700 px-2 py-1 rounded-xl font-bold">Connections</span>
       </header>
 
       <div class="flex gap-2">
-        <button onclick="switchFriendsTab('friends')" id="tabFriendsBtn" class="flex-1 py-1.5 rounded-xl text-xs font-bold bg-indigo-600 text-white shadow-sm">
+        <button onclick="switchFriendsTab('friends')" id="tabFriendsBtn" class="flex-1 py-1.5 rounded-xl text-xs font-bold bg-indigo-600 text-white shadow-sm" data-i18n="myFriendsTab">
           🤝 मेरे पक्के दोस्त
         </button>
-        <button onclick="switchFriendsTab('others')" id="tabOthersBtn" class="flex-1 py-1.5 rounded-xl text-xs font-bold bg-slate-100 text-slate-600">
+        <button onclick="switchFriendsTab('others')" id="tabOthersBtn" class="flex-1 py-1.5 rounded-xl text-xs font-bold bg-slate-100 text-slate-600" data-i18n="otherChatsTab">
           💬 अन्य चैट्स
         </button>
       </div>
@@ -208,10 +207,10 @@
     <div id="streamHubScreen" class="hidden flex-1 flex flex-col overflow-hidden max-w-4xl w-full mx-auto p-3 md:p-4 pb-20">
       <header class="flex justify-between items-center pb-2 border-b border-slate-200">
         <div class="flex items-center gap-2">
-          <button onclick="switchMainTab('home')" class="px-3 py-1.5 rounded-2xl bg-white border border-slate-200 text-xs font-bold text-slate-700 shadow-sm">← बैक</button>
-          <h2 class="text-base font-black text-slate-800">📡 सुकून लाइव हब</h2>
+          <button onclick="switchMainTab('home')" class="px-3 py-1.5 rounded-2xl bg-white border border-slate-200 text-xs font-bold text-slate-700 shadow-sm" data-i18n="backBtn">← बैक</button>
+          <h2 class="text-base font-black text-slate-800" data-i18n="streamHubTitle">📡 सुकून लाइव हब</h2>
         </div>
-        <button onclick="promptStartBroadcast()" id="startBroadcastBtn" class="hidden px-3.5 py-1.5 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-bold rounded-2xl text-xs shadow-md">
+        <button onclick="promptStartBroadcast()" id="startBroadcastBtn" class="hidden px-3.5 py-1.5 bg-gradient-to-r from-indigo-600 to-purple-600 text-white font-bold rounded-2xl text-xs shadow-md" data-i18n="startStreamBtn">
           🔴 लाइव स्ट्रीम शुरू करें
         </button>
       </header>
@@ -242,7 +241,7 @@
             <button onclick="stopBroadcast()" class="bg-rose-600 text-white hover:bg-rose-700 px-2.5 py-1 rounded-2xl text-xs font-bold shadow">⏹️ बंद</button>
           </div>
 
-          <button onclick="leaveCurrentStream()" id="viewerCloseStreamBtn" class="hidden absolute top-3 right-3 bg-white/80 hover:bg-white px-3 py-1 rounded-2xl text-xs font-bold text-slate-800 shadow">✕ बंद करें</button>
+          <button onclick="leaveCurrentStream()" id="viewerCloseStreamBtn" class="hidden absolute top-3 right-3 bg-white/80 hover:bg-white px-3 py-1 rounded-2xl text-xs font-bold text-slate-800 shadow" data-i18n="closeBtn">✕ बंद करें</button>
           <div id="giftNotificationArea" class="absolute inset-0 flex items-center justify-center pointer-events-none z-30"></div>
 
           <div id="viewerGiftBar" class="hidden absolute bottom-2.5 inset-x-2.5 bg-white/90 backdrop-blur-md p-2 rounded-2xl flex justify-between items-center border border-white/40 shadow">
@@ -257,7 +256,7 @@
 
         <div class="w-full md:w-80 h-52 md:h-auto bg-white border border-slate-200 rounded-3xl flex flex-col overflow-hidden shadow-sm">
           <div class="px-3.5 py-2 border-b border-slate-100 bg-slate-50 flex justify-between items-center">
-            <span class="text-xs font-bold text-slate-700">💬 लाइव चैट (Live Comments)</span>
+            <span class="text-xs font-bold text-slate-700" data-i18n="liveChatTitle">💬 लाइव चैट (Live Comments)</span>
             <span class="w-2 h-2 rounded-full bg-emerald-500 animate-ping"></span>
           </div>
           <div id="streamChatMessagesBox" class="flex-1 overflow-y-auto p-3 space-y-2 stream-chat-scroll text-xs">
@@ -265,13 +264,13 @@
           </div>
           <form id="streamChatForm" onsubmit="handleSendStreamChat(event)" class="p-2 border-t border-slate-100 bg-slate-50 flex gap-1.5">
             <input type="text" id="streamChatInput" placeholder="कमेंट लिखें..." class="flex-1 bg-white border border-slate-200 rounded-xl px-3 py-1.5 text-xs text-slate-800 focus:outline-none">
-            <button type="submit" class="px-3 py-1.5 bg-indigo-600 text-white font-bold rounded-xl text-xs">भेजें</button>
+            <button type="submit" class="px-3 py-1.5 bg-indigo-600 text-white font-bold rounded-xl text-xs" data-i18n="sendBtn">भेजें</button>
           </form>
         </div>
       </div>
 
       <div id="streamsListWrapper" class="flex-1 overflow-y-auto mt-2 space-y-3">
-        <h3 class="text-xs font-bold text-slate-500 uppercase tracking-wider">सक्रिय क्रिएटर स्ट्रीमर:</h3>
+        <h3 class="text-xs font-bold text-slate-500 uppercase tracking-wider" data-i18n="activeStreamers">सक्रिय क्रिएटर स्ट्रीमर:</h3>
         <div id="streamsListContainer" class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
           <div class="col-span-full text-center py-12 text-slate-400 text-xs">कोई क्रिएटर लाइव नहीं है।</div>
         </div>
@@ -284,16 +283,16 @@
       <header class="px-3 md:px-4 py-2 bg-white border-b border-slate-200 flex justify-between items-center shrink-0 shadow-sm">
         <div class="flex items-center gap-2">
           <button onclick="goHome()" class="px-2.5 py-1 rounded-xl bg-slate-100 text-xs font-bold text-slate-700 border border-slate-200 flex items-center gap-1 hover:bg-slate-200 transition">
-            <span>🏠</span> <span>होम</span>
+            <span>🏠</span> <span data-i18n="homeBtn">होम</span>
           </button>
           <span id="roomStatusBadge" class="text-[11px] px-2 py-0.5 rounded-full bg-amber-100 text-amber-700 font-bold">तलाश जारी...</span>
         </div>
 
         <div class="flex items-center gap-1.5">
-          <button onclick="addCurrentPartnerAsFriend()" id="addFriendRoomBtn" class="px-2.5 py-1.5 rounded-xl bg-indigo-50 border border-indigo-200 text-indigo-700 text-xs font-bold shadow-sm hover:bg-indigo-100">
+          <button onclick="addCurrentPartnerAsFriend()" id="addFriendRoomBtn" class="px-2.5 py-1.5 rounded-xl bg-indigo-50 border border-indigo-200 text-indigo-700 text-xs font-bold shadow-sm hover:bg-indigo-100" data-i18n="addFriendBtn">
             🤝 फ्रेंड बनाएँ
           </button>
-          <button onclick="reportPartner()" class="px-2.5 py-1.5 rounded-xl bg-rose-50 border border-rose-200 text-rose-600 text-xs font-bold hover:bg-rose-100 shadow-sm">
+          <button onclick="reportPartner()" class="px-2.5 py-1.5 rounded-xl bg-rose-50 border border-rose-200 text-rose-600 text-xs font-bold hover:bg-rose-100 shadow-sm" data-i18n="reportBtn">
             🚩 रिपोर्ट
           </button>
           <button onclick="nextPartner()" id="nextBtn" class="px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-rose-500 to-pink-500 text-white text-xs font-bold shadow-md hover:opacity-90">
@@ -333,7 +332,7 @@
             <input type="file" id="mediaInput" accept="image/*" class="hidden" onchange="sendVanishImage(event)">
             <button type="button" onclick="document.getElementById('mediaInput').click()" class="p-2.5 bg-white border border-slate-200 rounded-2xl text-rose-500 shadow-sm" title="10s वैनिश फोटो">📸</button>
             <input type="text" id="msgInput" placeholder="मैसेज लिखें और Enter दबाएँ..." class="flex-1 bg-white border border-slate-200 rounded-2xl px-3.5 py-2.5 text-xs text-slate-800 focus:outline-none focus:border-rose-400">
-            <button type="submit" class="px-4 py-2.5 bg-gradient-to-r from-rose-500 to-pink-500 text-white font-bold rounded-2xl text-xs shadow-md">भेजें</button>
+            <button type="submit" class="px-4 py-2.5 bg-gradient-to-r from-rose-500 to-pink-500 text-white font-bold rounded-2xl text-xs shadow-md" data-i18n="sendBtn">भेजें</button>
           </form>
         </section>
       </main>
@@ -342,42 +341,42 @@
   </main>
 
 
-  <!-- ================= BOTTOM NAVIGATION BAR (INSTAGRAM STYLE PRO-DOCK) ================= -->
+  <!-- ================= BOTTOM NAVIGATION BAR ================= -->
   <nav class="fixed bottom-0 inset-x-0 bg-white/95 backdrop-blur-md border-t border-slate-200 py-2 px-6 flex justify-around items-center z-40">
     <button onclick="switchMainTab('home')" id="nav-home" class="flex flex-col items-center gap-0.5 text-rose-600 transition">
       <span class="text-lg leading-none">🏠</span>
-      <span class="text-[9px] font-bold">होम</span>
+      <span class="text-[9px] font-bold" data-i18n="navHome">होम</span>
     </button>
     <button onclick="switchMainTab('feed')" id="nav-feed" class="flex flex-col items-center gap-0.5 text-slate-400 hover:text-slate-800 transition">
       <span class="text-lg leading-none">📸</span>
-      <span class="text-[9px] font-bold">फ़ीड</span>
+      <span class="text-[9px] font-bold" data-i18n="navFeed">फ़ीड</span>
     </button>
     <button onclick="openCreatePostModal()" class="w-10 h-10 -mt-3 rounded-full bg-gradient-to-tr from-rose-500 to-pink-500 text-white flex items-center justify-center text-xl shadow-lg shadow-rose-500/30 active:scale-95 transition">
       <span>➕</span>
     </button>
     <button onclick="switchMainTab('nearby')" id="nav-nearby" class="flex flex-col items-center gap-0.5 text-slate-400 hover:text-slate-800 transition">
       <span class="text-lg leading-none">📍</span>
-      <span class="text-[9px] font-bold">आसपास</span>
+      <span class="text-[9px] font-bold" data-i18n="navNearby">आसपास</span>
     </button>
     <button onclick="switchMainTab('friends')" id="nav-friends" class="flex flex-col items-center gap-0.5 text-slate-400 hover:text-slate-800 transition">
       <span class="text-lg leading-none">👥</span>
-      <span class="text-[9px] font-bold">दोस्त</span>
+      <span class="text-[9px] font-bold" data-i18n="navFriends">दोस्त</span>
     </button>
   </nav>
 
 
-  <!-- ================= 📸 CREATE POST / REEL MODAL ================= -->
+  <!-- ================= CREATE POST MODAL ================= -->
   <div id="createPostModal" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
     <div class="bg-white border border-slate-200 p-5 rounded-3xl max-w-sm w-full space-y-3.5 shadow-2xl relative">
       <button onclick="closeCreatePostModal()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-700">✕</button>
       <div class="text-center">
-        <h3 class="text-base font-black text-slate-900">📸 नई पोस्ट या रील डालें</h3>
-        <p class="text-[10px] text-slate-400">सुकून कम्युनिटी फ़ीड में अपना टैलेंट दिखाएँ</p>
+        <h3 class="text-base font-black text-slate-900" data-i18n="createPostTitle">📸 नई पोस्ट या रील डालें</h3>
+        <p class="text-[10px] text-slate-400" data-i18n="createPostDesc">सुकून कम्युनिटी फ़ीड में अपना टैलेंट दिखाएँ</p>
       </div>
 
       <div class="space-y-2.5">
         <div>
-          <label class="text-[10px] font-bold text-slate-600 block mb-1">गैलरी से फ़ोटो या क्लिप चुनें:</label>
+          <label class="text-[10px] font-bold text-slate-600 block mb-1" data-i18n="chooseFileLabel">गैलरी से फ़ोटो या क्लिप चुनें:</label>
           <input type="file" id="postFileInput" accept="image/*,video/*" onchange="handlePostMediaSelect(event)" class="text-xs bg-slate-50 p-2 rounded-2xl border border-slate-200 w-full">
         </div>
 
@@ -387,11 +386,11 @@
         </div>
 
         <div>
-          <label class="text-[10px] font-bold text-slate-600 block mb-1">कैप्शन / शायरी / मन की बात:</label>
+          <label class="text-[10px] font-bold text-slate-600 block mb-1" data-i18n="captionLabel">कैप्शन / शायरी / मन की बात:</label>
           <textarea id="postCaptionInput" rows="2.5" placeholder="आज क्या चल रहा है मन में?..." class="w-full bg-slate-50 border border-slate-200 rounded-2xl p-2.5 text-xs text-slate-800 focus:outline-none focus:border-rose-400"></textarea>
         </div>
 
-        <button onclick="submitNewPost()" id="submitPostBtn" class="w-full py-3 bg-gradient-to-r from-rose-500 to-pink-500 text-white font-bold rounded-2xl text-xs shadow-md hover:opacity-95">
+        <button onclick="submitNewPost()" id="submitPostBtn" class="w-full py-3 bg-gradient-to-r from-rose-500 to-pink-500 text-white font-bold rounded-2xl text-xs shadow-md hover:opacity-95" data-i18n="sharePostBtn">
           कम्युनिटी में शेयर करें 🚀
         </button>
       </div>
@@ -399,7 +398,7 @@
   </div>
 
 
-  <!-- ================= 👤 PROFILE MODAL (WITH STATS & FOLLOWERS) ================= -->
+  <!-- ================= PROFILE MODAL ================= -->
   <div id="profileModal" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
     <div class="bg-white border border-slate-200 p-6 rounded-3xl max-w-sm w-full space-y-4 shadow-2xl relative max-h-[90vh] overflow-y-auto">
       <button onclick="closeProfileModal()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-700">✕</button>
@@ -423,31 +422,31 @@
         <div class="grid grid-cols-3 gap-2 py-2 border-y border-slate-100 my-2 text-center">
           <div>
             <span id="statPostsCount" class="block text-sm font-black text-slate-800">0</span>
-            <span class="text-[9px] text-slate-400 font-semibold">पोस्ट्स</span>
+            <span class="text-[9px] text-slate-400 font-semibold" data-i18n="statPosts">पोस्ट्स</span>
           </div>
           <div>
             <span id="statFollowersCount" class="block text-sm font-black text-rose-600">0</span>
-            <span class="text-[9px] text-slate-400 font-semibold">फॉलोअर्स</span>
+            <span class="text-[9px] text-slate-400 font-semibold" data-i18n="statFollowers">फॉलोअर्स</span>
           </div>
           <div>
             <span id="statFollowingCount" class="block text-sm font-black text-indigo-600">0</span>
-            <span class="text-[9px] text-slate-400 font-semibold">फॉलोइंग</span>
+            <span class="text-[9px] text-slate-400 font-semibold" data-i18n="statFollowing">फॉलोइंग</span>
           </div>
         </div>
       </div>
 
       <div class="space-y-3 pt-1">
         <div>
-          <label class="text-[11px] font-bold text-slate-600 block mb-1">डिस्प्ले नाम</label>
+          <label class="text-[11px] font-bold text-slate-600 block mb-1" data-i18n="displayNameLabel">डिस्प्ले नाम</label>
           <input type="text" id="editProfileName" class="w-full bg-slate-50 border border-slate-200 rounded-2xl p-2.5 text-xs text-slate-800">
         </div>
 
         <div>
-          <label class="text-[11px] font-bold text-slate-600 block mb-1">बायो / स्टेटस</label>
+          <label class="text-[11px] font-bold text-slate-600 block mb-1" data-i18n="bioLabel">बायो / स्टेटस</label>
           <textarea id="editProfileBio" rows="2" placeholder="अपने बारे में 2 शब्द लिखें..." class="w-full bg-slate-50 border border-slate-200 rounded-2xl p-2.5 text-xs text-slate-800"></textarea>
         </div>
 
-        <button onclick="saveUserProfile()" class="w-full py-3 bg-gradient-to-r from-emerald-500 to-teal-500 text-white font-bold rounded-2xl text-xs shadow-md hover:opacity-95">
+        <button onclick="saveUserProfile()" class="w-full py-3 bg-gradient-to-r from-emerald-500 to-teal-500 text-white font-bold rounded-2xl text-xs shadow-md hover:opacity-95" data-i18n="saveProfileBtn">
           प्रोफ़ाइल सेव करें ✅
         </button>
       </div>
@@ -462,14 +461,14 @@
       
       <div class="text-center space-y-1">
         <h3 class="text-lg font-black text-slate-900" data-i18n="authTitle">लॉगिन / रजिस्ट्रेशन</h3>
-        <p class="text-xs text-slate-500">सुकून सोशल प्रोफ़ाइल में प्रवेश करें</p>
+        <p class="text-xs text-slate-500" data-i18n="authDesc">सुकून सोशल प्रोफ़ाइल में प्रवेश करें</p>
       </div>
 
       <div class="grid grid-cols-2 gap-2 bg-slate-100 p-1.5 rounded-2xl">
-        <button type="button" onclick="setRole('viewer')" id="role-viewer" class="py-2 rounded-xl text-xs font-bold bg-white text-teal-700 shadow-sm">
+        <button type="button" onclick="setRole('viewer')" id="role-viewer" class="py-2 rounded-xl text-xs font-bold bg-white text-teal-700 shadow-sm" data-i18n="roleViewer">
           👀 दर्शक (Viewer)
         </button>
-        <button type="button" onclick="setRole('creator')" id="role-creator" class="py-2 rounded-xl text-xs font-bold text-slate-600">
+        <button type="button" onclick="setRole('creator')" id="role-creator" class="py-2 rounded-xl text-xs font-bold text-slate-600" data-i18n="roleCreator">
           🎙️ क्रिएटर (Streamer)
         </button>
       </div>
@@ -509,7 +508,7 @@
           </div>
         </div>
 
-        <button onclick="submitAuth()" class="w-full py-3.5 bg-gradient-to-r from-rose-500 to-pink-500 text-white font-bold rounded-2xl text-xs shadow-md hover:opacity-95">
+        <button onclick="submitAuth()" class="w-full py-3.5 bg-gradient-to-r from-rose-500 to-pink-500 text-white font-bold rounded-2xl text-xs shadow-md hover:opacity-95" data-i18n="submitBtn">
           सबमिट करें ➔
         </button>
       </div>
@@ -522,19 +521,132 @@
       <div class="text-3xl">👋</div>
       <h3 class="text-sm font-bold text-slate-800" id="chatRequestText">आपसे कोई चैट करना चाहता है!</h3>
       <div class="grid grid-cols-2 gap-2 pt-2">
-        <button onclick="declineChatRequest()" class="py-2 bg-slate-100 text-slate-600 rounded-xl text-xs font-bold">मना करें</button>
-        <button onclick="acceptChatRequest()" class="py-2 bg-emerald-600 text-white rounded-xl text-xs font-bold shadow">बात करें ✅</button>
+        <button onclick="declineChatRequest()" class="py-2 bg-slate-100 text-slate-600 rounded-xl text-xs font-bold" data-i18n="declineBtn">मना करें</button>
+        <button onclick="acceptChatRequest()" class="py-2 bg-emerald-600 text-white rounded-xl text-xs font-bold shadow" data-i18n="acceptBtn">बात करें ✅</button>
       </div>
     </div>
   </div>
 
   <script>
+    // 🔥 100% संपूर्ण हिंदी और इंग्लिश शब्दकोष (Dictionary)
     const translations = {
-      hi: { langBtn: "EN", loginBtn: "लॉगिन", subTitle: "मन की बात • सोशल स्पेस", tagTitle: "पसंदीदा विषय", textChatTitle: "टेक्स्ट चैट", videoCallTitle: "वीडियो कॉल", authTitle: "लॉगिन / रजिस्ट्रेशन" },
-      en: { langBtn: "हिं", loginBtn: "Login", subTitle: "Speak Heart • Social Space", tagTitle: "Select Tags", textChatTitle: "Text Chat", videoCallTitle: "Video Call", authTitle: "Login / Signup" }
+      hi: {
+        langBtn: "English",
+        loginBtn: "लॉगिन",
+        subTitle: "मन की बात • सोशल स्पेस",
+        tagTitle: "🎯 पसंदीदा विषय (Tags):",
+        textChatTitle: "टेक्स्ट चैट",
+        textChatDesc: "अनाम चैट व 10s वैनिश फ़ोटो",
+        startBtn: "शुरू करें ➔",
+        videoCallTitle: "वीडियो कॉल",
+        videoCallDesc: "ओमेगल स्टाइल रैंडम मैच",
+        callBtn: "कॉल करें ➔",
+        streamHubTitle: "क्रिएटर लाइव हब",
+        streamHubDesc: "स्क्रीन शेयर, लाइव चैट व गिफ़्ट्स",
+        whatsappShare: "दोस्तों को सुकून पर इनवाइट करें (WhatsApp Share)",
+        disclaimer: "🔒 18+ यूज़र्स के लिए • पूर्णतः सुरक्षित एवं अनाम प्लेटफ़ॉर्म",
+        feedHeader: "📸 सुकून कम्युनिटी फ़ीड",
+        feedSubHeader: "फ़ोटो, रील्स, विचार और क्रिएटर्स",
+        newPostBtn: "नया पोस्ट",
+        feedLoading: "फ़ीड लोड हो रही है...",
+        nearbyTitle: "📍 आसपास के लोग",
+        nearbyPrivacyNotice: "🛡️ सटीक GPS पिन सुरक्षित है (सिर्फ अनुमानित दूरी दिखेगी)",
+        nearbySearching: "आसपास के यूज़र्स खोजे जा रहे हैं...",
+        friendsTitle: "👥 मेरे दोस्त व चैट्स",
+        myFriendsTab: "🤝 मेरे पक्के दोस्त",
+        otherChatsTab: "💬 अन्य चैट्स",
+        backBtn: "← बैक",
+        startStreamBtn: "🔴 लाइव स्ट्रीम शुरू करें",
+        closeBtn: "✕ बंद करें",
+        liveChatTitle: "💬 लाइव चैट (Live Comments)",
+        sendBtn: "भेजें",
+        activeStreamers: "सक्रिय क्रिएटर स्ट्रीमर:",
+        homeBtn: "होम",
+        addFriendBtn: "🤝 फ्रेंड बनाएँ",
+        reportBtn: "🚩 रिपोर्ट",
+        navHome: "होम",
+        navFeed: "फ़ीड",
+        navNearby: "आसपास",
+        navFriends: "दोस्त",
+        createPostTitle: "📸 नई पोस्ट या रील डालें",
+        createPostDesc: "सुकून कम्युनिटी फ़ीड में अपना टैलेंट दिखाएँ",
+        chooseFileLabel: "गैलरी से फ़ोटो या क्लिप चुनें:",
+        captionLabel: "कैप्शन / शायरी / मन की बात:",
+        sharePostBtn: "कम्युनिटी में शेयर करें 🚀",
+        statPosts: "पोस्ट्स",
+        statFollowers: "फॉलोअर्स",
+        statFollowing: "फॉलोइंग",
+        displayNameLabel: "डिस्प्ले नाम",
+        bioLabel: "बायो / स्टेटस",
+        saveProfileBtn: "प्रोफ़ाइल सेव करें ✅",
+        authTitle: "लॉगिन / रजिस्ट्रेशन",
+        authDesc: "सुकून सोशल प्रोफ़ाइल में प्रवेश करें",
+        roleViewer: "👀 दर्शक (Viewer)",
+        roleCreator: "🎙️ क्रिएटर (Streamer)",
+        submitBtn: "सबमिट करें ➔",
+        declineBtn: "मना करें",
+        acceptBtn: "बात करें ✅"
+      },
+      en: {
+        langBtn: "हिंदी",
+        loginBtn: "Login",
+        subTitle: "Speak Heart • Social Space",
+        tagTitle: "🎯 Select Interest (Tags):",
+        textChatTitle: "Text Chat",
+        textChatDesc: "Anonymous chat & 10s vanish media",
+        startBtn: "Start ➔",
+        videoCallTitle: "Video Call",
+        videoCallDesc: "Omegle-style random matches",
+        callBtn: "Call ➔",
+        streamHubTitle: "Creator Live Hub",
+        streamHubDesc: "Screen share, live chat & gifts",
+        whatsappShare: "Invite friends to Sukoon (WhatsApp Share)",
+        disclaimer: "🔒 For 18+ Users • Completely Safe & Anonymous",
+        feedHeader: "📸 Sukoon Community Feed",
+        feedSubHeader: "Photos, Reels, Thoughts & Creators",
+        newPostBtn: "New Post",
+        feedLoading: "Loading feed...",
+        nearbyTitle: "📍 People Nearby",
+        nearbyPrivacyNotice: "🛡️ Exact GPS pin is private (Only estimated distance)",
+        nearbySearching: "Searching for nearby users...",
+        friendsTitle: "👥 My Friends & Chats",
+        myFriendsTab: "🤝 My Friends",
+        otherChatsTab: "💬 Other Chats",
+        backBtn: "← Back",
+        startStreamBtn: "🔴 Start Live Stream",
+        closeBtn: "✕ Close",
+        liveChatTitle: "💬 Live Chat",
+        sendBtn: "Send",
+        activeStreamers: "Active Live Creators:",
+        homeBtn: "Home",
+        addFriendBtn: "🤝 Add Friend",
+        reportBtn: "🚩 Report",
+        navHome: "Home",
+        navFeed: "Feed",
+        navNearby: "Nearby",
+        navFriends: "Friends",
+        createPostTitle: "📸 Create Post or Reel",
+        createPostDesc: "Showcase your talent in Sukoon Feed",
+        chooseFileLabel: "Choose Photo or Clip from Gallery:",
+        captionLabel: "Caption / Poetry / Status:",
+        sharePostBtn: "Share to Community 🚀",
+        statPosts: "Posts",
+        statFollowers: "Followers",
+        statFollowing: "Following",
+        displayNameLabel: "Display Name",
+        bioLabel: "Bio / Status",
+        saveProfileBtn: "Save Profile ✅",
+        authTitle: "Login / Registration",
+        authDesc: "Enter Sukoon Social Space",
+        roleViewer: "👀 Viewer",
+        roleCreator: "🎙️ Streamer",
+        submitBtn: "Submit ➔",
+        declineBtn: "Decline",
+        acceptBtn: "Accept ✅"
+      }
     };
 
-    let currentLang = 'hi';
+    let currentLang = localStorage.getItem("sukoon_lang") || 'hi';
     let socket;
     let currentMode = 'text';
     let selectedTag = 'All';
@@ -577,11 +689,30 @@
     };
 
     window.addEventListener("load", () => {
+      applyLanguage(currentLang);
       restoreSavedUser();
       fetchBanner();
       fetchFeedPosts();
       initSocket();
     });
+
+    // 🔥 भाषा बदलने का मुख्य फ़ंक्शन
+    function toggleLanguage() {
+      currentLang = currentLang === 'hi' ? 'en' : 'hi';
+      localStorage.setItem("sukoon_lang", currentLang);
+      applyLanguage(currentLang);
+    }
+
+    function applyLanguage(lang) {
+      document.getElementById('langText').innerText = translations[lang].langBtn;
+      document.querySelectorAll('[data-i18n]').forEach(el => {
+        const key = el.getAttribute('data-i18n');
+        if (translations[lang] && translations[lang][key]) {
+          el.innerText = translations[lang][key];
+        }
+      });
+      updateUserUI();
+    }
 
     // ================= 🧭 DOCK TAB NAVIGATION =================
     function switchMainTab(tab) {
@@ -603,7 +734,7 @@
         fetchFeedPosts();
       } else if (tab === 'nearby') {
         if (!loggedInUser) {
-          alert("आसपास के लोगों को खोजने के लिए लॉगिन करें!");
+          alert(currentLang === 'hi' ? "आसपास के लोगों को खोजने के लिए लॉगिन करें!" : "Please login to find nearby people!");
           toggleAuthModal();
           switchMainTab('home');
           return;
@@ -613,7 +744,7 @@
         openNearbyHub();
       } else if (tab === 'friends') {
         if (!loggedInUser) {
-          alert("फ्रेंड लिस्ट व चैट्स के लिए लॉगिन करें!");
+          alert(currentLang === 'hi' ? "फ्रेंड लिस्ट व चैट्स के लिए लॉगिन करें!" : "Please login for friends list!");
           toggleAuthModal();
           switchMainTab('home');
           return;
@@ -637,7 +768,7 @@
     function renderFeedPosts(posts) {
       const box = document.getElementById("feedPostsContainer");
       if (!posts || posts.length === 0) {
-        box.innerHTML = `<div class="text-center py-16 text-slate-400 text-xs">अभी कोई पोस्ट नहीं है। नीचे '➕' दबाकर पहली फ़ोटो या रील शेयर करें!</div>`;
+        box.innerHTML = `<div class="text-center py-16 text-slate-400 text-xs">${currentLang === 'hi' ? "अभी कोई पोस्ट नहीं है। नीचे '➕' दबाकर पहली फ़ोटो या रील शेयर करें!" : "No posts yet. Tap '➕' below to create one!"}</div>`;
         return;
       }
 
@@ -647,7 +778,6 @@
 
         return `
           <div class="bg-white border border-slate-200/90 rounded-3xl overflow-hidden shadow-sm hover:shadow-md transition">
-            <!-- Author Header -->
             <div class="p-3 flex items-center justify-between">
               <div class="flex items-center gap-2.5">
                 <img src="${p.authorAvatar || 'https://api.dicebear.com/7.x/bottts/svg?seed=' + p.authorEmail}" class="w-9 h-9 rounded-2xl object-cover border border-slate-100 shadow-sm bg-slate-50">
@@ -657,7 +787,6 @@
                 </div>
               </div>
               
-              <!-- ➕ Follow Button -->
               ${!isOwnPost ? `
                 <button onclick="toggleFollowUser('${p.authorEmail}', this)" class="px-3 py-1 bg-rose-50 border border-rose-200 text-rose-600 hover:bg-rose-100 rounded-xl text-[11px] font-bold transition">
                   + Follow
@@ -665,7 +794,6 @@
               ` : ''}
             </div>
 
-            <!-- Media Preview (Image or Reel Video) -->
             ${p.media ? (p.mediaType === 'video' ? `
               <div class="bg-black max-h-96 flex items-center justify-center">
                 <video src="${p.media}" controls playsinline class="max-h-96 w-full object-contain"></video>
@@ -676,15 +804,14 @@
               </div>
             `) : ''}
 
-            <!-- Post Actions & Caption -->
             <div class="p-3.5 space-y-2">
               <div class="flex items-center justify-between text-slate-700">
                 <button onclick="togglePostLike('${p.id}', this)" class="flex items-center gap-1.5 text-xs font-bold ${isLiked ? 'text-rose-600' : 'text-slate-600'}">
                   <span class="text-base">${isLiked ? '❤️' : '🤍'}</span>
-                  <span class="likes-count">${p.likes ? p.likes.length : 0} लाइक</span>
+                  <span class="likes-count">${p.likes ? p.likes.length : 0} ${currentLang === 'hi' ? 'लाइक' : 'Likes'}</span>
                 </button>
                 <button onclick="sharePost('${p.authorName}')" class="text-xs text-slate-500 font-bold flex items-center gap-1">
-                  <span>↗️</span> <span>शेयर</span>
+                  <span>↗️</span> <span>${currentLang === 'hi' ? 'शेयर' : 'Share'}</span>
                 </button>
               </div>
 
@@ -697,10 +824,9 @@
       }).join("");
     }
 
-    // पोस्ट लाइक टॉगल
     async function togglePostLike(postId, btn) {
       if (!loggedInUser) {
-        alert("लाइक करने के लिए पहले लॉगिन करें!");
+        alert(currentLang === 'hi' ? "लाइक करने के लिए पहले लॉगिन करें!" : "Please login to like!");
         toggleAuthModal();
         return;
       }
@@ -712,18 +838,16 @@
         });
         const d = await res.json();
         if (d.success) {
-          const span = btn.querySelector('.likes-count');
-          if (span) span.innerText = `${d.likesCount} लाइक`;
-          btn.innerHTML = `<span class="text-base">${d.isLiked ? '❤️' : '🤍'}</span> <span class="likes-count">${d.likesCount} लाइक</span>`;
+          const word = currentLang === 'hi' ? 'लाइक' : 'Likes';
+          btn.innerHTML = `<span class="text-base">${d.isLiked ? '❤️' : '🤍'}</span> <span class="likes-count">${d.likesCount} ${word}</span>`;
           btn.className = `flex items-center gap-1.5 text-xs font-bold ${d.isLiked ? 'text-rose-600' : 'text-slate-600'}`;
         }
       } catch (e) {}
     }
 
-    // ➕ फॉलो टॉगल
     async function toggleFollowUser(targetEmail, btn) {
       if (!loggedInUser) {
-        alert("फॉलो करने के लिए पहले लॉगिन करें!");
+        alert(currentLang === 'hi' ? "फॉलो करने के लिए पहले लॉगिन करें!" : "Please login to follow!");
         toggleAuthModal();
         return;
       }
@@ -747,14 +871,13 @@
     }
 
     function sharePost(author) {
-      const text = encodeURIComponent(`सुकून (Sukoon) पर ${author} की यह पोस्ट देखें 👉 ${window.location.origin}`);
+      const text = encodeURIComponent(`Sukoon - ${author}'s post: ${window.location.origin}`);
       window.open(`https://api.whatsapp.com/send?text=${text}`, '_blank');
     }
 
-    // नई पोस्ट अपलोड मोडल
     function openCreatePostModal() {
       if (!loggedInUser) {
-        alert("पोस्ट डालने के लिए पहले लॉगिन करें!");
+        alert(currentLang === 'hi' ? "पोस्ट डालने के लिए पहले लॉगिन करें!" : "Please login to create post!");
         toggleAuthModal();
         return;
       }
@@ -820,11 +943,11 @@
     async function submitNewPost() {
       const caption = document.getElementById('postCaptionInput').value.trim();
       if (!tempPostMediaBase64 && !caption) {
-        return alert("कृपया फ़ोटो चुनें या कुछ शब्द लिखें!");
+        return alert(currentLang === 'hi' ? "कृपया फ़ोटो चुनें या कुछ शब्द लिखें!" : "Please choose photo or enter caption!");
       }
 
       const btn = document.getElementById('submitPostBtn');
-      btn.innerText = "अपलोड हो रहा है...";
+      btn.innerText = currentLang === 'hi' ? "अपलोड हो रहा है..." : "Uploading...";
       btn.disabled = true;
 
       try {
@@ -843,19 +966,19 @@
           closeCreatePostModal();
           switchMainTab('feed');
           fetchFeedPosts();
-          alert("✅ आपकी पोस्ट सुकून कम्युनिटी में लाइव हो गई!");
+          alert(currentLang === 'hi' ? "✅ आपकी पोस्ट सुकून कम्युनिटी में लाइव हो गई!" : "✅ Post published successfully!");
         } else {
-          alert("पोस्ट अपलोड नहीं हो सकी");
+          alert("Error creating post");
         }
       } catch (err) {
-        alert("अपलोड नेटवर्क एरर");
+        alert("Upload network error");
       } finally {
-        btn.innerText = "कम्युनिटी में शेयर करें 🚀";
+        btn.innerText = translations[currentLang].sharePostBtn;
         btn.disabled = false;
       }
     }
 
-    // ================= 🖼️ SINGLE BANNER HANDLER =================
+    // ================= 🖼️ SINGLE BANNER =================
     async function fetchBanner() {
       try {
         const res = await fetch("/api/banner");
@@ -890,7 +1013,7 @@
     }
 
     function shareOnWhatsApp() {
-      const text = encodeURIComponent("यार, सुकून (Sukoon) पर आओ! यहाँ बिना किसी पहचान के दिल खोलकर बात कर सकते हैं, रील्स देख सकते हैं और लाइव स्ट्रीम देख सकते हैं 👉 " + window.location.origin);
+      const text = encodeURIComponent("Sukoon - Anonymous & Live Stream Space: " + window.location.origin);
       window.open(`https://api.whatsapp.com/send?text=${text}`, '_blank');
     }
 
@@ -900,7 +1023,7 @@
       document.getElementById('myProfileImg').src = loggedInUser.avatar || `https://api.dicebear.com/7.x/bottts/svg?seed=${loggedInUser.email}`;
       document.getElementById('myProfileName').innerText = loggedInUser.channelName || loggedInUser.email.split('@')[0];
       document.getElementById('myProfileEmail').innerText = loggedInUser.email;
-      document.getElementById('myProfileRoleBadge').innerText = loggedInUser.role === 'creator' ? "🎙️ क्रिएटर (Streamer)" : "👀 दर्शक (Viewer)";
+      document.getElementById('myProfileRoleBadge').innerText = loggedInUser.role === 'creator' ? (currentLang === 'hi' ? "🎙️ क्रिएटर (Streamer)" : "🎙️ Streamer") : (currentLang === 'hi' ? "👀 दर्शक (Viewer)" : "👀 Viewer");
       
       document.getElementById('editProfileName').value = loggedInUser.channelName || "";
       document.getElementById('editProfileBio').value = loggedInUser.bio || "";
@@ -952,7 +1075,7 @@
       const newBio = document.getElementById('editProfileBio').value.trim();
       const newAvatar = tempAvatarBase64 || loggedInUser.avatar;
 
-      if (!newName) return alert("कृपया नाम दर्ज करें");
+      if (!newName) return alert(currentLang === 'hi' ? "कृपया नाम दर्ज करें" : "Name required");
 
       try {
         const res = await fetch("/api/user/update-profile", {
@@ -968,9 +1091,9 @@
           registerPresence();
           closeProfileModal();
           fetchFeedPosts();
-          alert("✅ प्रोफाइल सफलतापूर्वक अपडेट हो गई!");
+          alert(currentLang === 'hi' ? "✅ प्रोफाइल सफलतापूर्वक अपडेट हो गई!" : "✅ Profile updated!");
         }
-      } catch (err) { alert("सर्वर त्रुटि"); }
+      } catch (err) { alert("Error"); }
     }
 
     function restoreSavedUser() {
@@ -1025,11 +1148,10 @@
     }
 
     function logoutUser() {
-      if (confirm("क्या आप सचमुच लॉगआउट करना चाहते हैं?")) {
+      if (confirm(currentLang === 'hi' ? "क्या आप सचमुच लॉगआउट करना चाहते हैं?" : "Do you want to logout?")) {
         localStorage.removeItem("sukoon_active_user");
         loggedInUser = null;
         updateUserUI();
-        alert("आप सफलतापूर्वक लॉगआउट हो गए हैं!");
         location.reload();
       }
     }
@@ -1040,7 +1162,7 @@
         if (navigator.geolocation) {
           navigator.geolocation.getCurrentPosition(
             (pos) => { userLat = pos.coords.latitude; userLon = pos.coords.longitude; registerPresence(); refreshNearbyUsers(); },
-            () => { alert("कृपया ब्राउज़र में लोकेशन (GPS) चालू करें।"); }
+            () => { alert(currentLang === 'hi' ? "कृपया ब्राउज़र में लोकेशन (GPS) चालू करें।" : "Please enable GPS location"); }
           );
         }
       } else {
@@ -1064,7 +1186,7 @@
     function renderNearbyList(users) {
       const box = document.getElementById("nearbyListContainer");
       if (!users || users.length === 0) {
-        box.innerHTML = `<div class="text-center py-16 text-slate-400 text-xs">आपके ${currentRadiusKM} KM के दायरे में कोई अन्य यूज़र अभी ऑनलाइन नहीं है।</div>`;
+        box.innerHTML = `<div class="text-center py-16 text-slate-400 text-xs">${currentLang === 'hi' ? `आपके ${currentRadiusKM} KM के दायरे में कोई अन्य यूज़र अभी ऑनलाइन नहीं है।` : `No users online within ${currentRadiusKM} KM.`}</div>`;
         return;
       }
       box.innerHTML = users.map(u => `
@@ -1073,10 +1195,10 @@
             <img src="${u.avatar || 'https://api.dicebear.com/7.x/bottts/svg?seed=' + u.email}" class="w-10 h-10 rounded-2xl object-cover border border-slate-200 shadow-sm bg-slate-50">
             <div>
               <div class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-emerald-500"></span><h4 class="text-xs font-bold text-slate-800">${u.channelName}</h4></div>
-              <p class="text-[10px] text-slate-500">📍 लगभग ~${u.distanceKM} KM दूर</p>
+              <p class="text-[10px] text-slate-500">📍 ~${u.distanceKM} KM</p>
             </div>
           </div>
-          <button onclick="sendNearbyHi('${u.socketId}')" class="px-3 py-1.5 bg-gradient-to-r from-emerald-500 to-teal-500 text-white text-xs font-bold rounded-xl shadow-sm">👋 बात करें</button>
+          <button onclick="sendNearbyHi('${u.socketId}')" class="px-3 py-1.5 bg-gradient-to-r from-emerald-500 to-teal-500 text-white text-xs font-bold rounded-xl shadow-sm">👋 ${currentLang === 'hi' ? 'बात करें' : 'Chat'}</button>
         </div>
       `).join("");
     }
@@ -1084,7 +1206,7 @@
     function sendNearbyHi(targetSid) {
       if (socket) {
         socket.emit("send_nearby_request", { toSocketId: targetSid });
-        alert("चैट रिक्वेस्ट भेज दी गई है!");
+        alert(currentLang === 'hi' ? "चैट रिक्वेस्ट भेज दी गई है!" : "Chat request sent!");
       }
     }
 
@@ -1110,7 +1232,7 @@
     function renderFilteredConnections() {
       const box = document.getElementById("connectionsListContainer");
       if (!cachedConnections || cachedConnections.length === 0) {
-        box.innerHTML = `<div class="text-center py-16 text-slate-400 text-xs">कोई चैट या दोस्त नहीं मिले।</div>`;
+        box.innerHTML = `<div class="text-center py-16 text-slate-400 text-xs">${currentLang === 'hi' ? 'कोई चैट या दोस्त नहीं मिले।' : 'No chats or friends found.'}</div>`;
         return;
       }
       let filtered = (activeFriendsTab === 'friends')
@@ -1119,8 +1241,8 @@
 
       if (filtered.length === 0) {
         box.innerHTML = activeFriendsTab === 'friends'
-          ? `<div class="text-center py-16 text-slate-400 text-xs">अभी कोई पक्का दोस्त नहीं बना है।</div>`
-          : `<div class="text-center py-16 text-slate-400 text-xs">कोई अन्य चैट नहीं है।</div>`;
+          ? `<div class="text-center py-16 text-slate-400 text-xs">${currentLang === 'hi' ? 'अभी कोई पक्का दोस्त नहीं बना है।' : 'No friends yet.'}</div>`
+          : `<div class="text-center py-16 text-slate-400 text-xs">${currentLang === 'hi' ? 'कोई अन्य चैट नहीं है।' : 'No other chats.'}</div>`;
         return;
       }
 
@@ -1132,14 +1254,14 @@
               <span class="absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full border-2 border-white ${c.isOnline ? 'bg-emerald-500' : 'bg-slate-300'}"></span>
             </div>
             <div>
-              <div class="flex items-center gap-1.5"><h4 class="text-xs font-bold text-slate-800">${c.peerName}</h4>${c.isFriend ? '<span class="text-[9px] bg-indigo-50 text-indigo-700 px-1.5 py-0.2 rounded font-bold">दोस्त 🤝</span>' : ''}</div>
-              <p class="text-[10px] ${c.isOnline ? 'text-emerald-600 font-bold' : 'text-slate-400'}">${c.isOnline ? '🟢 ऑनलाइन' : 'अंतिम चैट: ' + c.lastChatAt}</p>
+              <div class="flex items-center gap-1.5"><h4 class="text-xs font-bold text-slate-800">${c.peerName}</h4>${c.isFriend ? `<span class="text-[9px] bg-indigo-50 text-indigo-700 px-1.5 py-0.2 rounded font-bold">${currentLang === 'hi' ? 'दोस्त 🤝' : 'Friend 🤝'}</span>` : ''}</div>
+              <p class="text-[10px] ${c.isOnline ? 'text-emerald-600 font-bold' : 'text-slate-400'}">${c.isOnline ? (currentLang === 'hi' ? '🟢 ऑनलाइन' : '🟢 Online') : (currentLang === 'hi' ? 'अंतिम चैट: ' + c.lastChatAt : 'Last: ' + c.lastChatAt)}</p>
             </div>
           </div>
           <div class="flex items-center gap-1">
-            ${c.isFriend ? `<button onclick="manageFriendship('${c.peerEmail}', 'unfriend')" class="px-2 py-1 rounded-xl bg-slate-100 text-slate-600 text-[10px] font-bold">हटाएँ</button>` : `<button onclick="manageFriendship('${c.peerEmail}', 'add_friend')" class="px-2 py-1 rounded-xl bg-indigo-50 text-indigo-700 text-[10px] font-bold border border-indigo-200">+ दोस्त</button>`}
+            ${c.isFriend ? `<button onclick="manageFriendship('${c.peerEmail}', 'unfriend')" class="px-2 py-1 rounded-xl bg-slate-100 text-slate-600 text-[10px] font-bold">${currentLang === 'hi' ? 'हटाएँ' : 'Remove'}</button>` : `<button onclick="manageFriendship('${c.peerEmail}', 'add_friend')" class="px-2 py-1 rounded-xl bg-indigo-50 text-indigo-700 text-[10px] font-bold border border-indigo-200">+ ${currentLang === 'hi' ? 'दोस्त' : 'Friend'}</button>`}
             <button onclick="manageFriendship('${c.peerEmail}', 'block')" class="px-2 py-1 rounded-xl bg-rose-50 text-rose-600 text-[10px] font-bold">🚫</button>
-            <button onclick="startApp('text')" class="px-2.5 py-1 bg-emerald-600 text-white rounded-xl text-[10px] font-bold shadow-sm">चैट ➔</button>
+            <button onclick="startApp('text')" class="px-2.5 py-1 bg-emerald-600 text-white rounded-xl text-[10px] font-bold shadow-sm">${currentLang === 'hi' ? 'चैट ➔' : 'Chat ➔'}</button>
           </div>
         </div>
       `).join("");
@@ -1155,10 +1277,10 @@
     }
 
     async function addCurrentPartnerAsFriend() {
-      if (!loggedInUser) { alert("लॉगिन करें!"); toggleAuthModal(); return; }
-      if (!currentPartnerEmail) { alert("साथी अनाम रूप से जुड़ा है।"); return; }
+      if (!loggedInUser) { alert(currentLang === 'hi' ? "लॉगिन करें!" : "Please login!"); toggleAuthModal(); return; }
+      if (!currentPartnerEmail) { alert(currentLang === 'hi' ? "साथी अनाम रूप से जुड़ा है।" : "Partner is anonymous"); return; }
       await manageFriendship(currentPartnerEmail, 'add_friend');
-      document.getElementById('addFriendRoomBtn').innerText = "दोस्त बन गए ✅";
+      document.getElementById('addFriendRoomBtn').innerText = currentLang === 'hi' ? "दोस्त बन गए ✅" : "Friends ✅";
       document.getElementById('addFriendRoomBtn').className = "px-2.5 py-1.5 rounded-xl bg-emerald-50 text-emerald-700 text-xs font-bold";
     }
 
@@ -1190,7 +1312,7 @@
       socket.on("my_connections_data", ({ connections }) => { cachedConnections = connections || []; renderFilteredConnections(); });
       socket.on("receive_chat_request", ({ fromSocketId, fromName }) => {
         pendingRequestFromSid = fromSocketId;
-        document.getElementById('chatRequestText').innerText = `${fromName} आपसे चैट करना चाहते हैं!`;
+        document.getElementById('chatRequestText').innerText = `${fromName} ${currentLang === 'hi' ? 'आपसे चैट करना चाहते हैं!' : 'wants to chat with you!'}`;
         document.getElementById('chatRequestModal').classList.remove('hidden');
       });
 
@@ -1208,7 +1330,7 @@
 
       socket.on("stream_list_updated", (streams) => renderStreamsList(streams));
       socket.on("stream_error", ({ message }) => alert(message));
-      socket.on("stream_ended", () => { alert("लाइव स्ट्रीम समाप्त हो गई।"); leaveCurrentStream(); });
+      socket.on("stream_ended", () => { alert(currentLang === 'hi' ? "लाइव स्ट्रीम समाप्त हो गई।" : "Live stream ended."); leaveCurrentStream(); });
       socket.on("receive_stream_chat", ({ senderName, text, time }) => appendStreamChatMessage(senderName, text, time));
       socket.on("gift_received", (data) => {
         showGiftPopup(data.giftName, data.senderName);
@@ -1219,12 +1341,12 @@
         isInitiator = data.isInitiator;
         currentPartnerEmail = data.partnerEmail || null;
         currentPartnerName = data.partnerName || null;
-        document.getElementById("addFriendRoomBtn").innerText = "🤝 फ्रेंड बनाएँ";
+        document.getElementById("addFriendRoomBtn").innerText = translations[currentLang].addFriendBtn;
         document.getElementById("addFriendRoomBtn").className = "px-2.5 py-1.5 rounded-xl bg-indigo-50 border border-indigo-200 text-indigo-700 text-xs font-bold";
-        document.getElementById("roomStatusBadge").innerText = "ऑनलाइन 🟢";
+        document.getElementById("roomStatusBadge").innerText = currentLang === 'hi' ? "ऑनलाइन 🟢" : "Online 🟢";
         document.getElementById("roomStatusBadge").className = "text-[11px] px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700 font-bold";
         document.getElementById("videoWaitingNotice").classList.add("hidden");
-        appendSystemMessage(data.partnerName ? `आप ${data.partnerName} से जुड़े हैं!` : `साथी जुड़ गया!`);
+        appendSystemMessage(data.partnerName ? `${data.partnerName}` : (currentLang === 'hi' ? "साथी जुड़ गया!" : "Partner connected!"));
         if (currentMode === 'video') initRandomPeerConnection();
       });
 
@@ -1248,10 +1370,10 @@
 
       socket.on("message_rejected", ({ reason }) => alert(reason));
       socket.on("partner_disconnected", () => {
-        document.getElementById("roomStatusBadge").innerText = "डिस्कनेक्टेड";
+        document.getElementById("roomStatusBadge").innerText = currentLang === 'hi' ? "डिस्कनेक्टेड" : "Disconnected";
         document.getElementById("roomStatusBadge").className = "text-[11px] px-2 py-0.5 rounded-full bg-rose-100 text-rose-700 font-bold";
         document.getElementById("videoWaitingNotice").classList.remove("hidden");
-        appendSystemMessage("साथी चला गया। 'Next' दबाएँ।");
+        appendSystemMessage(currentLang === 'hi' ? "साथी चला गया। 'Next' दबाएँ।" : "Partner left. Press 'Next'.");
         closePeer();
       });
     }
@@ -1277,7 +1399,7 @@
         if (localStream) localStream.getTracks().forEach(t => t.stop());
         localStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: randomFacingMode }, audio: true });
         document.getElementById('localVideo').srcObject = localStream;
-      } catch (err) { alert("कैमरा एक्सेस नहीं मिला"); }
+      } catch (err) { alert("Camera error"); }
     }
 
     async function flipRandomCamera() {
@@ -1351,7 +1473,7 @@
       const div = document.createElement("div");
       div.id = id;
       div.className = who === "me" ? "flex justify-end" : "flex justify-start";
-      div.innerHTML = `<div class="max-w-[80%] p-2 rounded-2xl bg-white border border-slate-200 shadow-md"><img src="${src}" class="max-h-48 rounded-xl object-cover"><div class="text-[9px] text-amber-600 font-bold mt-1">⏳ 10s वैनिश फ़ोटो</div></div>`;
+      div.innerHTML = `<div class="max-w-[80%] p-2 rounded-2xl bg-white border border-slate-200 shadow-md"><img src="${src}" class="max-h-48 rounded-xl object-cover"><div class="text-[9px] text-amber-600 font-bold mt-1">⏳ 10s Vanish</div></div>`;
       box.appendChild(div);
       scrollToBottom();
       setTimeout(() => { document.getElementById(id)?.remove(); }, 10000);
@@ -1375,7 +1497,7 @@
       closePeer();
       currentPartnerEmail = null; currentPartnerName = null;
       document.getElementById("messagesBox").innerHTML = "";
-      document.getElementById("roomStatusBadge").innerText = "तलाश जारी...";
+      document.getElementById("roomStatusBadge").innerText = currentLang === 'hi' ? "तलाश जारी..." : "Searching...";
       document.getElementById("videoWaitingNotice").classList.remove("hidden");
       if (socket) socket.emit("find_partner", { mode: currentMode, tag: selectedTag, email: loggedInUser?.email || null, name: loggedInUser?.channelName || null });
     }
@@ -1404,16 +1526,16 @@
     }
 
     function reportPartner() {
-      if (confirm("साथी को रिपोर्ट करके कॉल समाप्त करना चाहते हैं?")) {
-        if (socket) socket.emit("report_partner", { reason: "यूज़र द्वारा रिपोर्ट किया गया" });
-        alert("रिपोर्ट दर्ज कर ली गई है!");
+      if (confirm(currentLang === 'hi' ? "साथी को रिपोर्ट करके कॉल समाप्त करना चाहते हैं?" : "Do you want to report this user?")) {
+        if (socket) socket.emit("report_partner", { reason: "Reported" });
+        alert(currentLang === 'hi' ? "रिपोर्ट दर्ज कर ली गई है!" : "Reported successfully!");
         nextPartner();
       }
     }
 
     // ================= LIVE STREAM =================
     function openStreamHub() {
-      if (!loggedInUser) { alert("लॉगिन करें!"); toggleAuthModal(); return; }
+      if (!loggedInUser) { alert(currentLang === 'hi' ? "लॉगिन करें!" : "Please login!"); toggleAuthModal(); return; }
       switchMainTab('home');
       document.getElementById('homeScreen').classList.add('hidden');
       document.getElementById('streamHubScreen').classList.remove('hidden');
@@ -1435,7 +1557,7 @@
       const container = document.getElementById("streamsListContainer");
       const filtered = activeStreamCategory === 'All' ? cachedStreams : cachedStreams.filter(s => s.category === activeStreamCategory);
       if (!filtered || filtered.length === 0) {
-        container.innerHTML = `<div class="col-span-full text-center py-12 text-slate-400 text-xs">कोई क्रिएटर लाइव नहीं है।</div>`;
+        container.innerHTML = `<div class="col-span-full text-center py-12 text-slate-400 text-xs">${currentLang === 'hi' ? 'कोई क्रिएटर लाइव नहीं है।' : 'No creators live.'}</div>`;
         return;
       }
       container.innerHTML = filtered.map(s => `
@@ -1448,16 +1570,16 @@
             </div>
           </div>
           <div class="flex items-center justify-between pt-1 border-t border-slate-100 text-[10px]">
-            <span class="text-slate-500">⏰ ${s.schedule || 'रोज़ाना लाइव'}</span>
-            <button onclick="joinStream('${s.streamId}')" class="px-3.5 py-1.5 bg-gradient-to-r from-teal-500 to-emerald-500 text-white font-bold rounded-xl shadow-sm">लाइव देखें 👁️</button>
+            <span class="text-slate-500">⏰ ${s.schedule || 'Daily Live'}</span>
+            <button onclick="joinStream('${s.streamId}')" class="px-3.5 py-1.5 bg-gradient-to-r from-teal-500 to-emerald-500 text-white font-bold rounded-xl shadow-sm">${currentLang === 'hi' ? 'लाइव देखें 👁️' : 'Watch Live 👁️'}</button>
           </div>
         </div>
       `).join("");
     }
 
     function promptStartBroadcast() {
-      if (!loggedInUser || loggedInUser.role !== 'creator' || !loggedInUser.isApprovedCreator) return alert("स्वीकृत क्रिएटर ही लाइव आ सकते हैं।");
-      const title = prompt("स्ट्रीम का शीर्षक लिखें:", `${loggedInUser.channelName} लाइव शो`);
+      if (!loggedInUser || loggedInUser.role !== 'creator' || !loggedInUser.isApprovedCreator) return alert(currentLang === 'hi' ? "स्वीकृत क्रिएटर ही लाइव आ सकते हैं।" : "Only approved creators can stream");
+      const title = prompt(currentLang === 'hi' ? "स्ट्रीम का शीर्षक लिखें:" : "Enter stream title:", `${loggedInUser.channelName} Live`);
       if (title) startBroadcasting(title);
     }
 
@@ -1472,7 +1594,7 @@
         document.getElementById('viewerCloseStreamBtn').classList.add('hidden');
         document.getElementById('viewerGiftBar').classList.add('hidden');
         socket.emit("start_stream", { email: loggedInUser.email, title, category: loggedInUser.category });
-      } catch (e) { alert("कैमरा अनुमति नहीं मिली!"); }
+      } catch (e) { alert("Camera permission required"); }
     }
 
     function toggleStreamerAudio() {
@@ -1515,7 +1637,7 @@
           });
           document.getElementById('streamVideoPlayer').srcObject = screenStream;
           isScreenSharing = true;
-          btn.innerText = "📹 कैमरा";
+          btn.innerText = currentLang === 'hi' ? "📹 कैमरा" : "📹 Camera";
           screenTrack.onended = revertToCamera;
         } catch (err) {}
       } else { revertToCamera(); }
@@ -1531,11 +1653,11 @@
         document.getElementById('streamVideoPlayer').srcObject = cameraStreamBackup;
       }
       isScreenSharing = false;
-      btn.innerText = "📲 स्क्रीन";
+      btn.innerText = currentLang === 'hi' ? "📲 स्क्रीन" : "📲 Screen";
     }
 
     function stopBroadcast() {
-      if (confirm("लाइव स्ट्रीम बंद करना चाहते हैं?")) {
+      if (confirm(currentLang === 'hi' ? "लाइव स्ट्रीम बंद करना चाहते हैं?" : "Stop live stream?")) {
         if (localStream) localStream.getTracks().forEach(t => t.stop());
         localStream = null;
         Object.values(streamViewerPeers).forEach(p => p.close());
@@ -1572,7 +1694,7 @@
       if (!text || !socket) return;
       const streamId = currentActiveStreamId || (localStream ? ("stream_" + socket.id) : null);
       if (!streamId) return;
-      socket.emit("send_stream_chat", { streamId, text, senderName: loggedInUser?.channelName || "दर्शक" });
+      socket.emit("send_stream_chat", { streamId, text, senderName: loggedInUser?.channelName || "Viewer" });
       inp.value = "";
     }
 
@@ -1589,32 +1711,26 @@
       const box = document.getElementById('streamChatMessagesBox');
       const div = document.createElement('div');
       div.className = "p-2 rounded-2xl bg-gradient-to-r from-amber-500/10 via-rose-500/10 to-pink-500/10 border-2 border-amber-300 flex flex-col shadow-sm";
-      div.innerHTML = `<div class="flex justify-between text-[11px] font-bold text-amber-700"><span>🌟 सुपरचैट • ${senderName}</span><span>💰 ${coins} Coins</span></div><div class="text-rose-600 font-black text-xs mt-0.5">${giftName} भेजा!</div>`;
+      div.innerHTML = `<div class="flex justify-between text-[11px] font-bold text-amber-700"><span>🌟 Superchat • ${senderName}</span><span>💰 ${coins} Coins</span></div><div class="text-rose-600 font-black text-xs mt-0.5">${giftName} Sent!</div>`;
       box.appendChild(div);
       box.scrollTop = box.scrollHeight;
     }
 
     function sendVirtualGift(giftName, coins) {
       if (!currentActiveStreamId) return;
-      socket.emit("send_gift", { streamId: currentActiveStreamId, giftName, coins, senderName: loggedInUser?.channelName || "अनाम साथी" });
+      socket.emit("send_gift", { streamId: currentActiveStreamId, giftName, coins, senderName: loggedInUser?.channelName || "Friend" });
     }
 
     function showGiftPopup(giftName, senderName) {
       const area = document.getElementById("giftNotificationArea");
       const el = document.createElement("div");
       el.className = "gift-animation bg-white/95 px-4 py-2 rounded-2xl shadow-2xl border border-rose-200 text-center";
-      el.innerHTML = `<div class="text-2xl">${giftName.split(' ')[1] || '🎁'}</div><div class="text-xs font-black text-rose-600">${senderName} ने ${giftName} भेजा!</div>`;
+      el.innerHTML = `<div class="text-2xl">${giftName.split(' ')[1] || '🎁'}</div><div class="text-xs font-black text-rose-600">${senderName} sent ${giftName}!</div>`;
       area.appendChild(el);
       setTimeout(() => el.remove(), 2200);
     }
 
     // ================= AUTH =================
-    function toggleLanguage() {
-      currentLang = currentLang === 'hi' ? 'en' : 'hi';
-      document.getElementById('langText').innerText = translations[currentLang].langBtn;
-      updateUserUI();
-    }
-
     function toggleAuthModal() { document.getElementById('authModal').classList.toggle('hidden'); }
 
     function setRole(role) {
@@ -1634,7 +1750,7 @@
     async function submitAuth() {
       const email = document.getElementById('authEmail').value.trim();
       const password = document.getElementById('authPassword').value.trim();
-      if (!email || !password) return alert("ईमेल और पासवर्ड भरें!");
+      if (!email || !password) return alert(currentLang === 'hi' ? "ईमेल और पासवर्ड भरें!" : "Email & Password required!");
 
       let payload = { email, password, role: selectedRole };
       if (selectedRole === 'creator') {
@@ -1653,9 +1769,9 @@
           updateUserUI();
           registerPresence();
           toggleAuthModal();
-          alert("सफलतापूर्वक लॉगिन हो गया!");
-        } else { alert(data.error || "त्रुटि"); }
-      } catch (e) { alert("नेटवर्क एरर"); }
+          alert(currentLang === 'hi' ? "सफलतापूर्वक लॉगिन हो गया!" : "Logged in successfully!");
+        } else { alert(data.error || "Error"); }
+      } catch (e) { alert("Network error"); }
     }
   </script>
 </body>
