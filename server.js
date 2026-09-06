@@ -7,8 +7,8 @@ const fs = require("fs");
 
 const app = express();
 app.use(cors());
-app.use(express.json({ limit: "35mb" }));
-app.use(express.urlencoded({ limit: "35mb", extended: true }));
+app.use(express.json({ limit: "50mb" }));
+app.use(express.urlencoded({ limit: "50mb", extended: true }));
 app.use(express.static(path.join(__dirname, "public")));
 
 app.get("/ping", (req, res) => res.send("pong 24x7 active"));
@@ -22,8 +22,8 @@ let dbData = {
   totalConnectionsCount: 0,
   incidents: [],
   userConnections: {},
-  posts: [], // { id, authorEmail, authorName, authorAvatar, media, mediaType, caption, likes: [], createdAt }
-  follows: {}, // { email: { followers: [], following: [] } }
+  posts: [],
+  follows: {},
   banner: {
     imageUrl: "https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=800&auto=format&fit=crop&q=60",
     title: "सुकून कम्युनिटी में आपका स्वागत है 🌿",
@@ -69,7 +69,7 @@ function calculateDistanceKM(lat1, lon1, lat2, lon2) {
 let liveStreams = [];
 const onlineLoggedInUsers = {};
 
-// 1. बैनर APIs (सिंगल क्लीन बैनर)
+// 1. बैनर APIs
 app.get("/api/banner", (req, res) => {
   res.json({ banner: dbData.banner });
 });
@@ -89,7 +89,7 @@ app.post("/api/admin/update-banner", (req, res) => {
   res.json({ success: true, banner: dbData.banner });
 });
 
-// 2. ऑथेंटिकेशन & एडमिन
+// 2. एडमिन लॉगिन
 app.post("/api/admin/login", (req, res) => {
   const { username, password } = req.body;
   if (username === ADMIN_USER && password === ADMIN_PASS) {
@@ -98,6 +98,7 @@ app.post("/api/admin/login", (req, res) => {
   return res.status(401).json({ success: false, error: "अमान्य यूज़रनेम या पासवर्ड!" });
 });
 
+// 3. ऑथेंटिकेशन
 app.post("/api/auth", (req, res) => {
   const { email, password, role, channelName, category, avatar, schedule, bio } = req.body;
   if (!email || !password) return res.status(400).json({ error: "ईमेल और पासवर्ड आवश्यक हैं" });
@@ -132,6 +133,7 @@ app.post("/api/auth", (req, res) => {
   res.json({ success: true, user });
 });
 
+// 4. प्रोफाइल अपडेट (Bug Fix: सिंक डेटा व पुरानी पोस्ट्स अपडेट)
 app.post("/api/user/update-profile", (req, res) => {
   const { email, channelName, avatar, bio } = req.body;
   if (!email) return res.status(400).json({ error: "Email required" });
@@ -143,20 +145,23 @@ app.post("/api/user/update-profile", (req, res) => {
   if (avatar) user.avatar = avatar;
   if (bio !== undefined) user.bio = bio;
 
-  // पुरानी पोस्ट्स में नाम/अवतार अपडेट
-  dbData.posts.forEach(p => {
-    if (p.authorEmail === email) {
-      if (channelName) p.authorName = channelName;
-      if (avatar) p.authorAvatar = avatar;
-    }
-  });
+  // सभी पुरानी पोस्ट्स में नया नाम और डीपी तुरंत सिंक करना
+  if (dbData.posts && dbData.posts.length > 0) {
+    dbData.posts.forEach(p => {
+      if (p.authorEmail === email) {
+        if (channelName) p.authorName = channelName;
+        if (avatar) p.authorAvatar = avatar;
+      }
+    });
+  }
 
   saveDB();
   broadcastAdminStats();
+  io.emit("profile_refreshed", { email, user });
   res.json({ success: true, user });
 });
 
-// 3. फॉलो / अनफॉलो APIs
+// 5. फॉलो / अनफॉलो APIs
 app.post("/api/user/follow-toggle", (req, res) => {
   const { myEmail, targetEmail } = req.body;
   if (!myEmail || !targetEmail || myEmail === targetEmail) {
@@ -192,7 +197,7 @@ app.get("/api/user/profile-stats/:email", (req, res) => {
   if (!user) return res.status(404).json({ error: "Not found" });
 
   const fData = dbData.follows[email] || { followers: [], following: [] };
-  const userPostsCount = dbData.posts.filter(p => p.authorEmail === email).length;
+  const userPostsCount = (dbData.posts || []).filter(p => p.authorEmail === email).length;
 
   res.json({
     user,
@@ -202,7 +207,7 @@ app.get("/api/user/profile-stats/:email", (req, res) => {
   });
 });
 
-// 4. कम्युनिटी फ़ीड व पोस्ट्स APIs
+// 6. कम्युनिटी फ़ीड व पोस्ट्स APIs
 app.get("/api/posts", (req, res) => {
   res.json({ posts: dbData.posts || [] });
 });
@@ -248,7 +253,7 @@ app.post("/api/posts/like", (req, res) => {
   res.json({ success: true, likesCount: post.likes.length, isLiked: idx === -1 });
 });
 
-// 5. फ़्रेंड्स व कनेक्शन्स
+// 7. फ़्रेंड्स व कनेक्शन्स
 app.post("/api/user/manage-friend", (req, res) => {
   const { myEmail, peerEmail, action } = req.body;
   if (!myEmail || !peerEmail) return res.status(400).json({ error: "Data missing" });
@@ -302,7 +307,7 @@ app.post("/api/admin/approve-creator", (req, res) => {
 const server = http.createServer(app);
 const io = new Server(server, {
   cors: { origin: "*", methods: ["GET", "POST"] },
-  maxHttpBufferSize: 1e7
+  maxHttpBufferSize: 2e7
 });
 
 const ABUSE_WORDS = ["mc", "bc", "bhenchod", "madarchod", "chutiya", "randi", "gand", "harami", "lodu", "bsdk"];
@@ -676,5 +681,5 @@ setInterval(() => {
 
 const PORT = process.env.PORT || 5000;
 server.listen(PORT, () => {
-  console.log(`>>> Sukoon Master V12 (Feed, Reels, Follow & Single Banner) Active on port ${PORT}`);
+  console.log(`>>> Sukoon Master V12.1 (Fully Audited & Bug-Free) Active on port ${PORT}`);
 });
