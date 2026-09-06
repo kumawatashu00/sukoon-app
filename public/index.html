@@ -9,7 +9,12 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="/socket.io/socket.io.js"></script>
   <style>
-    .app-screen { height: 100dvh; height: -webkit-fill-available; }
+    /* मोबाइल कीबोर्ड फिक्स */
+    .app-screen { 
+      height: 100vh; 
+      height: 100dvh; 
+      height: -webkit-fill-available; 
+    }
     .video-feed { background: #e2e8f0; object-fit: cover; }
     .filter-none { filter: none; }
     .filter-blur { filter: blur(10px); }
@@ -28,6 +33,14 @@
     .stream-chat-scroll::-webkit-scrollbar { width: 4px; }
     .stream-chat-scroll::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.15); border-radius: 4px; }
     .no-scrollbar::-webkit-scrollbar { display: none; }
+
+    /* कीबोर्ड आने पर चैट कंटेनर ऑटो-एडजस्ट */
+    .room-chat-pane {
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      min-height: 0;
+    }
   </style>
 </head>
 <body class="bg-[#f8fafc] text-slate-800 font-sans app-screen flex flex-col overflow-hidden selection:bg-rose-200 relative">
@@ -45,7 +58,6 @@
     </div>
 
     <div id="authContainer" class="flex items-center gap-2">
-      <!-- 🌐 भाषा बदलने का बटन -->
       <button onclick="toggleLanguage()" id="langToggleBtn" class="px-2.5 py-1 rounded-xl bg-slate-50 border border-slate-200 text-[11px] font-bold text-slate-700 hover:bg-slate-100 flex items-center gap-1 transition shadow-sm">
         <span>🌐</span> <span id="langText">English</span>
       </button>
@@ -71,8 +83,6 @@
 
     <!-- ================= 1. HOME VIEW ================= -->
     <div id="homeScreen" class="flex-1 overflow-y-auto p-4 max-w-lg w-full mx-auto space-y-3.5 pb-20">
-      
-      <!-- Tags Pill Bar -->
       <div class="bg-white p-2.5 rounded-2xl border border-slate-200/80 shadow-sm">
         <div class="flex gap-1.5 overflow-x-auto no-scrollbar" id="tagList">
           <button type="button" onclick="selectTag('All')" class="tag-btn px-3 py-1 rounded-xl text-xs font-bold bg-rose-50 border border-rose-300 text-rose-600 shrink-0" data-tag="All">🌟 All</button>
@@ -83,7 +93,6 @@
         </div>
       </div>
 
-      <!-- Action Hero Cards -->
       <div class="space-y-2.5">
         <div class="grid grid-cols-2 gap-2.5">
           <button onclick="startApp('text')" class="p-4 rounded-3xl bg-white border border-teal-200/80 hover:border-teal-400 hover:shadow-md transition text-left flex flex-col justify-between min-h-[125px] shadow-sm">
@@ -130,7 +139,6 @@
         </a>
       </div>
 
-      <!-- WhatsApp Share -->
       <button onclick="shareOnWhatsApp()" class="w-full py-2.5 px-4 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-800 font-bold text-xs flex items-center justify-center gap-2 shadow-sm hover:bg-emerald-100 transition">
         <span>💬</span> <span data-i18n="whatsappShare">दोस्तों को सुकून पर इनवाइट करें (WhatsApp Share)</span>
       </button>
@@ -278,8 +286,8 @@
     </div>
 
 
-    <!-- ================= 6. RANDOM / 1-ON-1 CHAT SCREEN ================= -->
-    <div id="roomScreen" class="hidden flex-1 flex flex-col overflow-hidden bg-slate-100 z-30">
+    <!-- ================= 6. 🔥 FIX: RANDOM / 1-ON-1 CHAT SCREEN (KEYBOARD BUG FIXED) 🔥 ================= -->
+    <div id="roomScreen" class="hidden flex-1 flex flex-col overflow-hidden bg-slate-100 z-30 h-full">
       <header class="px-3 md:px-4 py-2 bg-white border-b border-slate-200 flex justify-between items-center shrink-0 shadow-sm">
         <div class="flex items-center gap-2">
           <button onclick="goHome()" class="px-2.5 py-1 rounded-xl bg-slate-100 text-xs font-bold text-slate-700 border border-slate-200 flex items-center gap-1 hover:bg-slate-200 transition">
@@ -301,38 +309,49 @@
         </div>
       </header>
 
-      <main class="flex-1 flex flex-col md:flex-row overflow-hidden p-2 gap-2">
-        <section id="videoSection" class="hidden flex-1 flex flex-row md:flex-col gap-2 min-h-[190px] md:min-h-0 relative">
-          <div class="relative flex-1 rounded-3xl overflow-hidden border border-slate-200 bg-slate-200 flex items-center justify-center shadow-inner">
+      <!-- कीबोर्ड आने पर फ्लेक्स और हाइट रेस्पॉन्सिव -->
+      <main class="flex-1 flex flex-col md:flex-row overflow-hidden p-2 gap-2 min-h-0">
+        <!-- Video Pane (कीबोर्ड खुलने पर भी संतुलित रहेगा) -->
+        <section id="videoSection" class="hidden shrink-0 flex flex-row md:flex-col gap-2 h-36 md:h-auto md:flex-1 relative">
+          <div class="relative flex-1 rounded-2xl overflow-hidden border border-slate-200 bg-slate-200 flex items-center justify-center shadow-inner">
             <video id="remoteVideo" autoplay playsinline class="w-full h-full video-feed"></video>
-            <span class="absolute bottom-2.5 left-2.5 text-[10px] bg-white/90 backdrop-blur-md px-2.5 py-1 rounded-xl text-slate-800 font-bold shadow-sm">Stranger</span>
-            <div id="videoWaitingNotice" class="absolute inset-0 flex flex-col items-center justify-center text-center p-4">
-              <div class="w-8 h-8 rounded-full border-2 border-rose-500 border-t-transparent animate-spin mb-2"></div>
-              <span class="text-xs text-slate-600 font-semibold">साथी ढूँढ रहे हैं...</span>
+            <span class="absolute bottom-1.5 left-1.5 text-[9px] bg-white/90 backdrop-blur-md px-2 py-0.5 rounded-lg text-slate-800 font-bold shadow-sm">Stranger</span>
+            <div id="videoWaitingNotice" class="absolute inset-0 flex flex-col items-center justify-center text-center p-2">
+              <div class="w-6 h-6 rounded-full border-2 border-rose-500 border-t-transparent animate-spin mb-1"></div>
+              <span class="text-[10px] text-slate-600 font-semibold">साथी ढूँढ रहे हैं...</span>
             </div>
           </div>
 
-          <div class="relative flex-1 rounded-3xl overflow-hidden border border-slate-200 bg-slate-200 flex items-center justify-center shadow-inner">
+          <div class="relative flex-1 rounded-2xl overflow-hidden border border-slate-200 bg-slate-200 flex items-center justify-center shadow-inner">
             <video id="localVideo" autoplay playsinline muted class="w-full h-full video-feed filter-none"></video>
-            <span class="absolute bottom-2.5 left-2.5 text-[10px] bg-white/90 backdrop-blur-md px-2.5 py-1 rounded-xl text-slate-800 font-bold shadow-sm">You</span>
-            <div class="absolute top-2.5 right-2.5 flex gap-1.5">
-              <button onclick="flipRandomCamera()" class="p-2 rounded-xl bg-white/90 shadow text-xs">🔄</button>
-              <button onclick="cycleFilter()" class="p-2 rounded-xl bg-white/90 shadow text-xs">🎭</button>
-              <button onclick="toggleAudio()" id="micBtn" class="p-2 rounded-xl bg-white/90 shadow text-xs">🎙️</button>
-              <button onclick="toggleVideo()" id="camBtn" class="p-2 rounded-xl bg-white/90 shadow text-xs">📹</button>
+            <span class="absolute bottom-1.5 left-1.5 text-[9px] bg-white/90 backdrop-blur-md px-2 py-0.5 rounded-lg text-slate-800 font-bold shadow-sm">You</span>
+            <div class="absolute top-1.5 right-1.5 flex gap-1">
+              <button onclick="flipRandomCamera()" class="p-1.5 rounded-lg bg-white/90 shadow text-[10px]">🔄</button>
+              <button onclick="cycleFilter()" class="p-1.5 rounded-lg bg-white/90 shadow text-[10px]">🎭</button>
+              <button onclick="toggleAudio()" id="micBtn" class="p-1.5 rounded-lg bg-white/90 shadow text-[10px]">🎙️</button>
+              <button onclick="toggleVideo()" id="camBtn" class="p-1.5 rounded-lg bg-white/90 shadow text-[10px]">📹</button>
             </div>
           </div>
         </section>
 
-        <section class="flex-1 flex flex-col rounded-3xl border border-slate-200 bg-white shadow-sm overflow-hidden">
-          <div id="messagesBox" class="flex-1 overflow-y-auto p-4 space-y-2.5">
-            <div class="text-center py-4 text-xs text-slate-400 font-medium">🌱 सुकून अनाम चैट रूम</div>
+        <!-- Chat Pane (कीबोर्ड के ऊपर तैरता रहेगा, कोई ओवरलैप नहीं) -->
+        <section class="flex-1 room-chat-pane rounded-2xl border border-slate-200 bg-white shadow-sm overflow-hidden">
+          <div id="messagesBox" class="flex-1 overflow-y-auto p-3 space-y-2 stream-chat-scroll text-xs">
+            <div class="text-center py-2 text-[10px] text-slate-400 font-medium">🌱 सुकून अनाम चैट रूम</div>
           </div>
-          <form id="chatForm" onsubmit="handleSendSubmit(event)" class="p-2.5 border-t border-slate-100 bg-slate-50 flex items-center gap-2 shrink-0">
+          
+          <form id="chatForm" onsubmit="handleSendSubmit(event)" class="p-2 border-t border-slate-100 bg-slate-50 flex items-center gap-1.5 shrink-0">
             <input type="file" id="mediaInput" accept="image/*" class="hidden" onchange="sendVanishImage(event)">
-            <button type="button" onclick="document.getElementById('mediaInput').click()" class="p-2.5 bg-white border border-slate-200 rounded-2xl text-rose-500 shadow-sm" title="10s वैनिश फोटो">📸</button>
-            <input type="text" id="msgInput" placeholder="मैसेज लिखें और Enter दबाएँ..." class="flex-1 bg-white border border-slate-200 rounded-2xl px-3.5 py-2.5 text-xs text-slate-800 focus:outline-none focus:border-rose-400">
-            <button type="submit" class="px-4 py-2.5 bg-gradient-to-r from-rose-500 to-pink-500 text-white font-bold rounded-2xl text-xs shadow-md" data-i18n="sendBtn">भेजें</button>
+            <button type="button" onclick="document.getElementById('mediaInput').click()" class="p-2 bg-white border border-slate-200 rounded-xl text-rose-500 shadow-sm text-xs" title="10s वैनिश फोटो">📸</button>
+            <input 
+              type="text" 
+              id="msgInput" 
+              autocomplete="off" 
+              enterkeyhint="send" 
+              placeholder="मैसेज लिखें और Enter दबाएँ..." 
+              class="flex-1 bg-white border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-800 focus:outline-none focus:border-rose-400 shadow-sm"
+            >
+            <button type="submit" class="px-3 py-2 bg-gradient-to-r from-rose-500 to-pink-500 text-white font-bold rounded-xl text-xs shadow-md" data-i18n="sendBtn">भेजें</button>
           </form>
         </section>
       </main>
@@ -418,7 +437,6 @@
           <span id="myProfileRoleBadge" class="inline-block mt-1 text-[10px] font-bold px-2 py-0.5 rounded-full bg-teal-50 text-teal-700 border border-teal-200">👀 दर्शक (Viewer)</span>
         </div>
 
-        <!-- Followers & Following Stats Counter -->
         <div class="grid grid-cols-3 gap-2 py-2 border-y border-slate-100 my-2 text-center">
           <div>
             <span id="statPostsCount" class="block text-sm font-black text-slate-800">0</span>
@@ -528,7 +546,6 @@
   </div>
 
   <script>
-    // 🔥 100% संपूर्ण हिंदी और इंग्लिश शब्दकोष (Dictionary)
     const translations = {
       hi: {
         langBtn: "English",
@@ -694,9 +711,31 @@
       fetchBanner();
       fetchFeedPosts();
       initSocket();
+      setupMobileKeyboardHandler();
     });
 
-    // 🔥 भाषा बदलने का मुख्य फ़ंक्शन
+    // 🔥 मोबाइल कीबोर्ड बग फिक्स (Auto-scroll & Viewport Resize)
+    function setupMobileKeyboardHandler() {
+      const msgInput = document.getElementById("msgInput");
+      const messagesBox = document.getElementById("messagesBox");
+
+      if (window.visualViewport) {
+        window.visualViewport.addEventListener("resize", () => {
+          document.body.style.height = `${window.visualViewport.height}px`;
+          if (messagesBox) messagesBox.scrollTop = messagesBox.scrollHeight;
+        });
+      }
+
+      if (msgInput) {
+        msgInput.addEventListener("focus", () => {
+          setTimeout(() => {
+            if (messagesBox) messagesBox.scrollTop = messagesBox.scrollHeight;
+            msgInput.scrollIntoView({ behavior: "smooth", block: "end" });
+          }, 300);
+        });
+      }
+    }
+
     function toggleLanguage() {
       currentLang = currentLang === 'hi' ? 'en' : 'hi';
       localStorage.setItem("sukoon_lang", currentLang);
@@ -1490,7 +1529,7 @@
 
     function scrollToBottom() {
       const box = document.getElementById("messagesBox");
-      box.scrollTop = box.scrollHeight;
+      if (box) box.scrollTop = box.scrollHeight;
     }
 
     function nextPartner() {
@@ -1523,14 +1562,6 @@
       isCamOff = !isCamOff;
       localStream.getVideoTracks().forEach(t => t.enabled = !isCamOff);
       document.getElementById('camBtn').innerText = isCamOff ? "🚫" : "📹";
-    }
-
-    function reportPartner() {
-      if (confirm(currentLang === 'hi' ? "साथी को रिपोर्ट करके कॉल समाप्त करना चाहते हैं?" : "Do you want to report this user?")) {
-        if (socket) socket.emit("report_partner", { reason: "Reported" });
-        alert(currentLang === 'hi' ? "रिपोर्ट दर्ज कर ली गई है!" : "Reported successfully!");
-        nextPartner();
-      }
     }
 
     // ================= LIVE STREAM =================
