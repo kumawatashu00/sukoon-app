@@ -7,8 +7,9 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="/socket.io/socket.io.js"></script>
 </head>
-<body class="bg-[#f8fafc] text-slate-800 font-sans p-4 md:p-8 min-h-screen">
+<body class="bg-[#f8fafc] text-slate-800 font-sans p-4 md:p-8 min-h-screen flex flex-col">
 
+  <!-- Admin Login Overlay -->
   <div id="adminLoginScreen" class="fixed inset-0 bg-slate-900/80 backdrop-blur-md z-50 flex items-center justify-center p-4">
     <div class="bg-white p-7 rounded-3xl max-w-sm w-full space-y-4 shadow-2xl border border-slate-200">
       <div class="text-center space-y-1">
@@ -32,11 +33,12 @@
     </div>
   </div>
 
-  <div id="adminDashboard" class="hidden max-w-5xl mx-auto space-y-6">
+  <!-- Main Admin Dashboard -->
+  <div id="adminDashboard" class="hidden max-w-5xl w-full mx-auto space-y-6 pb-12">
     <div class="flex justify-between items-center border-b border-slate-200 pb-4">
       <div>
         <h1 class="text-xl font-black text-rose-600">🛡️ सुकून एडमिन कमांड सेंटर</h1>
-        <p class="text-xs text-slate-500">सिंगल बैनर, कम्युनिटी फ़ीड, डेटाबेस व मॉनिटरिंग</p>
+        <p class="text-xs text-slate-500">कंट्रोल पैनल, क्रिएटर अप्रूवल व डेटाबेस मॉनिटरिंग</p>
       </div>
       <div class="flex items-center gap-2">
         <a href="/" class="px-3.5 py-1.5 bg-white border border-slate-200 rounded-2xl text-xs font-bold text-slate-700 shadow-sm">← होम पर जाएँ</a>
@@ -44,7 +46,7 @@
       </div>
     </div>
 
-    <!-- 5 Stats Cards (With Posts Metric) -->
+    <!-- 5 Metric Cards -->
     <div class="grid grid-cols-2 md:grid-cols-5 gap-3">
       <div class="p-4 bg-white rounded-3xl border border-slate-200 shadow-sm">
         <div class="text-xs text-slate-500">ऑनलाइन यूज़र्स</div>
@@ -68,57 +70,107 @@
       </div>
     </div>
 
-    <!-- 🔥 SINGLE BANNER CONTROL (गैलरी से अपलोड + प्रीव्यू) 🔥 -->
+    <!-- Banner Control Panel -->
     <div class="bg-white p-5 rounded-3xl border border-slate-200 shadow-sm space-y-4">
       <div class="flex justify-between items-center border-b border-slate-100 pb-2">
         <div>
-          <h2 class="text-sm font-bold text-slate-800">🖼️ मुख्य होमपेज बैनर कंट्रोल (Single Banner)</h2>
-          <p class="text-xs text-slate-400">वेबसाइट के होमपेज पर यही एकमात्र मुख्य पोस्टर दिखेगा</p>
+          <h2 class="text-sm font-bold text-slate-800">🖼️ मुख्य होमपेज बैनर कंट्रोल</h2>
+          <p class="text-xs text-slate-400">यहाँ से फ़ोटो अपलोड करके होमपेज का बैनर बदलें</p>
         </div>
         <img id="previewBanner" src="" onerror="this.src='https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=800&auto=format&fit=crop&q=60'" class="h-9 w-16 object-cover rounded-xl border border-slate-200 bg-white shadow-sm">
       </div>
 
       <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
         <div>
-          <label class="text-[10px] font-bold text-slate-500 block mb-1">तरीका A: फोन गैलरी से फ़ोटो चुनें:</label>
+          <label class="text-[10px] font-bold text-slate-500 block mb-1">गैलरी से फ़ोटो चुनें:</label>
           <input type="file" id="bannerFile" accept="image/*" onchange="processBannerFile(event)" class="text-xs bg-slate-50 p-2 rounded-xl border border-slate-200 w-full">
         </div>
         <div>
-          <label class="text-[10px] font-bold text-slate-500 block mb-1">तरीका B: या फिर सीधा लिंक (URL):</label>
-          <input type="text" id="bannerImgUrl" oninput="document.getElementById('previewBanner').src=this.value" placeholder="https://.../photo.jpg" class="bg-slate-50 border border-slate-200 rounded-xl p-2 text-xs w-full">
+          <label class="text-[10px] font-bold text-slate-500 block mb-1">या सीधा इमेज लिंक:</label>
+          <input type="text" id="bannerImgUrl" oninput="document.getElementById('previewBanner').src=this.value" placeholder="https://..." class="bg-slate-50 border border-slate-200 rounded-xl p-2 text-xs w-full">
         </div>
       </div>
 
       <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
         <input type="text" id="bannerTitle" placeholder="बैनर का शीर्षक / नोटिस" class="bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-xs">
-        <input type="text" id="bannerLink" placeholder="क्लिक करने पर खुलने वाला लिंक (वैकल्पिक)" class="bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-xs">
+        <input type="text" id="bannerLink" placeholder="लिंक (वैकल्पिक)" class="bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-xs">
       </div>
 
       <div class="text-right">
         <button onclick="saveBanner()" class="px-6 py-2.5 bg-gradient-to-r from-emerald-600 to-teal-600 text-white font-bold rounded-2xl text-xs shadow hover:opacity-90">
-          बैनर वेबसाइट पर अपडेट करें ➔
+          बैनर अपडेट करें ➔
         </button>
       </div>
     </div>
 
-    <!-- Registered Users Table -->
+    <!-- 🔥 1. क्रिएटर अप्रूवल टेबल (यहाँ से क्रिएटर्स को अप्रूव किया जाता है) 🔥 -->
     <div class="bg-white p-5 rounded-3xl border border-slate-200 shadow-sm space-y-3">
-      <h2 class="text-sm font-bold text-slate-800">👥 सभी रजिस्टर्ड यूज़र्स (स्थायी रिकॉर्ड)</h2>
+      <div class="flex justify-between items-center">
+        <h2 class="text-sm font-bold text-slate-800">🎬 क्रिएटर अप्रूवल कंट्रोल (Pending Creators)</h2>
+        <span class="text-xs text-slate-500">स्वीकृति के बाद ही कोई लाइव आ सकता है</span>
+      </div>
       <div class="overflow-x-auto">
         <table class="w-full text-xs text-left">
           <thead class="border-b border-slate-100 text-slate-400">
             <tr>
-              <th class="py-2">ईमेल</th>
-              <th>रोल</th>
-              <th>नाम</th>
-              <th>जॉइनिंग</th>
-              <th>स्टेटस</th>
+              <th class="py-2">क्रिएटर / ईमेल</th>
+              <th>कैटेगरी & शेड्यूल</th>
+              <th>कॉइन बैलेंस</th>
+              <th>स्थिति</th>
+              <th>एक्शन</th>
             </tr>
           </thead>
-          <tbody id="allUsersBody" class="divide-y divide-slate-100"></tbody>
+          <tbody id="creatorListBody" class="divide-y divide-slate-100">
+            <tr><td colspan="5" class="py-4 text-center text-slate-400">कोई क्रिएटर नहीं है</td></tr>
+          </tbody>
         </table>
       </div>
     </div>
+
+    <!-- 🔥 2. सभी रजिस्टर्ड यूज़र्स टेबल 🔥 -->
+    <div class="bg-white p-5 rounded-3xl border border-slate-200 shadow-sm space-y-3">
+      <div class="flex justify-between items-center">
+        <h2 class="text-sm font-bold text-slate-800">👥 सभी रजिस्टर्ड यूज़र्स (स्थायी रिकॉर्ड)</h2>
+        <span class="text-xs text-slate-400">परमानेंट डेटाबेस</span>
+      </div>
+      <div class="overflow-x-auto max-h-72 overflow-y-auto">
+        <table class="w-full text-xs text-left">
+          <thead class="border-b border-slate-100 text-slate-400 sticky top-0 bg-white">
+            <tr>
+              <th class="py-2">यूज़र ID / ईमेल</th>
+              <th>रोल</th>
+              <th>नाम / चैनल</th>
+              <th>जॉइनिंग समय</th>
+              <th>स्टेटस</th>
+            </tr>
+          </thead>
+          <tbody id="allUsersBody" class="divide-y divide-slate-100">
+            <tr><td colspan="5" class="py-4 text-center text-slate-400">डेटा लोड हो रहा है...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- 🔥 3. सुरक्षा व मॉडरेषन लॉग्स 🔥 -->
+    <div class="bg-white p-5 rounded-3xl border border-slate-200 shadow-sm space-y-3">
+      <h2 class="text-sm font-bold text-slate-800">🚨 लाइव सुरक्षा व रिपोर्ट लॉग्स</h2>
+      <div class="overflow-x-auto max-h-60 overflow-y-auto">
+        <table class="w-full text-xs text-left">
+          <thead class="border-b border-slate-100 text-slate-400 sticky top-0 bg-white">
+            <tr>
+              <th class="py-2">समय</th>
+              <th>रूम ID</th>
+              <th>यूज़र</th>
+              <th>कारण</th>
+            </tr>
+          </thead>
+          <tbody id="incidentsBody" class="divide-y divide-slate-100">
+            <tr><td colspan="4" class="py-4 text-center text-slate-400">कोई उल्लंघन नहीं</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
   </div>
 
   <script>
@@ -200,8 +252,9 @@
     function connectAdminSocket() {
       socket = io();
       socket.emit("join_admin", { token: adminToken });
+      
       socket.on("admin_metrics", (m) => {
-        document.getElementById("m-users").innerText = m.onlineUsers;
+        document.getElementById("m-users").innerText = m.onlineUsers || 0;
         document.getElementById("m-posts").innerText = m.postsCount || 0;
         document.getElementById("m-streams").innerText = m.liveStreamsCount || 0;
         document.getElementById("m-reg").innerText = m.registeredUsers?.length || 0;
@@ -214,19 +267,82 @@
           if (m.banner.imageUrl) document.getElementById('previewBanner').src = m.banner.imageUrl;
         }
 
+        // 1. रजिस्टर्ड यूज़र्स टेबल
         const allUsersTbody = document.getElementById("allUsersBody");
         if (m.registeredUsers && m.registeredUsers.length > 0) {
           allUsersTbody.innerHTML = m.registeredUsers.map(u => `
             <tr>
-              <td class="py-2.5 font-bold text-slate-800">${u.email}</td>
+              <td class="py-2.5">
+                <div class="font-bold text-slate-800">${u.email}</div>
+                <div class="text-[10px] text-slate-400 font-mono">${u.id}</div>
+              </td>
               <td><span class="px-2 py-0.5 rounded-md text-[10px] font-bold ${u.role === 'creator' ? 'bg-purple-100 text-purple-700' : 'bg-teal-100 text-teal-700'}">${u.role}</span></td>
-              <td class="font-medium text-slate-700">${u.channelName}</td>
-              <td class="text-slate-500">${u.joinedAt || 'आज'}</td>
+              <td class="font-medium text-slate-700">${u.channelName || '-'}</td>
+              <td class="text-slate-500 text-[10px]">${u.joinedAt || 'आज'}</td>
               <td><span class="px-2 py-0.5 rounded text-[10px] font-bold ${u.isApprovedCreator ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'}">${u.isApprovedCreator ? 'Active' : 'Pending'}</span></td>
             </tr>
           `).join("");
+        } else {
+          allUsersTbody.innerHTML = '<tr><td colspan="5" class="py-4 text-center text-slate-400">कोई यूज़र नहीं मिला</td></tr>';
+        }
+
+        // 2. क्रिएटर अप्रूवल टेबल
+        const creatorTbody = document.getElementById("creatorListBody");
+        const creators = m.registeredUsers?.filter(u => u.role === "creator") || [];
+        if (creators.length > 0) {
+          creatorTbody.innerHTML = creators.map(u => `
+            <tr>
+              <td class="py-3">
+                <div class="flex items-center gap-2">
+                  <img src="${u.avatar || 'https://api.dicebear.com/7.x/bottts/svg?seed=' + u.email}" class="w-7 h-7 rounded-lg">
+                  <div>
+                    <div class="font-bold text-slate-800">${u.channelName || 'N/A'}</div>
+                    <div class="text-[10px] text-slate-400 font-mono">${u.email}</div>
+                  </div>
+                </div>
+              </td>
+              <td>
+                <div class="font-bold text-indigo-600">#${u.category || 'General'}</div>
+                <div class="text-[10px] text-slate-500">⏰ ${u.schedule || 'रोज़ाना लाइव'}</div>
+              </td>
+              <td><span class="px-2 py-0.5 rounded-lg bg-amber-100 text-amber-800 font-bold text-[11px]">💰 ${u.coins || 0}</span></td>
+              <td><span class="px-2 py-0.5 rounded text-[10px] font-bold ${u.isApprovedCreator ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'}">${u.isApprovedCreator ? 'Approved ✅' : 'Pending ⏳'}</span></td>
+              <td>
+                ${!u.isApprovedCreator ? `<button onclick="approveCreator('${u.email}')" class="px-3 py-1 bg-emerald-600 text-white font-bold rounded-xl text-xs shadow-sm hover:bg-emerald-700">Approve करें</button>` : '<span class="text-slate-400 text-xs font-semibold">स्वीकृत</span>'}
+              </td>
+            </tr>
+          `).join("");
+        } else {
+          creatorTbody.innerHTML = '<tr><td colspan="5" class="py-4 text-center text-slate-400">कोई क्रिएटर पेंडिंग नहीं है</td></tr>';
+        }
+
+        // 3. सुरक्षा लॉग्स
+        const tbody = document.getElementById("incidentsBody");
+        if (m.incidents && m.incidents.length > 0) {
+          tbody.innerHTML = m.incidents.map(i => `
+            <tr>
+              <td class="py-2 text-slate-500">${i.time}</td>
+              <td class="font-mono text-teal-600">${i.room}</td>
+              <td class="font-mono text-slate-600">${i.user}</td>
+              <td class="text-rose-600 font-semibold">${i.reason}</td>
+            </tr>
+          `).join("");
+        } else {
+          tbody.innerHTML = '<tr><td colspan="4" class="py-4 text-center text-slate-400">कोई सुरक्षा उल्लंघन नहीं</td></tr>';
         }
       });
+    }
+
+    async function approveCreator(email) {
+      try {
+        const res = await fetch("/api/admin/approve-creator", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email, token: adminToken })
+        });
+        const d = await res.json();
+        if (d.success) alert(email + " को क्रिएटर अप्रूवल मिल गया!");
+      } catch (e) { alert("अप्रूवल असफल"); }
     }
   </script>
 </body>
