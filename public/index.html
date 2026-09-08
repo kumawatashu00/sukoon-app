@@ -20,11 +20,9 @@
     .stream-chat-scroll::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.15); border-radius: 4px; }
     .no-scrollbar::-webkit-scrollbar { display: none; }
 
-    /* पासपोर्ट-साइज़ (3:4) बड़ा वीडियो कार्ड */
     .passport-video-card { aspect-ratio: 3 / 4; height: 230px; max-height: 38vh; border-radius: 1.25rem; overflow: hidden; position: relative; background: #1e293b; box-shadow: 0 8px 20px -4px rgba(0, 0, 0, 0.2); }
     @media (min-width: 640px) { .passport-video-card { height: 280px; } }
 
-    /* Instagram स्टाइल गोल नेविगेशन बटन */
     .nav-circle-btn { width: 42px; height: 42px; border-radius: 9999px; display: flex; align-items: center; justify-content: center; transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); }
     .nav-circle-btn.active { background: #ffe4e6; color: #e11d48; box-shadow: 0 4px 12px rgba(225, 29, 72, 0.2); transform: translateY(-2px); }
   </style>
@@ -116,7 +114,7 @@
       </div>
 
       <button onclick="shareOnWhatsApp()" class="w-full py-2.5 px-4 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-800 font-bold text-xs flex items-center justify-center gap-2 shadow-sm hover:bg-emerald-100 transition">
-        <span>💬</span> <span data-i18n="whatsappShare">दोस्तों को सुकून पर इनवाइट करें (WhatsApp Share)</span>
+        <span>💬</span> <span data-i18n="whatsappShare">दोस्तों को सुकून पर इनवाइट करें</span>
       </button>
     </div>
 
@@ -131,14 +129,14 @@
       <div id="feedPostsContainer" class="space-y-4"></div>
     </div>
 
-    <!-- 3. NEARBY SCREEN -->
+    <!-- 3. NEARBY SCREEN (BUG FIXED HERE) -->
     <div id="nearbyHubScreen" class="hidden flex-1 overflow-y-auto p-4 max-w-lg w-full mx-auto space-y-3 pb-6">
       <header class="flex justify-between items-center pb-2 border-b border-slate-200">
         <h2 class="text-base font-black text-slate-900" data-i18n="nearbyTitle">📍 आसपास के लोग</h2>
         <div class="flex gap-1">
-          <button onclick="setNearbyRadius(25)" class="radius-btn px-2.5 py-1 rounded-xl text-[10px] font-bold bg-white border border-slate-200 text-slate-600" data-r="25">25 KM</button>
-          <button onclick="setNearbyRadius(50)" class="radius-btn px-2.5 py-1 rounded-xl text-[10px] font-bold bg-white border border-slate-200 text-slate-600" data-r="50">50 KM</button>
-          <button onclick="setNearbyRadius(100)" class="radius-btn px-2.5 py-1 rounded-xl text-[10px] font-bold bg-emerald-600 text-white shadow-sm" data-r="100">100 KM</button>
+          <button onclick="setNearbyRadius(25)" id="radBtn25" class="radius-btn px-2.5 py-1 rounded-xl text-[10px] font-bold bg-white border border-slate-200 text-slate-600 transition">25 KM</button>
+          <button onclick="setNearbyRadius(50)" id="radBtn50" class="radius-btn px-2.5 py-1 rounded-xl text-[10px] font-bold bg-white border border-slate-200 text-slate-600 transition">50 KM</button>
+          <button onclick="setNearbyRadius(100)" id="radBtn100" class="radius-btn px-2.5 py-1 rounded-xl text-[10px] font-bold bg-emerald-600 text-white shadow-sm transition">100 KM</button>
         </div>
       </header>
       <div class="p-2.5 rounded-2xl bg-emerald-50 border border-emerald-200 text-[11px] text-emerald-800 flex items-center justify-between">
@@ -216,7 +214,7 @@
       </div>
     </div>
 
-    <!-- 6. ROOM SCREEN (3:4 Passport Video + Active Users Badge) -->
+    <!-- 6. ROOM SCREEN (3:4 Video + Chat) -->
     <div id="roomScreen" class="hidden flex-1 flex flex-col overflow-hidden bg-slate-900 z-30 h-full">
       <header class="px-3 py-2 bg-slate-900/95 backdrop-blur border-b border-slate-800 flex justify-between items-center shrink-0">
         <div class="flex items-center gap-2">
@@ -238,7 +236,6 @@
 
       <main class="flex-1 flex flex-col overflow-hidden p-2.5 gap-2.5 min-h-0">
         <section id="videoSection" class="hidden shrink-0 flex justify-center items-center gap-2.5 w-full">
-          <!-- 1. Stranger 3:4 -->
           <div class="flex-1 passport-video-card">
             <video id="remoteVideo" autoplay playsinline class="w-full h-full video-feed"></video>
             <span class="absolute top-2 left-2 text-[10px] bg-black/60 backdrop-blur px-2 py-0.5 rounded-lg text-white font-bold">Stranger</span>
@@ -247,7 +244,6 @@
               <span class="text-[11px] text-slate-400 font-semibold">साथी ढूँढ रहे हैं...</span>
             </div>
           </div>
-          <!-- 2. You 3:4 -->
           <div class="flex-1 passport-video-card">
             <video id="localVideo" autoplay playsinline muted class="w-full h-full video-feed filter-none"></video>
             <span class="absolute top-2 left-2 text-[10px] bg-black/60 backdrop-blur px-2 py-0.5 rounded-lg text-white font-bold">You</span>
@@ -298,7 +294,7 @@
     </button>
   </nav>
 
-  <!-- ================= MODALS ================= -->
+  <!-- ================= MODALS (Auth, Profile, Create Post, Request) ================= -->
   <!-- Create Post Modal -->
   <div id="createPostModal" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
     <div class="bg-white border border-slate-200 p-5 rounded-3xl max-w-sm w-full space-y-3.5 shadow-2xl relative">
@@ -378,27 +374,27 @@
   <!-- ================= SCRIPTS ================= -->
   <script>
     const translations = {
-      hi: {
-        langBtn: "English", loginBtn: "लॉगिन", subTitle: "मन की बात • सोशल स्पेस", textChatTitle: "टेक्स्ट चैट", textChatDesc: "अनाम चैट व 10s वैनिश फ़ोटो", startBtn: "शुरू करें ➔", videoCallTitle: "वीडियो कॉल", videoCallDesc: "ओमेगल स्टाइल रैंडम मैच", callBtn: "कॉल करें ➔", streamHubTitle: "क्रिएटर लाइव हब", streamHubDesc: "स्क्रीन शेयर, लाइव चैट व गिफ़्ट्स", whatsappShare: "दोस्तों को सुकून पर इनवाइट करें", disclaimer: "🔒 18+ यूज़र्स के लिए • सुरक्षित प्लेटफ़ॉर्म", feedHeader: "📸 सुकून कम्युनिटी फ़ीड", newPostBtn: "नया पोस्ट", feedLoading: "फ़ीड लोड हो रही है...", nearbyTitle: "📍 आसपास के लोग", nearbyPrivacyNotice: "🛡️ सटीक GPS पिन सुरक्षित है", nearbySearching: "आसपास के यूज़र्स खोजे जा रहे हैं...", friendsTitle: "👥 मेरे दोस्त व चैट्स", myFriendsTab: "🤝 मेरे पक्के दोस्त", otherChatsTab: "💬 अन्य चैट्स", backBtn: "← बैक", startStreamBtn: "🔴 लाइव स्ट्रीम", closeBtn: "✕ बंद करें", liveChatTitle: "💬 लाइव चैट", sendBtn: "भेजें", activeStreamers: "सक्रिय क्रिएटर स्ट्रीमर:", homeBtn: "होम", addFriendBtn: "🤝 फ्रेंड", reportBtn: "🚩", navHome: "होम", navFeed: "फ़ीड", navNearby: "आसपास", navFriends: "दोस्त", createPostTitle: "📸 नई पोस्ट या रील डालें", authTitle: "लॉगिन / रजिस्ट्रेशन", roleViewer: "👀 दर्शक", roleCreator: "🎙️ क्रिएटर"
-      },
-      en: {
-        langBtn: "हिंदी", loginBtn: "Login", subTitle: "Speak Heart • Social Space", textChatTitle: "Text Chat", textChatDesc: "Anonymous & 10s vanish", startBtn: "Start ➔", videoCallTitle: "Video Call", videoCallDesc: "Omegle-style matches", callBtn: "Call ➔", streamHubTitle: "Creator Live Hub", streamHubDesc: "Screen share, live chat", whatsappShare: "Invite friends to Sukoon", disclaimer: "🔒 18+ Users • Safe Platform", feedHeader: "📸 Sukoon Feed", newPostBtn: "New Post", feedLoading: "Loading feed...", nearbyTitle: "📍 People Nearby", nearbyPrivacyNotice: "🛡️ Exact GPS is private", nearbySearching: "Searching...", friendsTitle: "👥 My Friends", myFriendsTab: "🤝 Friends", otherChatsTab: "💬 Other Chats", backBtn: "← Back", startStreamBtn: "🔴 Live Stream", closeBtn: "✕ Close", liveChatTitle: "💬 Live Chat", sendBtn: "Send", activeStreamers: "Active Creators:", homeBtn: "Home", addFriendBtn: "🤝 Friend", reportBtn: "🚩", navHome: "Home", navFeed: "Feed", navNearby: "Nearby", navFriends: "Friends", createPostTitle: "📸 Create Post", authTitle: "Login", roleViewer: "👀 Viewer", roleCreator: "🎙️ Creator"
-      }
+      hi: { langBtn: "English", loginBtn: "लॉगिन", subTitle: "मन की बात • सोशल स्पेस", textChatTitle: "टेक्स्ट चैट", textChatDesc: "अनाम चैट व 10s वैनिश फ़ोटो", startBtn: "शुरू करें ➔", videoCallTitle: "वीडियो कॉल", videoCallDesc: "ओमेगल स्टाइल रैंडम मैच", callBtn: "कॉल करें ➔", streamHubTitle: "क्रिएटर लाइव हब", streamHubDesc: "स्क्रीन शेयर, लाइव चैट व गिफ़्ट्स", whatsappShare: "दोस्तों को सुकून पर इनवाइट करें", feedHeader: "📸 सुकून कम्युनिटी फ़ीड", newPostBtn: "नया पोस्ट", nearbyTitle: "📍 आसपास के लोग", nearbyPrivacyNotice: "🛡️ सटीक GPS पिन सुरक्षित है", friendsTitle: "👥 मेरे दोस्त व चैट्स", myFriendsTab: "🤝 मेरे पक्के दोस्त", otherChatsTab: "💬 अन्य चैट्स", backBtn: "← बैक", startStreamBtn: "🔴 लाइव स्ट्रीम", closeBtn: "✕ बंद करें", liveChatTitle: "💬 लाइव चैट", sendBtn: "भेजें", activeStreamers: "सक्रिय क्रिएटर स्ट्रीमर:", homeBtn: "होम", addFriendBtn: "🤝 फ्रेंड", reportBtn: "🚩", navHome: "होम", navFeed: "फ़ीड", navNearby: "आसपास", navFriends: "दोस्त", createPostTitle: "📸 नई पोस्ट या रील", authTitle: "लॉगिन", roleViewer: "👀 दर्शक", roleCreator: "🎙️ क्रिएटर" },
+      en: { langBtn: "हिंदी", loginBtn: "Login", subTitle: "Speak Heart • Social Space", textChatTitle: "Text Chat", textChatDesc: "Anonymous & 10s vanish", startBtn: "Start ➔", videoCallTitle: "Video Call", videoCallDesc: "Omegle-style matches", callBtn: "Call ➔", streamHubTitle: "Creator Live Hub", streamHubDesc: "Screen share, live chat", whatsappShare: "Invite friends to Sukoon", feedHeader: "📸 Sukoon Feed", newPostBtn: "New Post", nearbyTitle: "📍 People Nearby", nearbyPrivacyNotice: "🛡️ Exact GPS is private", friendsTitle: "👥 My Friends", myFriendsTab: "🤝 Friends", otherChatsTab: "💬 Other Chats", backBtn: "← Back", startStreamBtn: "🔴 Live Stream", closeBtn: "✕ Close", liveChatTitle: "💬 Live Chat", sendBtn: "Send", activeStreamers: "Active Creators:", homeBtn: "Home", addFriendBtn: "🤝 Friend", reportBtn: "🚩", navHome: "Home", navFeed: "Feed", navNearby: "Nearby", navFriends: "Friends", createPostTitle: "📸 Create Post", authTitle: "Login", roleViewer: "👀 Viewer", roleCreator: "🎙️ Creator" }
     };
 
     let currentLang = localStorage.getItem("sukoon_lang") || 'hi'; let socket; let currentMode = 'text'; let selectedTag = 'All'; let localStream = null;
-    let isScreenSharing = false; let cameraStreamBackup = null; let streamerFacingMode = "user"; let randomFacingMode = "user";
-    let peerConnection = null; let streamViewerPeers = {}; let isInitiator = false; let isMuted = false; let isCamOff = false; let isStreamerMuted = false; let isStreamerCamOff = false;
+    let peerConnection = null; let isInitiator = false; let isMuted = false; let isCamOff = false; let randomFacingMode = "user";
     const filters = ['filter-none', 'filter-blur', 'filter-bw', 'filter-sepia']; let filterIndex = 0; let loggedInUser = null; let selectedRole = 'viewer'; let activeStreamCategory = 'All'; let cachedStreams = []; let currentActiveStreamId = null;
     let userLat = null; let userLon = null; let currentRadiusKM = 100; let pendingRequestFromSid = null; let tempAvatarBase64 = null;
-    let activeFriendsTab = 'friends'; let currentPartnerEmail = null; let currentPartnerName = null; let cachedConnections = []; let cachedPosts = []; let tempPostMediaBase64 = null; let tempPostMediaType = "image";
+    let activeFriendsTab = 'friends'; let cachedConnections = []; let cachedPosts = []; let tempPostMediaBase64 = null; let tempPostMediaType = "image";
     const rtcConfig = { iceServers: [{ urls: "stun:stun.l.google.com:19302" }] };
 
     window.addEventListener("load", () => { applyLanguage(currentLang); restoreSavedUser(); fetchBanner(); fetchFeedPosts(); initSocket(); setupMobileKeyboardHandler(); });
 
+    // 🔥 बग फिक्स: कैमरा बैकग्राउंड में चालू रहने से रोकना (Cleanup)
     function switchMainTab(tab) {
+      // अगर चैट रूम से बाहर जा रहे हैं, तो कनेक्शन और कैमरा बंद करें
+      if (tab !== 'room') { goHome(false); }
+
       ['homeScreen', 'feedScreen', 'nearbyHubScreen', 'connectionsHubScreen', 'streamHubScreen', 'roomScreen'].forEach(s => document.getElementById(s).classList.add('hidden'));
       ['home', 'feed', 'nearby', 'friends'].forEach(t => { const el = document.getElementById(`dock-${t}`); if(el) el.classList.remove('active'); });
+      
       if (tab === 'home') { document.getElementById('homeScreen').classList.remove('hidden'); document.getElementById('dock-home').classList.add('active'); }
       else if (tab === 'feed') { document.getElementById('feedScreen').classList.remove('hidden'); document.getElementById('dock-feed').classList.add('active'); fetchFeedPosts(); }
       else if (tab === 'nearby') { if(!loggedInUser) { alert("लॉगिन करें!"); toggleAuthModal(); switchMainTab('home'); return; } document.getElementById('nearbyHubScreen').classList.remove('hidden'); document.getElementById('dock-nearby').classList.add('active'); openNearbyHub(); }
@@ -420,17 +416,7 @@
       if (!posts || posts.length === 0) { box.innerHTML = `<div class="text-center py-16 text-slate-400 text-xs">कोई पोस्ट नहीं है।</div>`; return; }
       box.innerHTML = posts.map(p => {
         const isLiked = loggedInUser && p.likes && p.likes.includes(loggedInUser.email);
-        return `
-          <div class="bg-white border border-slate-200/90 rounded-3xl overflow-hidden shadow-sm">
-            <div class="p-3 flex items-center justify-between">
-              <div class="flex items-center gap-2.5"><img src="${p.authorAvatar}" class="w-10 h-10 rounded-2xl object-cover border border-slate-100"><div><h4 class="text-xs font-black text-slate-900">${p.authorName}</h4><span class="text-[9px] text-slate-400">${p.createdAt}</span></div></div>
-            </div>
-            ${p.media ? (p.mediaType === 'video' ? `<video src="${p.media}" controls playsinline class="max-h-96 w-full bg-black object-contain"></video>` : `<img src="${p.media}" class="w-full max-h-96 object-cover bg-slate-100">`) : ''}
-            <div class="p-3.5 space-y-2">
-              <button onclick="togglePostLike('${p.id}', this)" class="flex items-center gap-1.5 text-xs font-bold ${isLiked ? 'text-rose-600' : 'text-slate-600'}"><span class="text-base">${isLiked ? '❤️' : '🤍'}</span> <span>${p.likes.length}</span></button>
-              ${p.caption ? `<p class="text-xs text-slate-800">${p.caption}</p>` : ''}
-            </div>
-          </div>`;
+        return `<div class="bg-white border border-slate-200/90 rounded-3xl overflow-hidden shadow-sm"><div class="p-3 flex items-center justify-between"><div class="flex items-center gap-2.5"><img src="${p.authorAvatar}" class="w-10 h-10 rounded-2xl object-cover border border-slate-100"><div><h4 class="text-xs font-black text-slate-900">${p.authorName}</h4><span class="text-[9px] text-slate-400">${p.createdAt}</span></div></div></div>${p.media ? (p.mediaType === 'video' ? `<video src="${p.media}" controls playsinline class="max-h-96 w-full bg-black object-contain"></video>` : `<img src="${p.media}" class="w-full max-h-96 object-cover bg-slate-100">`) : ''}<div class="p-3.5 space-y-2"><button onclick="togglePostLike('${p.id}', this)" class="flex items-center gap-1.5 text-xs font-bold ${isLiked ? 'text-rose-600' : 'text-slate-600'}"><span class="text-base">${isLiked ? '❤️' : '🤍'}</span> <span>${p.likes.length}</span></button>${p.caption ? `<p class="text-xs text-slate-800">${p.caption}</p>` : ''}</div></div>`;
       }).join("");
     }
     async function togglePostLike(postId, btn) { if (!loggedInUser) return alert("लॉगिन करें!"); await fetch("/api/posts/like", { method: "POST", headers: {"Content-Type":"application/json"}, body: JSON.stringify({ postId, email: loggedInUser.email }) }); }
@@ -438,8 +424,7 @@
     function openCreatePostModal() { if (!loggedInUser) return alert("लॉगिन करें!"); document.getElementById('createPostModal').classList.remove('hidden'); }
     function closeCreatePostModal() { document.getElementById('createPostModal').classList.add('hidden'); }
     function handlePostMediaSelect(event) {
-      const file = event.target.files[0]; if (!file) return;
-      const reader = new FileReader();
+      const file = event.target.files[0]; if (!file) return; const reader = new FileReader();
       if (file.type.startsWith('video/')) { tempPostMediaType = "video"; reader.onload = (e) => { tempPostMediaBase64 = e.target.result; document.getElementById('postVidPreview').src = tempPostMediaBase64; document.getElementById('postVidPreview').classList.remove('hidden'); document.getElementById('postImgPreview').classList.add('hidden'); document.getElementById('postMediaPreviewBox').classList.remove('hidden'); }; }
       else { tempPostMediaType = "image"; reader.onload = (e) => { const img = new Image(); img.onload = () => { const canvas = document.createElement("canvas"); canvas.width = img.width; canvas.height = img.height; canvas.getContext("2d").drawImage(img, 0, 0, img.width, img.height); tempPostMediaBase64 = canvas.toDataURL("image/jpeg", 0.5); document.getElementById('postImgPreview').src = tempPostMediaBase64; document.getElementById('postImgPreview').classList.remove('hidden'); document.getElementById('postVidPreview').classList.add('hidden'); document.getElementById('postMediaPreviewBox').classList.remove('hidden'); }; img.src = e.target.result; }; }
       reader.readAsDataURL(file);
@@ -466,9 +451,44 @@
     }
     function logoutUser() { localStorage.removeItem("sukoon_active_user"); location.reload(); }
 
-    function openNearbyHub() { if (navigator.geolocation) { navigator.geolocation.getCurrentPosition((pos) => { userLat = pos.coords.latitude; userLon = pos.coords.longitude; if(socket && loggedInUser) socket.emit("register_user_presence", { email: loggedInUser.email, channelName: loggedInUser.channelName, avatar: loggedInUser.avatar, lat: userLat, lon: userLon }); refreshNearbyUsers(); }, () => { alert("GPS चालू करें"); }); } }
-    function setNearbyRadius(r) { currentRadiusKM = r; refreshNearbyUsers(); }
-    function refreshNearbyUsers() { if (socket) socket.emit("get_nearby_users", { maxDistanceKM: currentRadiusKM }); }
+    // 🔥 बग फिक्स: Nearby Radius Buttons UI & GPS Logic
+    function openNearbyHub() { 
+      if (navigator.geolocation) { 
+        navigator.geolocation.getCurrentPosition((pos) => { 
+          userLat = pos.coords.latitude; userLon = pos.coords.longitude; 
+          if(socket && loggedInUser) socket.emit("register_user_presence", { email: loggedInUser.email, channelName: loggedInUser.channelName, avatar: loggedInUser.avatar, lat: userLat, lon: userLon }); 
+          setNearbyRadius(100); // Default UI update
+        }, () => { alert("GPS (लोकेशन) चालू करें, ताकि हम आपके आस-पास के लोग दिखा सकें!"); }); 
+      } else { alert("GPS सपोर्ट नहीं कर रहा!"); }
+    }
+    
+    function setNearbyRadius(r) { 
+      currentRadiusKM = r;
+      // Update Button Colors Visual Fix
+      [25, 50, 100].forEach(val => {
+        let btn = document.getElementById(`radBtn${val}`);
+        if(btn) {
+          if (val === r) {
+            btn.classList.remove('bg-white', 'text-slate-600');
+            btn.classList.add('bg-emerald-600', 'text-white', 'shadow-sm');
+          } else {
+            btn.classList.add('bg-white', 'text-slate-600');
+            btn.classList.remove('bg-emerald-600', 'text-white', 'shadow-sm');
+          }
+        }
+      });
+      refreshNearbyUsers(); 
+    }
+
+    function refreshNearbyUsers() { 
+      if (!userLat || !userLon) {
+        // If they click without GPS, warn them
+        alert("GPS लोकेशन नहीं मिल रही है। कृपया रिफ्रेश करें या GPS ऑन करें।");
+        return;
+      }
+      if (socket) socket.emit("get_nearby_users", { maxDistanceKM: currentRadiusKM }); 
+    }
+
     function renderNearbyList(users) { const box = document.getElementById("nearbyListContainer"); if (!users || users.length === 0) { box.innerHTML = `<div class="text-center py-16 text-slate-400 text-xs">कोई नहीं मिला।</div>`; return; } box.innerHTML = users.map(u => `<div class="p-3 bg-white border border-slate-200 rounded-2xl flex justify-between items-center"><div class="flex gap-2"><img src="${u.avatar}" class="w-10 h-10 rounded-2xl"><div><h4 class="text-xs font-bold">${u.channelName}</h4><p class="text-[10px] text-slate-500">📍 ~${u.distanceKM} KM</p></div></div><button onclick="sendNearbyHi('${u.socketId}')" class="px-3 py-1.5 bg-emerald-500 text-white text-xs font-bold rounded-xl">👋 बात करें</button></div>`).join(""); }
     function sendNearbyHi(targetSid) { if (socket) socket.emit("send_nearby_request", { toSocketId: targetSid }); alert("रिक्वेस्ट भेज दी गई!"); }
 
@@ -479,26 +499,22 @@
     function initSocket() {
       if (socket) return;
       socket = io();
-      // ग्लोबल एक्टिव काउंटर फिक्स (नया फीचर)
-      socket.on("global_online_count", (count) => {
-        const el = document.getElementById("globalOnlineCountUI");
-        if(el) el.innerText = count || 0;
-      });
+      socket.on("global_online_count", (count) => { const el = document.getElementById("globalOnlineCountUI"); if(el) el.innerText = count || 0; });
       socket.on("stream_started", (s) => { currentActiveStreamId = s.streamId; });
       socket.on("nearby_users_list", ({ users }) => renderNearbyList(users));
       socket.on("my_connections_data", ({ connections }) => { cachedConnections = connections || []; renderFilteredConnections(); });
       socket.on("receive_chat_request", ({ fromSocketId, fromName }) => { pendingRequestFromSid = fromSocketId; document.getElementById('chatRequestText').innerText = `${fromName} आपसे चैट करना चाहते हैं!`; document.getElementById('chatRequestModal').classList.remove('hidden'); });
-      socket.on("banner_updated", (b) => renderSingleBanner(b));
+      socket.on("banner_updated", (b) => { document.getElementById("bannerImage").src = b.imageUrl; document.getElementById("bannerTitle").innerText = b.title || ""; document.getElementById("homeBannerCard").classList.remove("hidden"); });
       socket.on("new_post_published", (post) => { cachedPosts.unshift(post); renderFeedPosts(cachedPosts); });
       socket.on("stream_list_updated", (streams) => renderStreamsList(streams));
-      socket.on("receive_stream_chat", ({ senderName, text, time }) => { const box = document.getElementById('streamChatMessagesBox'); const div = document.createElement('div'); div.innerHTML = `<div class="text-[10px]"><span class="font-bold text-indigo-700">${senderName}</span></div><p class="text-slate-800 text-xs">${text}</p>`; box.appendChild(div); box.scrollTop = box.scrollHeight; });
+      socket.on("receive_stream_chat", ({ senderName, text }) => { const box = document.getElementById('streamChatMessagesBox'); const div = document.createElement('div'); div.innerHTML = `<div class="text-[10px]"><span class="font-bold text-indigo-700">${senderName}</span></div><p class="text-slate-800 text-xs">${text}</p>`; box.appendChild(div); box.scrollTop = box.scrollHeight; });
       
       socket.on("partner_found", (data) => {
         isInitiator = data.isInitiator; document.getElementById("roomStatusBadge").classList.remove('hidden'); document.getElementById("roomStatusBadge").innerText = "ऑनलाइन 🟢"; document.getElementById("videoWaitingNotice").classList.add("hidden");
         const box = document.getElementById("messagesBox"); const div = document.createElement("div"); div.className = "text-center my-1"; div.innerHTML = `<span class="text-[10px] bg-slate-100 border border-slate-200 px-3 py-1 rounded-full text-slate-500">${data.partnerName ? data.partnerName : "साथी जुड़ गया!"}</span>`; box.appendChild(div);
         if (currentMode === 'video') initRandomPeerConnection();
       });
-      socket.on("receive_message", ({ text, timestamp }) => { const box = document.getElementById("messagesBox"); const div = document.createElement("div"); div.className = "flex justify-start"; div.innerHTML = `<div class="max-w-[80%] px-4 py-2 rounded-2xl text-xs bg-slate-100"><p>${text}</p></div>`; box.appendChild(div); box.scrollTop = box.scrollHeight; });
+      socket.on("receive_message", ({ text }) => { const box = document.getElementById("messagesBox"); const div = document.createElement("div"); div.className = "flex justify-start"; div.innerHTML = `<div class="max-w-[80%] px-4 py-2 rounded-2xl text-xs bg-slate-100"><p>${text}</p></div>`; box.appendChild(div); box.scrollTop = box.scrollHeight; });
       socket.on("webrtc_signal", async (signal) => {
         if (!peerConnection) return;
         if (signal.sdp) { await peerConnection.setRemoteDescription(new RTCSessionDescription(signal.sdp)); if (signal.sdp.type === "offer") { const answer = await peerConnection.createAnswer(); await peerConnection.setLocalDescription(answer); socket.emit("webrtc_signal", { sdp: peerConnection.localDescription }); } } else if (signal.candidate) { await peerConnection.addIceCandidate(new RTCIceCandidate(signal.candidate)); }
@@ -520,13 +536,12 @@
       socket.emit("find_partner", { mode: currentMode, tag: selectedTag, email: loggedInUser?.email || null, name: loggedInUser?.channelName || null });
     }
 
-    // बग फिक्स: कैमरा परमिशन क्रैश
     async function startRandomCamera() {
       try {
         if (localStream) localStream.getTracks().forEach(t => t.stop());
         localStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: randomFacingMode }, audio: true });
         document.getElementById('localVideo').srcObject = localStream;
-      } catch (err) { alert("कैमरा परमिशन नहीं दी गई है!"); goHome(); }
+      } catch (err) { alert("कैमरा परमिशन नहीं दी गई है!"); goHome(true); }
     }
 
     function flipRandomCamera() { randomFacingMode = (randomFacingMode === "user" ? "environment" : "user"); startRandomCamera().then(() => { if (peerConnection && localStream) { const sender = peerConnection.getSenders().find(s => s.track && s.track.kind === "video"); if (sender) sender.replaceTrack(localStream.getVideoTracks()[0]); } }); }
@@ -542,7 +557,8 @@
     function closePeer() { if (peerConnection) { peerConnection.close(); peerConnection = null; } document.getElementById('remoteVideo').srcObject = null; }
 
     function handleSendSubmit(e) {
-      e.preventDefault(); const inp = document.getElementById('msgInput'); const text = inp.value.trim(); if (!text || !socket) return;
+      e.preventDefault(); const inp = document.getElementById('msgInput'); const text = inp.value.trim(); 
+      if (!text || !socket) return; // 🔥 बग फिक्स: खाली स्पेस सेंड नहीं होगा
       socket.emit("send_message", { text });
       const box = document.getElementById("messagesBox"); const div = document.createElement("div"); div.className = "flex justify-end"; div.innerHTML = `<div class="max-w-[80%] px-4 py-2 rounded-2xl text-xs bg-rose-500 text-white"><p>${text}</p></div>`; box.appendChild(div); box.scrollTop = box.scrollHeight; inp.value = "";
     }
@@ -550,7 +566,16 @@
       const file = e.target.files[0]; if (!file || !socket) return; const reader = new FileReader(); reader.onload = () => { socket.emit("send_media", { imageBase64: reader.result }); const box = document.getElementById("messagesBox"); const div = document.createElement("div"); div.className = "flex justify-end"; div.innerHTML = `<div class="max-w-[80%] p-2 rounded-2xl bg-white border border-slate-200"><img src="${reader.result}" class="max-h-48 rounded-xl object-cover"><div class="text-[9px] text-amber-600 font-bold mt-1">⏳ 10s Vanish</div></div>`; box.appendChild(div); box.scrollTop = box.scrollHeight; }; reader.readAsDataURL(file); e.target.value = "";
     }
     function nextPartner() { closePeer(); document.getElementById("messagesBox").innerHTML = ""; document.getElementById("roomStatusBadge").innerText = "तलाश जारी..."; document.getElementById("videoWaitingNotice").classList.remove("hidden"); if (socket) socket.emit("find_partner", { mode: currentMode, tag: selectedTag }); }
-    function goHome() { closePeer(); if (localStream) { localStream.getTracks().forEach(t => t.stop()); localStream = null; } if (socket) socket.emit("leave_chat"); document.getElementById('messagesBox').innerHTML = ''; switchMainTab('home'); }
+    
+    // 🔥 बग फिक्स: सेफ कैमरा क्लीनअप
+    function goHome(navigate = true) { 
+      closePeer(); 
+      if (localStream) { localStream.getTracks().forEach(t => t.stop()); localStream = null; } 
+      if (socket) socket.emit("leave_chat"); 
+      document.getElementById('messagesBox').innerHTML = ''; 
+      if(navigate) switchMainTab('home'); 
+    }
+
     function toggleAudio() { if (!localStream) return; isMuted = !isMuted; localStream.getAudioTracks().forEach(t => t.enabled = !isMuted); document.getElementById('micBtn').innerText = isMuted ? "🔇" : "🎙️"; }
     function toggleVideo() { if (!localStream) return; isCamOff = !isCamOff; localStream.getVideoTracks().forEach(t => t.enabled = !isCamOff); document.getElementById('camBtn').innerText = isCamOff ? "🚫" : "📹"; }
     function reportPartner() { if (confirm("रिपोर्ट करें?")) { if (socket) socket.emit("report_partner", { reason: "Reported" }); alert("रिपोर्ट हो गया!"); nextPartner(); } }
@@ -563,7 +588,9 @@
     function stopBroadcast() { if(localStream) localStream.getTracks().forEach(t=>t.stop()); document.getElementById('activeStreamPlayer').classList.add('hidden'); document.getElementById('streamsListWrapper').classList.remove('hidden'); socket.emit("get_streams"); }
     function joinStream(streamId) { currentActiveStreamId = streamId; document.getElementById('activeStreamPlayer').classList.remove('hidden'); document.getElementById('streamsListWrapper').classList.add('hidden'); document.getElementById('viewerCloseStreamBtn').classList.remove('hidden'); socket.emit("join_stream", { streamId }); }
     function leaveCurrentStream() { if (currentActiveStreamId) socket.emit("leave_stream", { streamId: currentActiveStreamId }); document.getElementById('streamVideoPlayer').srcObject = null; document.getElementById('activeStreamPlayer').classList.add('hidden'); document.getElementById('streamsListWrapper').classList.remove('hidden'); }
-    function handleSendStreamChat(e) { e.preventDefault(); const inp = document.getElementById('streamChatInput'); if (!inp.value.trim() || !socket) return; socket.emit("send_stream_chat", { streamId: currentActiveStreamId || ("stream_" + socket.id), text: inp.value.trim(), senderName: loggedInUser?.channelName || "Viewer" }); inp.value = ""; }
+    
+    // 🔥 बग फिक्स: खाली स्पेस सेंड नहीं होगा
+    function handleSendStreamChat(e) { e.preventDefault(); const inp = document.getElementById('streamChatInput'); const text = inp.value.trim(); if (!text || !socket) return; socket.emit("send_stream_chat", { streamId: currentActiveStreamId || ("stream_" + socket.id), text: text, senderName: loggedInUser?.channelName || "Viewer" }); inp.value = ""; }
 
     function toggleAuthModal() { document.getElementById('authModal').classList.toggle('hidden'); }
     function setRole(role) { selectedRole = role; document.getElementById('creatorFields').classList.toggle('hidden', role !== 'creator'); }
