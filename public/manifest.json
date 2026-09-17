@@ -1,18 +1,20 @@
 {
-  "name": "Sukoon - Anonymous Live Space",
+  "name": "Sukoon Social",
   "short_name": "Sukoon",
+  "description": "सुकून - मन की बात, लाइव स्ट्रीम और अनाम चैट।",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#f8fafc",
+  "background_color": "#0f172a",
   "theme_color": "#e11d48",
+  "orientation": "portrait-primary",
   "icons": [
     {
-      "src": "https://api.dicebear.com/7.x/bottts/svg?seed=sukoon_app_logo",
+      "src": "https://api.dicebear.com/7.x/initials/svg?seed=Sukoon&backgroundColor=e11d48&textColor=ffffff",
       "sizes": "192x192",
       "type": "image/svg+xml"
     },
     {
-      "src": "https://api.dicebear.com/7.x/bottts/svg?seed=sukoon_app_logo",
+      "src": "https://api.dicebear.com/7.x/initials/svg?seed=Sukoon&backgroundColor=e11d48&textColor=ffffff",
       "sizes": "512x512",
       "type": "image/svg+xml"
     }

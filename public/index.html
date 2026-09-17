@@ -597,5 +597,12 @@
     function selectTag(tag) { selectedTag = tag; }
     async function submitAuth() { const email = document.getElementById('authEmail').value.trim(); const password = document.getElementById('authPassword').value.trim(); if (!email || !password) return alert("ईमेल और पासवर्ड भरें!"); try { const res = await fetch("/api/auth", { method: "POST", headers: {"Content-Type":"application/json"}, body: JSON.stringify({ email, password, role: selectedRole }) }); const data = await res.json(); if (data.success) { loggedInUser = data.user; localStorage.setItem("sukoon_active_user", JSON.stringify(loggedInUser)); updateUserUI(); toggleAuthModal(); alert("लॉगिन हो गया!"); } else alert(data.error); } catch(e){} }
   </script>
+  <script>
+    if ("serviceWorker" in navigator) {
+      window.addEventListener("load", () => {
+        navigator.serviceWorker.register("/sw.js").then(reg => console.log("Sukoon App Engine Ready")).catch(err => console.log("SW Error", err));
+      });
+    }
+  </script>
 </body>
 </html>
