@@ -17,21 +17,14 @@ let dbData = {
   banner: { imageUrl: "https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=800&auto=format&fit=crop&q=60", title: "सुकून कम्युनिटी में आपका स्वागत है 🌿" }
 };
 
-if (fs.existsSync(DB_FILE)) { 
-  try { 
-    const raw = fs.readFileSync(DB_FILE, "utf-8"); 
-    dbData = { ...dbData, ...JSON.parse(raw) }; 
-    if(!dbData.stories) dbData.stories=[]; 
-    if(!dbData.userConnections) dbData.userConnections={};
-  } catch (e) {} 
-}
+if (fs.existsSync(DB_FILE)) { try { const raw = fs.readFileSync(DB_FILE, "utf-8"); dbData = { ...dbData, ...JSON.parse(raw) }; if(!dbData.stories) dbData.stories=[]; if(!dbData.userConnections) dbData.userConnections={}; } catch (e) {} }
 
 let saveTimeout = null;
 const saveDB = () => { if (saveTimeout) clearTimeout(saveTimeout); saveTimeout = setTimeout(() => { try { fs.writeFileSync(DB_FILE, JSON.stringify(dbData, null, 2)); } catch (e) {} }, 1000); };
-
 setInterval(() => { const now = Date.now(); dbData.stories = dbData.stories.filter(s => now - s.timestamp < 86400000); saveDB(); }, 3600000);
 
 let liveStreams = []; const onlineLoggedInUsers = {};
+let audioRoomsHub = {}; // NEW: Group Audio Rooms
 
 function calculateDistanceKM(lat1, lon1, lat2, lon2) {
   const R = 6371; const dLat = (lat2 - lat1) * (Math.PI / 180); const dLon = (lon2 - lon1) * (Math.PI / 180);
@@ -41,35 +34,22 @@ function calculateDistanceKM(lat1, lon1, lat2, lon2) {
 
 // APIs
 app.get("/api/banner", (req, res) => res.json({ banner: dbData.banner }));
-
-// AUTH (WITH CREATOR APPROVAL SYSTEM)
 app.post("/api/auth", (req, res) => {
   const { email, password, role, channelName, category, schedule, bio } = req.body;
   if (!email || !password) return res.status(400).json({ error: "ईमेल और पासवर्ड आवश्यक हैं" });
   let user = dbData.registeredUsers.find(u => u.email === email);
   if (!user) {
-    user = { 
-      id: "usr_" + Date.now(), email, password, role: role || "viewer", 
-      channelName: channelName || email.split("@")[0], 
-      avatar: `https://api.dicebear.com/7.x/bottts/svg?seed=${email}`, 
-      category: category || "General", schedule: schedule || "", bio: bio || "",
-      isApprovedCreator: role !== "creator", // Viewers are auto-approved, Creators need Admin approval
-      isPremium: true, joinedAt: new Date().toLocaleDateString() 
-    };
+    user = { id: "usr_" + Date.now(), email, password, role: role || "viewer", channelName: channelName || email.split("@")[0], avatar: `https://api.dicebear.com/7.x/bottts/svg?seed=${email}`, category: category || "General", schedule: schedule || "", bio: bio || "", isApprovedCreator: role !== "creator", isPremium: true, joinedAt: new Date().toLocaleDateString() };
     dbData.registeredUsers.push(user); saveDB();
-  } else if (user.password !== password) {
-    return res.status(401).json({ error: "गलत पासवर्ड!" });
-  }
+  } else if (user.password !== password) return res.status(401).json({ error: "गलत पासवर्ड!" });
   res.json({ success: true, user });
 });
-
 app.post("/api/user/update-profile", (req, res) => {
   const { email, channelName, avatar, bio } = req.body; const user = dbData.registeredUsers.find(u => u.email === email);
   if (!user) return res.status(404).json({ error: "Not found" });
   if (channelName) user.channelName = channelName; if (avatar) user.avatar = avatar; if(bio) user.bio = bio; saveDB(); res.json({ success: true, user });
 });
 
-// POSTS
 app.get("/api/posts", (req, res) => res.json({ posts: dbData.posts || [] }));
 app.post("/api/posts/create", (req, res) => {
   const { email, media, mediaType, caption } = req.body; const user = dbData.registeredUsers.find(u => u.email === email);
@@ -79,11 +59,9 @@ app.post("/api/posts/create", (req, res) => {
 });
 app.post("/api/posts/like", (req, res) => {
   const { postId, email } = req.body; const post = dbData.posts.find(p => p.id === postId); if (!post) return res.status(404).json({ error: "Error" });
-  const idx = post.likes.indexOf(email); if (idx === -1) post.likes.push(email); else post.likes.splice(idx, 1);
-  saveDB(); res.json({ success: true });
+  const idx = post.likes.indexOf(email); if (idx === -1) post.likes.push(email); else post.likes.splice(idx, 1); saveDB(); res.json({ success: true });
 });
 
-// STORIES
 app.get("/api/stories", (req, res) => res.json({ stories: dbData.stories }));
 app.post("/api/stories/create", (req, res) => {
   const { email, media, text } = req.body; const user = dbData.registeredUsers.find(u => u.email === email);
@@ -131,7 +109,7 @@ io.on("connection", (socket) => {
     }
   });
 
-  // 1-on-1 Call Logic
+  // 1-on-1 Call Logic (Video/Text)
   socket.on("find_partner", ({ mode, tag }) => {
     waitingPool = waitingPool.filter(u => u.socketId !== socket.id);
     const user = { socketId: socket.id, mode: mode || "text", tag: tag || "All" };
@@ -150,7 +128,6 @@ io.on("connection", (socket) => {
   socket.on("send_media", ({ imageBase64 }) => { const roomId = userRooms[socket.id]; if (roomId) socket.to(roomId).emit("receive_media", { imageBase64 }); });
   socket.on("webrtc_signal", (data) => { const roomId = userRooms[socket.id]; if (roomId) socket.to(roomId).emit("webrtc_signal", data); });
   
-  // 🎮 GAME SOCKETS
   socket.on("game_invite", () => { const roomId = userRooms[socket.id]; if(roomId) socket.to(roomId).emit("game_invite_received"); });
   socket.on("game_accept", () => { const roomId = userRooms[socket.id]; if(roomId) io.to(roomId).emit("game_started"); });
   socket.on("game_move", (idx) => { const roomId = userRooms[socket.id]; if(roomId) socket.to(roomId).emit("game_move_received", idx); });
@@ -166,16 +143,61 @@ io.on("connection", (socket) => {
   socket.on("leave_stream", ({ streamId }) => { const stream = liveStreams.find(s => s.streamId === streamId); if (stream) { socket.leave(streamId); stream.viewers = Math.max(0, stream.viewers - 1); io.emit("stream_list_updated", liveStreams); } });
   socket.on("send_stream_chat", ({ streamId, text, senderName }) => { io.to(streamId).emit("receive_stream_chat", { senderName, text }); });
 
+  // 🎙️ GROUP AUDIO ROOMS LOGIC (NEW & ADVANCED)
+  socket.on("get_audio_rooms", () => { socket.emit("audio_rooms_list", Object.values(audioRoomsHub)); });
+  socket.on("create_audio_room", ({ roomName, userProfile }) => {
+    const roomId = "audio_" + Date.now();
+    audioRoomsHub[roomId] = { roomId, roomName, creator: userProfile.channelName, participants: [] };
+    io.emit("audio_rooms_list", Object.values(audioRoomsHub));
+    socket.emit("audio_room_created", roomId);
+  });
+  socket.on("join_audio_room", ({ roomId, userProfile }) => {
+    if(audioRoomsHub[roomId]) {
+      const pData = { socketId: socket.id, profile: userProfile, isMuted: false, handRaised: false };
+      audioRoomsHub[roomId].participants.push(pData);
+      socket.join(roomId); userRooms[socket.id] = roomId;
+      socket.emit("audio_room_joined", { roomId, roomName: audioRoomsHub[roomId].roomName, participants: audioRoomsHub[roomId].participants });
+      socket.to(roomId).emit("audio_user_joined", pData);
+      io.emit("audio_rooms_list", Object.values(audioRoomsHub));
+    }
+  });
+  socket.on("audio_webrtc_offer", ({ targetSocketId, sdp }) => { socket.to(targetSocketId).emit("audio_webrtc_offer", { fromSocketId: socket.id, sdp }); });
+  socket.on("audio_webrtc_answer", ({ targetSocketId, sdp }) => { socket.to(targetSocketId).emit("audio_webrtc_answer", { fromSocketId: socket.id, sdp }); });
+  socket.on("audio_webrtc_ice", ({ targetSocketId, candidate }) => { socket.to(targetSocketId).emit("audio_webrtc_ice", { fromSocketId: socket.id, candidate }); });
+  socket.on("audio_toggle_mic", ({ roomId, isMuted }) => {
+    if(audioRoomsHub[roomId]) {
+      const p = audioRoomsHub[roomId].participants.find(x => x.socketId === socket.id);
+      if(p) { p.isMuted = isMuted; io.to(roomId).emit("audio_participant_updated", p); }
+    }
+  });
+  socket.on("audio_raise_hand", ({ roomId, handRaised }) => {
+    if(audioRoomsHub[roomId]) {
+      const p = audioRoomsHub[roomId].participants.find(x => x.socketId === socket.id);
+      if(p) { p.handRaised = handRaised; io.to(roomId).emit("audio_participant_updated", p); }
+    }
+  });
+  socket.on("audio_send_reaction", ({ roomId, emoji }) => { io.to(roomId).emit("audio_reaction_received", { socketId: socket.id, emoji }); });
+
   const cleanup = () => {
     delete onlineLoggedInUsers[socket.id]; waitingPool = waitingPool.filter(u => u.socketId !== socket.id);
     const roomId = userRooms[socket.id];
-    if (roomId) { socket.to(roomId).emit("partner_disconnected"); socket.leave(roomId); delete activeRooms[roomId]; delete userRooms[socket.id]; }
+    if (roomId && roomId.startsWith("audio_")) {
+      if (audioRoomsHub[roomId]) {
+        audioRoomsHub[roomId].participants = audioRoomsHub[roomId].participants.filter(x => x.socketId !== socket.id);
+        socket.to(roomId).emit("audio_user_left", socket.id);
+        if (audioRoomsHub[roomId].participants.length === 0) delete audioRoomsHub[roomId];
+        io.emit("audio_rooms_list", Object.values(audioRoomsHub));
+      }
+      socket.leave(roomId); delete userRooms[socket.id];
+    } else if (roomId) {
+      socket.to(roomId).emit("partner_disconnected"); socket.leave(roomId); delete activeRooms[roomId]; delete userRooms[socket.id];
+    }
     const streamIdx = liveStreams.findIndex(s => s.streamerSocketId === socket.id);
     if (streamIdx !== -1) { const sId = liveStreams[streamIdx].streamId; io.to(sId).emit("stream_ended"); liveStreams.splice(streamIdx, 1); io.emit("stream_list_updated", liveStreams); }
     io.emit("global_online_count", io.engine.clientsCount);
   };
-  socket.on("leave_chat", cleanup); socket.on("disconnect", cleanup);
+  socket.on("leave_chat", cleanup); socket.on("leave_audio_room", cleanup); socket.on("disconnect", cleanup);
 });
 
 const PORT = process.env.PORT || 5000;
-server.listen(PORT, () => console.log(`>>> Sukoon Ultimate Active on port ${PORT}`));
+server.listen(PORT, () => console.log(`>>> Sukoon Ultimate Group Audio Active on port ${PORT}`));
