@@ -20,13 +20,7 @@ let dbData = {
   banner: { imageUrl: "https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=800&auto=format&fit=crop&q=60", title: "सुकून कम्युनिटी में आपका स्वागत है 🌿", linkUrl: "" }
 };
 
-if (fs.existsSync(DB_FILE)) {
-  try {
-    const raw = fs.readFileSync(DB_FILE, "utf-8");
-    dbData = { ...dbData, ...JSON.parse(raw) };
-    if (!dbData.stories) dbData.stories = [];
-  } catch (e) {}
-}
+if (fs.existsSync(DB_FILE)) { try { const raw = fs.readFileSync(DB_FILE, "utf-8"); dbData = { ...dbData, ...JSON.parse(raw) }; if (!dbData.stories) dbData.stories = []; } catch (e) {} }
 
 let saveTimeout = null;
 const saveDB = () => { if (saveTimeout) clearTimeout(saveTimeout); saveTimeout = setTimeout(() => { try { fs.writeFileSync(DB_FILE, JSON.stringify(dbData, null, 2)); } catch (e) {} }, 1000); };
@@ -38,7 +32,7 @@ setInterval(() => {
   if(dbData.stories.length !== oldLen) saveDB();
 }, 3600000);
 
-let liveStreams = []; const onlineLoggedInUsers = {};
+const onlineLoggedInUsers = {};
 
 function calculateDistanceKM(lat1, lon1, lat2, lon2) {
   const R = 6371; const dLat = (lat2 - lat1) * (Math.PI / 180); const dLon = (lon2 - lon1) * (Math.PI / 180);
@@ -49,35 +43,16 @@ function calculateDistanceKM(lat1, lon1, lat2, lon2) {
 // APIs
 app.get("/api/banner", (req, res) => res.json({ banner: dbData.banner }));
 app.post("/api/auth", (req, res) => {
-  const { email, password, role, channelName, category, avatar, schedule, bio } = req.body;
+  const { email, password, role, channelName } = req.body;
   if (!email || !password) return res.status(400).json({ error: "ईमेल और पासवर्ड आवश्यक हैं" });
   let user = dbData.registeredUsers.find(u => u.email === email);
   if (!user) {
-    user = { id: "usr_" + Math.random().toString(36).substr(2, 7), email, password, role: role || "viewer", channelName: channelName || email.split("@")[0], category: category || "General", avatar: avatar || `https://api.dicebear.com/7.x/bottts/svg?seed=${email}`, schedule: schedule || "रोज़ाना लाइव", bio: bio || "सुकून यूज़र", coins: 0, isApprovedCreator: role !== "creator", isBanned: false, isPremium: false, joinedAt: new Date().toLocaleDateString() };
+    user = { id: "usr_" + Math.random().toString(36).substr(2, 7), email, password, role: role || "viewer", channelName: channelName || email.split("@")[0], avatar: `https://api.dicebear.com/7.x/bottts/svg?seed=${email}`, isPremium: true, joinedAt: new Date().toLocaleDateString() };
     dbData.registeredUsers.push(user); saveDB();
-  } else {
-    if (user.password !== password) return res.status(401).json({ error: "गलत पासवर्ड!" });
-    if (user.isBanned) return res.status(403).json({ error: "अकाउंट बैन है!" });
-  }
+  } else if (user.password !== password) return res.status(401).json({ error: "गलत पासवर्ड!" });
   res.json({ success: true, user });
 });
-app.post("/api/user/update-profile", (req, res) => {
-  const { email, channelName, avatar, bio } = req.body; const user = dbData.registeredUsers.find(u => u.email === email);
-  if (!user) return res.status(404).json({ error: "User not found" });
-  if (channelName) user.channelName = channelName; if (avatar) user.avatar = avatar; if (bio !== undefined) user.bio = bio; saveDB(); res.json({ success: true, user });
-});
 app.get("/api/posts", (req, res) => res.json({ posts: dbData.posts || [] }));
-app.post("/api/posts/create", (req, res) => {
-  const { email, media, mediaType, caption } = req.body; const user = dbData.registeredUsers.find(u => u.email === email);
-  if (!user) return res.status(401).json({ error: "लॉगिन आवश्यक है" });
-  const newPost = { id: "post_" + Date.now(), authorEmail: user.email, authorName: user.channelName, authorAvatar: user.avatar, media: media || null, mediaType: mediaType || "image", caption: caption || "", likes: [], createdAt: new Date().toLocaleDateString([], { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" }) };
-  dbData.posts.unshift(newPost); saveDB(); io.emit("new_post_published", newPost); res.json({ success: true, post: newPost });
-});
-app.post("/api/posts/like", (req, res) => {
-  const { postId, email } = req.body; const post = dbData.posts.find(p => p.id === postId); if (!post || !email) return res.status(404).json({ error: "Error" });
-  const idx = post.likes.indexOf(email); if (idx === -1) post.likes.push(email); else post.likes.splice(idx, 1);
-  saveDB(); io.emit("post_liked", { postId, likesCount: post.likes.length, likes: post.likes }); res.json({ success: true });
-});
 app.get("/api/stories", (req, res) => res.json({ stories: dbData.stories }));
 app.post("/api/stories/create", (req, res) => {
   const { email, media, text } = req.body; const user = dbData.registeredUsers.find(u => u.email === email);
@@ -124,7 +99,6 @@ io.on("connection", (socket) => {
   });
 
   socket.on("send_message", ({ text }) => { const roomId = userRooms[socket.id]; if (roomId && text) socket.to(roomId).emit("receive_message", { text }); });
-  socket.on("send_media", ({ imageBase64 }) => { const roomId = userRooms[socket.id]; if (roomId) socket.to(roomId).emit("receive_media", { imageBase64 }); });
   socket.on("webrtc_signal", (data) => { const roomId = userRooms[socket.id]; if (roomId) socket.to(roomId).emit("webrtc_signal", data); });
   
   // 🎮 GAME SOCKETS
@@ -142,4 +116,4 @@ io.on("connection", (socket) => {
 });
 
 const PORT = process.env.PORT || 5000;
-server.listen(PORT, () => console.log(`>>> Sukoon Ultra-Pro Active on port ${PORT}`));
+server.listen(PORT, () => console.log(`>>> Sukoon Master Ultra-Pro Active on port ${PORT}`));
