@@ -5,6 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Sukoon Admin Panel</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <!-- 🔥 ADDED SOCKET.IO TO ADMIN PANEL FOR LIVE UPDATES 🔥 -->
+  <script src="/socket.io/socket.io.js"></script>
   <style> body { background-color: #0f172a; color: #f8fafc; font-family: sans-serif; } </style>
 </head>
 <body class="flex flex-col h-screen overflow-hidden">
@@ -24,13 +26,26 @@
   <div id="adminDashboardSection" class="hidden flex-1 flex flex-col">
     <header class="bg-slate-800 p-4 border-b border-slate-700 flex justify-between items-center">
       <h1 class="text-xl font-black text-blue-500">Sukoon Admin</h1>
-      <button onclick="adminLogout()" class="px-4 py-1.5 bg-red-500/20 text-red-400 rounded-lg text-xs font-bold border border-red-500/50 hover:bg-red-500/40">लॉगआउट</button>
+      <div class="flex items-center gap-4">
+        <!-- 🔥 LIVE STATUS INDICATOR 🔥 -->
+        <div class="flex items-center gap-2 bg-emerald-500/10 px-3 py-1 rounded-full border border-emerald-500/20">
+          <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+          <span class="text-xs text-emerald-400 font-bold tracking-widest uppercase">Live Connection</span>
+        </div>
+        <button onclick="adminLogout()" class="px-4 py-1.5 bg-red-500/20 text-red-400 rounded-lg text-xs font-bold border border-red-500/50 hover:bg-red-500/40">लॉगआउट</button>
+      </div>
     </header>
 
-    <div class="p-4 grid grid-cols-2 md:grid-cols-4 gap-4">
-      <div class="bg-slate-800 p-4 rounded-2xl border border-slate-700 text-center"><h3 class="text-slate-400 text-xs">Total Users</h3><p id="statUsers" class="text-2xl font-bold text-white">0</p></div>
+    <div class="p-4 grid grid-cols-2 md:grid-cols-5 gap-4">
+      <!-- 🔥 LIVE REAL-TIME ONLINE USERS CARD 🔥 -->
+      <div class="bg-gradient-to-tr from-emerald-900 to-slate-800 p-4 rounded-2xl border border-emerald-500/30 text-center shadow-lg transform hover:scale-105 transition">
+        <h3 class="text-emerald-400 text-[10px] font-bold uppercase tracking-widest mb-1">Live Online Now</h3>
+        <p id="statLiveUsers" class="text-4xl font-black text-white drop-shadow-md animate-pulse">0</p>
+      </div>
+
+      <div class="bg-slate-800 p-4 rounded-2xl border border-slate-700 text-center"><h3 class="text-slate-400 text-xs">Total Registered</h3><p id="statUsers" class="text-2xl font-bold text-white">0</p></div>
       <div class="bg-slate-800 p-4 rounded-2xl border border-slate-700 text-center"><h3 class="text-slate-400 text-xs">Total Posts</h3><p id="statPosts" class="text-2xl font-bold text-blue-400">0</p></div>
-      <div class="bg-slate-800 p-4 rounded-2xl border border-slate-700 text-center"><h3 class="text-slate-400 text-xs">Active Streams</h3><p id="statStreams" class="text-2xl font-bold text-emerald-400">0</p></div>
+      <div class="bg-slate-800 p-4 rounded-2xl border border-slate-700 text-center"><h3 class="text-slate-400 text-xs">Active Streams</h3><p id="statStreams" class="text-2xl font-bold text-pink-400">0</p></div>
       <div class="bg-slate-800 p-4 rounded-2xl border border-slate-700 text-center"><h3 class="text-slate-400 text-xs">Pending Creators</h3><p id="statPending" class="text-2xl font-bold text-amber-400">0</p></div>
     </div>
 
@@ -46,6 +61,8 @@
 
   <script>
     let adminToken = localStorage.getItem("sukoon_admin_token");
+    let adminSocket = null;
+
     if(adminToken) showDashboard();
 
     async function adminLogin() {
@@ -58,31 +75,53 @@
       } catch(e) { alert("लॉगिन फेल हो गया! सर्वर चेक करें।"); }
     }
 
-    function adminLogout() { localStorage.removeItem("sukoon_admin_token"); document.getElementById('adminDashboardSection').classList.add('hidden'); document.getElementById('adminLoginSection').classList.remove('hidden'); document.getElementById('adminLoginSection').classList.add('flex'); }
-    function showDashboard() { document.getElementById('adminLoginSection').classList.add('hidden'); document.getElementById('adminLoginSection').classList.remove('flex'); document.getElementById('adminDashboardSection').classList.remove('hidden'); fetchAdminData(); }
+    function adminLogout() { 
+      localStorage.removeItem("sukoon_admin_token"); 
+      if(adminSocket) adminSocket.disconnect();
+      document.getElementById('adminDashboardSection').classList.add('hidden'); document.getElementById('adminLoginSection').classList.remove('hidden'); document.getElementById('adminLoginSection').classList.add('flex'); 
+    }
+
+    function showDashboard() { 
+      document.getElementById('adminLoginSection').classList.add('hidden'); document.getElementById('adminLoginSection').classList.remove('flex'); 
+      document.getElementById('adminDashboardSection').classList.remove('hidden'); 
+      fetchAdminData();
+      
+      // 🔥 INITIALIZE LIVE SOCKET CONNECTION FOR ADMIN 🔥
+      if(!adminSocket) {
+        adminSocket = io();
+        adminSocket.on("global_online_count", (count) => {
+          document.getElementById('statLiveUsers').innerText = count || 0;
+        });
+        adminSocket.on("stream_list_updated", (streams) => {
+          document.getElementById('statStreams').innerText = streams.length;
+        });
+      }
+    }
 
     async function fetchAdminData() {
       try {
         const res = await fetch("/api/admin/dashboard"); const data = await res.json();
-        document.getElementById('statUsers').innerText = data.users.length; document.getElementById('statPosts').innerText = data.totalPosts; document.getElementById('statStreams').innerText = data.activeStreams;
+        document.getElementById('statLiveUsers').innerText = data.activeNow; // Initial Load
+        document.getElementById('statUsers').innerText = data.users.length; 
+        document.getElementById('statPosts').innerText = data.totalPosts; 
+        document.getElementById('statStreams').innerText = data.activeStreams;
         
         const list = document.getElementById('adminUsersList'); list.innerHTML = '';
         let pendingCount = 0;
 
         data.users.forEach(u => {
           if (u.role === 'creator' && !u.isApprovedCreator) pendingCount++;
-          
           let actionBtn = '';
-          if (u.role === 'creator' && !u.isApprovedCreator) { actionBtn = `<button onclick="approveCreator('${u.email}')" class="px-3 py-1 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg text-xs font-bold">Approve Live</button>`; } 
+          if (u.role === 'creator' && !u.isApprovedCreator) { actionBtn = `<button onclick="approveCreator('${u.email}')" class="px-3 py-1 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg text-xs font-bold shadow-md">Approve Live</button>`; } 
           else { actionBtn = `<span class="px-3 py-1 bg-slate-700 text-slate-400 rounded-lg text-xs">Approved</span>`; }
 
           list.innerHTML += `
-            <div class="flex items-center justify-between p-3 bg-slate-900 rounded-xl border border-slate-700">
+            <div class="flex items-center justify-between p-3 bg-slate-900 rounded-xl border border-slate-700 hover:border-slate-500 transition">
               <div class="flex items-center gap-3">
-                <img src="${u.avatar}" class="w-10 h-10 rounded-full border-2 border-slate-600">
-                <div><h4 class="text-sm font-bold text-white">${u.channelName} <span class="text-[10px] bg-blue-500/20 text-blue-400 px-1 rounded ml-1 uppercase">${u.role}</span></h4><p class="text-[10px] text-slate-400">${u.email}</p></div>
+                <img src="${u.avatar}" class="w-10 h-10 rounded-full border-2 border-slate-600 bg-slate-800">
+                <div><h4 class="text-sm font-bold text-white">${u.channelName} <span class="text-[10px] bg-blue-500/20 text-blue-400 px-1 rounded ml-1 uppercase border border-blue-500/30">${u.role}</span></h4><p class="text-[10px] text-slate-400 font-mono">${u.email}</p></div>
               </div>
-              <div class="flex gap-2">${actionBtn}<button onclick="deleteUser('${u.email}')" class="px-3 py-1 bg-red-600 hover:bg-red-500 text-white rounded-lg text-xs font-bold">Delete</button></div>
+              <div class="flex gap-2">${actionBtn}<button onclick="deleteUser('${u.email}')" class="px-3 py-1 bg-red-600 hover:bg-red-500 text-white rounded-lg text-xs font-bold shadow-md">Delete</button></div>
             </div>`;
         });
         document.getElementById('statPending').innerText = pendingCount;
@@ -91,12 +130,12 @@
 
     async function approveCreator(email) {
       if(confirm("इस क्रिएटर को लाइव जाने की परमिशन दें?")) {
-        try { const res = await fetch("/api/admin/approve-creator", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ email }) }); const data = await res.json(); if(data.success) { alert("अप्रूव हो गया!"); fetchAdminData(); } } catch(e){}
+        try { const res = await fetch("/api/admin/approve-creator", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ email }) }); const data = await res.json(); if(data.success) { fetchAdminData(); } } catch(e){}
       }
     }
     async function deleteUser(email) {
       if(confirm("क्या सच में इस यूज़र का अकाउंट डिलीट करना है?")) {
-        try { const res = await fetch("/api/admin/delete-user", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ email }) }); const data = await res.json(); if(data.success) { alert("डिलीट हो गया!"); fetchAdminData(); } } catch(e){}
+        try { const res = await fetch("/api/admin/delete-user", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ email }) }); const data = await res.json(); if(data.success) { fetchAdminData(); } } catch(e){}
       }
     }
   </script>
