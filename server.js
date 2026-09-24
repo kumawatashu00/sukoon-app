@@ -24,7 +24,7 @@ const saveDB = () => { if (saveTimeout) clearTimeout(saveTimeout); saveTimeout =
 setInterval(() => { const now = Date.now(); dbData.stories = dbData.stories.filter(s => now - s.timestamp < 86400000); saveDB(); }, 3600000);
 
 let liveStreams = []; const onlineLoggedInUsers = {};
-let audioRoomsHub = {}; // NEW: Group Audio Rooms
+let audioRoomsHub = {};
 
 function calculateDistanceKM(lat1, lon1, lat2, lon2) {
   const R = 6371; const dLat = (lat2 - lat1) * (Math.PI / 180); const dLon = (lon2 - lon1) * (Math.PI / 180);
@@ -32,7 +32,6 @@ function calculateDistanceKM(lat1, lon1, lat2, lon2) {
   const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a)); return Math.round(R * c);
 }
 
-// APIs
 app.get("/api/banner", (req, res) => res.json({ banner: dbData.banner }));
 app.post("/api/auth", (req, res) => {
   const { email, password, role, channelName, category, schedule, bio } = req.body;
@@ -109,7 +108,6 @@ io.on("connection", (socket) => {
     }
   });
 
-  // 1-on-1 Call Logic (Video/Text)
   socket.on("find_partner", ({ mode, tag }) => {
     waitingPool = waitingPool.filter(u => u.socketId !== socket.id);
     const user = { socketId: socket.id, mode: mode || "text", tag: tag || "All" };
@@ -128,11 +126,13 @@ io.on("connection", (socket) => {
   socket.on("send_media", ({ imageBase64 }) => { const roomId = userRooms[socket.id]; if (roomId) socket.to(roomId).emit("receive_media", { imageBase64 }); });
   socket.on("webrtc_signal", (data) => { const roomId = userRooms[socket.id]; if (roomId) socket.to(roomId).emit("webrtc_signal", data); });
   
+  // ✨ NEW: TYPING INDICATOR ✨
+  socket.on("typing", () => { const roomId = userRooms[socket.id]; if(roomId) socket.to(roomId).emit("partner_typing"); });
+
   socket.on("game_invite", () => { const roomId = userRooms[socket.id]; if(roomId) socket.to(roomId).emit("game_invite_received"); });
   socket.on("game_accept", () => { const roomId = userRooms[socket.id]; if(roomId) io.to(roomId).emit("game_started"); });
   socket.on("game_move", (idx) => { const roomId = userRooms[socket.id]; if(roomId) socket.to(roomId).emit("game_move_received", idx); });
 
-  // 🔴 CREATOR LIVE STREAM SOCKETS
   socket.on("start_stream", (streamData) => {
     const sId = "stream_" + socket.id;
     liveStreams.push({ streamId: sId, streamerSocketId: socket.id, streamerEmail: streamData.email, title: streamData.title || "Live", channelName: streamData.channelName || "Creator", avatar: streamData.avatar || "", viewers: 0 });
@@ -143,7 +143,6 @@ io.on("connection", (socket) => {
   socket.on("leave_stream", ({ streamId }) => { const stream = liveStreams.find(s => s.streamId === streamId); if (stream) { socket.leave(streamId); stream.viewers = Math.max(0, stream.viewers - 1); io.emit("stream_list_updated", liveStreams); } });
   socket.on("send_stream_chat", ({ streamId, text, senderName }) => { io.to(streamId).emit("receive_stream_chat", { senderName, text }); });
 
-  // 🎙️ GROUP AUDIO ROOMS LOGIC (NEW & ADVANCED)
   socket.on("get_audio_rooms", () => { socket.emit("audio_rooms_list", Object.values(audioRoomsHub)); });
   socket.on("create_audio_room", ({ roomName, userProfile }) => {
     const roomId = "audio_" + Date.now();
@@ -164,18 +163,8 @@ io.on("connection", (socket) => {
   socket.on("audio_webrtc_offer", ({ targetSocketId, sdp }) => { socket.to(targetSocketId).emit("audio_webrtc_offer", { fromSocketId: socket.id, sdp }); });
   socket.on("audio_webrtc_answer", ({ targetSocketId, sdp }) => { socket.to(targetSocketId).emit("audio_webrtc_answer", { fromSocketId: socket.id, sdp }); });
   socket.on("audio_webrtc_ice", ({ targetSocketId, candidate }) => { socket.to(targetSocketId).emit("audio_webrtc_ice", { fromSocketId: socket.id, candidate }); });
-  socket.on("audio_toggle_mic", ({ roomId, isMuted }) => {
-    if(audioRoomsHub[roomId]) {
-      const p = audioRoomsHub[roomId].participants.find(x => x.socketId === socket.id);
-      if(p) { p.isMuted = isMuted; io.to(roomId).emit("audio_participant_updated", p); }
-    }
-  });
-  socket.on("audio_raise_hand", ({ roomId, handRaised }) => {
-    if(audioRoomsHub[roomId]) {
-      const p = audioRoomsHub[roomId].participants.find(x => x.socketId === socket.id);
-      if(p) { p.handRaised = handRaised; io.to(roomId).emit("audio_participant_updated", p); }
-    }
-  });
+  socket.on("audio_toggle_mic", ({ roomId, isMuted }) => { if(audioRoomsHub[roomId]) { const p = audioRoomsHub[roomId].participants.find(x => x.socketId === socket.id); if(p) { p.isMuted = isMuted; io.to(roomId).emit("audio_participant_updated", p); } } });
+  socket.on("audio_raise_hand", ({ roomId, handRaised }) => { if(audioRoomsHub[roomId]) { const p = audioRoomsHub[roomId].participants.find(x => x.socketId === socket.id); if(p) { p.handRaised = handRaised; io.to(roomId).emit("audio_participant_updated", p); } } });
   socket.on("audio_send_reaction", ({ roomId, emoji }) => { io.to(roomId).emit("audio_reaction_received", { socketId: socket.id, emoji }); });
 
   const cleanup = () => {
@@ -200,4 +189,4 @@ io.on("connection", (socket) => {
 });
 
 const PORT = process.env.PORT || 5000;
-server.listen(PORT, () => console.log(`>>> Sukoon Ultimate Group Audio Active on port ${PORT}`));
+server.listen(PORT, () => console.log(`>>> Sukoon Master Active on port ${PORT}`));
