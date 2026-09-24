@@ -53,7 +53,7 @@
   <header class="px-4 py-3 bg-white/80 backdrop-blur-md border-b border-pink-200 flex justify-between items-center shrink-0 z-20 sticky top-0 shadow-sm">
     <div class="flex items-center gap-2 cursor-pointer" onclick="switchMainTab('home')">
       <div class="w-9 h-9 rounded-xl btn-blue flex items-center justify-center text-lg">🌿</div>
-      <div><h1 class="text-sm font-black tracking-widest text-blue-900 leading-none">SUKOON</h1><span class="text-[9px] text-pink-500 font-bold uppercase tracking-widest">Premium Social</span></div>
+      <div><h1 class="text-sm font-black tracking-widest text-blue-900 leading-none">SUKOON</h1><span class="text-[9px] text-pink-500 font-bold uppercase tracking-widest">Premium Social</span> <span class="ml-2 text-[10px] bg-emerald-100 text-emerald-600 px-2 py-0.5 rounded-full font-bold inline-flex items-center gap-1 border border-emerald-200"><span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span><span class="globalOnlineCountUI">0</span> Active</span></div>
     </div>
     <div id="authContainer" class="flex items-center gap-2">
       <button onclick="toggleAuthModal()" id="authNavBtn" class="px-4 py-1.5 rounded-xl btn-blue text-xs font-black uppercase tracking-wider">लॉगिन</button>
@@ -254,7 +254,7 @@
     let typingTimer;
     function initSocket() {
       if(socket) return; socket = io();
-      socket.on("global_online_count", c => { const el=document.getElementById("globalOnlineCountUI"); if(el) el.innerText=c||0; });
+      socket.on("global_online_count", c => { document.querySelectorAll(".globalOnlineCountUI").forEach(el => el.innerText = c || 0); });
       socket.on("partner_found", (data) => { 
         isInitiator=data.isInitiator; partnerCurrentSocketId=data.partnerSocketId; document.getElementById("videoWaitingNotice").classList.add("hidden"); 
         appendSystemMessage("Stranger Connected!"); playPopSound(); // ✨ SOUND EFFECT
